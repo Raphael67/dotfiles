@@ -1,0 +1,26 @@
+echo $SHELL
+clear
+exit
+mkdir ~/.local/share/atuin/
+atuin init nu | save ~/.local/share/atuin/init.nu
+exit
+hellp
+exit
+nvm --help
+go
+nvim
+brew install nvm
+nvm
+brew doctor
+nvim ~/dotfiles/
+darwin-rebuild switch --flake ~/dotfiles/nix-darwin#mbp
+nvim ~/dotfiles/
+darwin-rebuild switch --flake ~/dotfiles/nix-darwin#mbp
+nvim ~/dotfiles/
+exit
+darwin-rebuild switch --flake ~/dotfiles/nix-darwin#mbp
+git add .
+git commit -m "nvim setup and signal"
+brew search signal
+t
+exit

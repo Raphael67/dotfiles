@@ -1,0 +1,10 @@
+README.org
+docs
+.gitignore
+.git
+installer.sh
+zshrc.org
+udevmon.yaml
+keys
+systems
+nix-darwin

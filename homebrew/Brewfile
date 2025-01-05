@@ -1,0 +1,67 @@
+# Cross-platform make
+brew "cmake"
+# Command-line fuzzy finder written in Go
+brew "fzf"
+# GNU compiler collection
+brew "gcc"
+# Platform built on V8 to build network applications
+brew "node"
+# Python version management
+brew "pyenv"
+# Search tool like grep and The Silver Searcher
+brew "ripgrep"
+# Terminal multiplexer
+brew "tmux"
+# Plugin manager for tmux
+brew "tpm"
+# General-purpose lossless data-compression library
+brew "zlib"
+# Fish-like fast/unobtrusive autosuggestions for zsh
+brew "zsh-autosuggestions"
+# Fish shell like syntax highlighting for zsh
+brew "zsh-syntax-highlighting"
+# Cross-shell prompt for astronauts
+brew "starship"
+# Modern, maintained replacement for ls
+brew "eza"
+# A better cd command
+brew "zoxide"
+# Simple terminal UI for git commands
+brew "lazygit"
+# App to build and share containerized applications and microservices
+cask "docker"
+# Developer targeted fonts with a high number of glyphs
+cask "font-hack-nerd-font"
+# Developer targeted fonts with a high number of glyphs
+cask "font-jetbrains-mono-nerd-font"
+# Developer targeted fonts with a high number of glyphs
+cask "font-symbols-only-nerd-font"
+# GPU-accelerated cross-platform terminal emulator and multiplexer
+cask "wezterm"
+# Knowledge base that works on top of a local folder of plain text Markdown files
+cask "obsidian"
+# Open-source code editor
+cask "visual-studio-code"
+# Multimedia player
+cask "vlc"
+cask "whatsapp"
+cask "signal"
+cask "firefox"
+cask "bitwarden"
+cask "google-chrome"
+brew "neovim"
+brew "stow"
+cask "bambu-studio"
+cask "google-drive"
+cask "hammerspoon"
+brew "fastfetch"
+cask "microsoft-office-businesspro"
+brew "pam-reattach"
+brew "fd"
+brew "wget"
+brew "lua@5.1"
+brew "luarocks"
+brew "go"
+brew "openjdk"
+cask "tunnelblick"
+brew "gitleaks"

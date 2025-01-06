@@ -69,4 +69,7 @@ return {
       end
     end,
   },
+  {
+    "ThePrimeagen/vim-be-good",
+  },
 }

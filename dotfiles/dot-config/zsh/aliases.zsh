@@ -85,3 +85,6 @@ alias ls="eza --all --icons=always"
 
 # Lazygit
 alias lg="lazygit"
+
+# New obsidian notes in nvim
+alias oo="v /Users/raphael/Library/Mobile Documents/iCloud~md~obsidian/Documents/"

@@ -32,7 +32,13 @@ require("lazy").setup({
   require("plugins.autocompletion"),
   require("plugins.none-ls"),
   require("plugins.lualine"),
-  require("plugins.bufferline"),
+  {
+    "akinsho/bufferline.nvim",
+    dependencies = {
+      "moll/vim-bbye",
+      "nvim-tree/nvim-web-devicons",
+    },
+  },
   require("plugins.neotree"),
   require("plugins.indent-blankline"),
   require("plugins.lazygit"),
@@ -110,5 +116,5 @@ end
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
-
+require("plugins.bufferline")
 require("plugins.obsidian")

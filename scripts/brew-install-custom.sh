@@ -27,3 +27,10 @@ if [ "$(basename "$0")" = "$(basename "${BASH_SOURCE[0]}")" ]; then
 
     run_brew_bundle
 fi
+
+mas install 1616831348 # Affinity designer 2
+mas install 1606941598 # Affinity publisher 2
+mas install 1616822987 # Affinity photo 2
+mas install 409201541  # pages
+mas install 409203825  # numbers
+mas install 409183694  # keynote

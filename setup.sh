@@ -49,7 +49,7 @@ if [[ "$install_apps" == "y" ]]; then
 
     rm -rf ~/.config/tmux/plugins/tpm
     git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
-    starship preset tokyo-night -o ~/.config/starship.toml
+    starship -o ~/.config/starship.toml
 fi
 
 printf "\n"

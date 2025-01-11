@@ -25,7 +25,6 @@ vim.opt.rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require("lazy").setup({
-  require("plugins.colortheme"),
   require("plugins.telescope"),
   require("plugins.treesitter"),
   require("plugins.lsp"),
@@ -70,6 +69,17 @@ require("lazy").setup({
       -- see below for full list of optional dependencies 👇
     },
   },
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    priority = 1000,
+    config = function()
+      require("catppuccin").setup()
+
+      -- setup must be called before loading
+      vim.cmd.colorscheme("catppuccin")
+    end,
+  },
 }, {
   ui = {
     -- If you have a Nerd Font, set icons to an empty table which will use the
@@ -92,7 +102,7 @@ require("lazy").setup({
   },
 })
 
-vim.cmd([[colorscheme tokyonight-storm]])
+vim.cmd.colorscheme("catppuccin")
 
 -- Function to check if a file exists
 local function file_exists(file)

@@ -1,8 +1,8 @@
-local wezterm = require 'wezterm'
+local wezterm = require("wezterm")
 local config = {}
 
 if wezterm.config_builder then
-  config = wezterm.config_builder()
+	config = wezterm.config_builder()
 end
 
 config = {
@@ -11,8 +11,8 @@ config = {
 	window_close_confirmation = "NeverPrompt",
 	-- window_decorations = ""RESIZE", -- disable the title but enable the resizable border
 	default_cursor_style = "BlinkingBar",
-	color_scheme = "Tokyo Night Storm (Gogh)",
-	font = wezterm.font("JetBrains Mono", { weight = "Bold" }),
+	color_scheme = "Catppuccin Mocha",
+	font = wezterm.font("JetBrains Mono"),
 	font_size = 12.5,
 	background = {
 		{
@@ -42,11 +42,9 @@ config = {
 		top = 0,
 		bottom = 0,
 	},
-
 }
 
 return config
-
 
 -- return {
 -- 	adjust_window_size_when_changing_font_size = false,

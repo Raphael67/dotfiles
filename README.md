@@ -17,3 +17,9 @@ Add a pre-commit hook to avoid leaking secrets
 ```
 cp ./hooks/pre-commit .git/hooks
 ```
+
+# Inspired by
+
+- https://github.com/omerxx/dotfiles/blob/master/tmux/tmux.conf
+- https://github.com/elliottminns/dotfiles
+- https://github.com/hendrikmi/dotfiles

@@ -15,7 +15,7 @@ require("obsidian").setup({
 					-- Optional, if you keep daily notes in a separate directory.
 					folder = "Zettelkasten/dailies",
 					-- Optional, if you want to change the date format for the ID of daily notes.
-					date_format = "%Y-%M-%d",
+					date_format = "%Y-%m-%d",
 					-- Optional, if you want to change the date format of the default alias of daily notes.
 					alias_format = "%B %-d, %Y",
 					-- Optional, default tags to add to each new daily note created.
@@ -309,7 +309,7 @@ require("obsidian").setup({
 		-- The default folder to place images in via `:ObsidianPasteImg`.
 		-- If this is a relative path it will be interpreted as relative to the vault root.
 		-- You can always override this per image by passing a full path to the command instead of just a filename.
-		img_folder = "assets/imgs", -- This is the default
+		img_folder = "Media", -- This is the default
 
 		-- Optional, customize the default name or prefix when pasting images via `:ObsidianPasteImg`.
 		---@return string
@@ -331,4 +331,6 @@ require("obsidian").setup({
 	},
 })
 
-vim.keymap.set("n", "<leader>o", ":ObsidianToday<CR>", { desc = "Create new daily note" })
+vim.keymap.set("n", "<leader>od", ":ObsidianToday<CR>", { desc = "Create new daily note" })
+vim.keymap.set("n", "<leader>on", ":ObsidianNew<CR>", { desc = "Create new note" })
+vim.keymap.set("n", "<leader>of", ":ObsidianSearch<CR>", { desc = "Search note" })

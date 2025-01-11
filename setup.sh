@@ -47,8 +47,8 @@ if [[ "$install_apps" == "y" ]]; then
     echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>/Users/raphael/.zprofile
     eval "$(/opt/homebrew/bin/brew shellenv)"
 
-    rm -rf ~/.tmux/plugins/tpm
-    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+    rm -rf ~/.config/tmux/plugins/tpm
+    git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
     starship preset tokyo-night -o ~/.config/starship.toml
 fi
 

@@ -3,3 +3,4 @@ dotfiles/dot-config/tmux/plugins
 .DS_Store
 dotfiles/dot-config/github-copilot
 dotfiles/dot-config/raycast/extensions
+dotfiles/dot-config/go

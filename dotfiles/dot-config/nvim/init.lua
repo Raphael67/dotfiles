@@ -51,6 +51,9 @@ require("lazy").setup({
   require("plugins.aerial"),
   require("plugins.vim-tmux-navigator"),
   {
+    "github/copilot.vim",
+  },
+  {
     "epwalsh/obsidian.nvim",
     version = "*", -- recommended, use latest release instead of latest commit
     lazy = true,
@@ -128,3 +131,5 @@ end
 -- vim: ts=2 sts=2 sw=2 et
 require("plugins.bufferline")
 require("plugins.obsidian")
+
+vim.opt.spelllang = "en_gb,fr"

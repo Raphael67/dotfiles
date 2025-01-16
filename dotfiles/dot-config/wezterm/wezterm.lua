@@ -13,7 +13,9 @@ config = {
 	default_cursor_style = "BlinkingBar",
 	color_scheme = "Catppuccin Mocha",
 	font = wezterm.font("JetBrains Mono"),
-	font_size = 12.5,
+	font_size = 13,
+	underline_thickness = 3,
+	underline_position = -4,
 	background = {
 		{
 			source = {

@@ -23,3 +23,4 @@ cp ./hooks/pre-commit .git/hooks
 - https://github.com/omerxx/dotfiles/blob/master/tmux/tmux.conf
 - https://github.com/elliottminns/dotfiles
 - https://github.com/hendrikmi/dotfiles
+- https://gitlab.com/obxhdx/dotfiles

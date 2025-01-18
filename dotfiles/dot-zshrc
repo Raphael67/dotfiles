@@ -17,7 +17,7 @@ export ZSH=$HOME/.oh-my-zsh
 
 # tmux integration
 ZSH_TMUX_AUTOSTART=true
-ZSH_TMUX_DEFAULT_SESSION_NAME="tmux"
+# ZSH_TMUX_DEFAULT_SESSION_NAME="tmux"
 # TMUX_THEME="onedark"
 
 # Which plugins would you like to load?

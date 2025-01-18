@@ -54,23 +54,6 @@ require("lazy").setup({
     "github/copilot.vim",
   },
   {
-    "epwalsh/obsidian.nvim",
-    version = "*", -- recommended, use latest release instead of latest commit
-    lazy = true,
-    -- ft = "markdown",
-    -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
-    event = {
-      --   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
-      --   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/**.md"
-      "BufReadPre /Users/raphael/Library/Mobile Documents/iCloud~md~obsidian/Documents/*.md",
-      "BufNewFile /Users/raphael/Library/Mobile Documents/iCloud~md~obsidian/Documents/*.md",
-    },
-    dependencies = {
-      -- Required.
-      "nvim-lua/plenary.nvim",
-    },
-  },
-	{
 		"catppuccin/nvim",
 		name = "catppuccin",
 		priority = 1000,
@@ -146,6 +129,5 @@ end
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
 require("plugins.bufferline")
-require("plugins.obsidian")
 
 vim.opt.spelllang = "en_gb,fr"

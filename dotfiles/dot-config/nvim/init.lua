@@ -68,6 +68,8 @@ require("lazy").setup({
     dependencies = {
       -- Required.
       "nvim-lua/plenary.nvim",
+    },
+  },
 	{
 		"catppuccin/nvim",
 		name = "catppuccin",
@@ -95,24 +97,10 @@ require("lazy").setup({
 				},
 			})
 
-      -- see below for full list of optional dependencies 👇
-    },
-  },
-  {
-    "catppuccin/nvim",
-    name = "catppuccin",
-    priority = 1000,
-    config = function()
-      require("catppuccin").setup()
-
       -- setup must be called before loading
-      vim.cmd.colorscheme("catppuccin")
+      vim.cmd.colorscheme("catppuccin-macchiato") -- catppuccin-latte, catppuccin-frappe, catppuccin-macchiato, catppuccin-mocha
     end,
   },
-			-- setup must be called before loading
-			vim.cmd.colorscheme("catppuccin-macchiato") -- catppuccin-latte, catppuccin-frappe, catppuccin-macchiato, catppuccin-mocha
-		end,
-	},
 }, {
   ui = {
     -- If you have a Nerd Font, set icons to an empty table which will use the

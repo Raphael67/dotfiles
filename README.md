@@ -25,7 +25,7 @@ https://github.com/pqrs-org/Karabiner-Elements/issues/3620
 
 # Inspired by
 
-- https://github.com/omerxx/dotfiles/blob/master/tmux/tmux.conf
+- https://github.com/omerxx/dotfiles
 - https://github.com/elliottminns/dotfiles
 - https://github.com/hendrikmi/dotfiles
 - https://gitlab.com/obxhdx/dotfiles

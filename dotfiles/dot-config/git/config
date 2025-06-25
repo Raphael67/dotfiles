@@ -1,0 +1,112 @@
+[user]
+name = Raphael
+email = 7124317+Raphael67@users.noreply.github.com
+gpgSign = true
+
+[pull]
+rebase = true
+default = current # Pull the current branch from the remote branch of the same name
+
+[rebase]
+autostash = true           # Automatically stash changes before rebasing
+missingCommitsCheck = warn # Warn if there are missing commits during rebase
+
+[init]
+defaultBranch = main
+
+[commit]
+template = ~/.config/git/template/gitmessage
+
+[tag]
+gpgSign = true
+
+[filter "lfs"]
+clean = git-lfs clean -- %f
+smudge = git-lfs smudge -- %f
+process = git-lfs filter-process
+required = true
+
+[gpg]
+program = gpg
+
+[difftool "sourcetree"]
+cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+path =
+
+[mergetool "sourcetree"]
+cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+trustExitCode = true
+
+[core]
+compression = 9     # Save bandwidth and disk space
+whitespace = error  # Error on trailing whitespace
+preloadindex = true # Improve performance by preloading the index
+
+[advice]
+addEmptyPathspec = false
+pushNonFastForward = false
+statusHint = false
+
+[status]
+branch = true            # Show branch information in status
+showStash = true         # Show stash information in status
+showUntrackedFiles = all # Show all untracked files in status without grouping them into directories
+
+[log]
+abbrevCommit = true                              # Use abbreviated commit hashes
+graphColors = blue,yellow,cyan,magenta,green,red # Colors for the log graph
+
+[color "decorate"]
+HEAD = red
+branch = blue
+tag = yellow
+remoteBranch = magenta
+
+[color "branch"]
+current = magenta
+local = default
+remote = yellow
+upstream = green
+plain = blue
+
+[branch]
+sort = -committerdate # Sort branches by the date of the last commit
+
+[tag]
+sort = -taggerdate # Sort tags by the date of the last commit
+
+[diff]
+context = 3           # More compact results
+renames = copies      # Detect renames and copies
+interHunkContext = 10 # Show more context between hunks
+
+[pager]
+diff = diff-so-fancy | $PAGER
+branch = false
+tag = false
+
+[diff-so-fancy]
+markEmptyLines = false
+
+[color "diff"]
+meta = black bold
+frag = magenta
+context = white
+whitespace = yellow reverse
+old = red
+
+[interactive]
+diffFilter = diff-so-fancy --patch
+singleKey = true
+
+[push]
+autoSetupRemote = always # Automatically set up tracking branches when pushing
+default = current        # Push the current branch to the remote branch of the same name
+followTags = true        # Push tags when pushing branches
+
+# URL shortener
+[url "git@github.com:"]
+insteadOf = "gh:"
+
+[url "git@gitlab.com:"]
+insteadOf = "gl:"

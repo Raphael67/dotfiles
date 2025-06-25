@@ -100,9 +100,9 @@ diffFilter = diff-so-fancy --patch
 singleKey = true
 
 [push]
-autoSetupRemote = always # Automatically set up tracking branches when pushing
-default = current        # Push the current branch to the remote branch of the same name
-followTags = true        # Push tags when pushing branches
+autoSetupRemote = true # Automatically set up tracking branches when pushing
+default = current      # Push the current branch to the remote branch of the same name
+followTags = true      # Push tags when pushing branches
 
 # URL shortener
 [url "git@github.com:"]

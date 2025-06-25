@@ -4,129 +4,90 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a comprehensive personal dotfiles repository that manages system configuration and application setup across macOS. The repository uses GNU Stow for symlink management and includes automated setup scripts.
+This is a comprehensive macOS dotfiles repository that uses GNU Stow for configuration management. It automates the complete setup of a development environment including shell, editors, terminal multiplexers, and system preferences.
 
 ## Architecture
 
-### Directory Structure
+### Stow-based Configuration Management
+- Configurations are stored in `dotfiles/` directory
+- Files prefixed with `dot-` get symlinked without the prefix (e.g., `dot-zshrc` → `~/.zshrc`)
+- Directory structure mirrors the target home directory structure
 
-- `dotfiles/` - Contains all configuration files organized by application
-  - `dot-config/` - XDG config directory structure (.config)
-  - `dot-profile` - Shell profile configuration
-  - `dot-zshrc` - Zsh shell configuration
-- `homebrew/Brewfile` - Package management via Homebrew Bundle
-- `scripts/` - Setup and utility scripts
-- `hooks/` - Git hooks for security
-
-### Configuration Management
-
-The repository uses Stow to create symlinks from `dotfiles/` to the home directory. Files prefixed with `dot-` are mapped to dotfiles (e.g., `dot-zshrc` → `~/.zshrc`).
+### Modular Organization
+- **Neovim**: Full Lua configuration with lazy.nvim plugin manager (`dotfiles/dot-config/nvim/`)
+- **Tmux**: Comprehensive setup with TPM plugin manager (`dotfiles/dot-config/tmux/`)
+- **Shell**: Zsh with Oh My Zsh, Starship prompt, and modern CLI tools replacements
+- **Git**: Professional setup with GPG signing and commit templates
+- **System**: macOS-specific configurations and homebrew package management
 
 ## Common Commands
 
-### Initial Setup
-
+### Installation and Setup
 ```bash
+# Complete environment setup (interactive)
 ./setup.sh
+
+# Manual tmux plugin installation (if needed)
+git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+# Then press Ctrl+I in tmux to install plugins
+
+# Install git pre-commit hook to prevent secret leakage
+cp ./hooks/pre-commit .git/hooks
 ```
 
-This runs the complete dotfiles installation including:
+### Development Workflow
+```bash
+# Apply configuration changes (after editing files in dotfiles/)
+stow -t ~ dotfiles
 
-- Installing Xcode Command Line Tools and Homebrew
-- Installing applications via Brewfile
-- Setting up shell environment (oh-my-zsh, plugins)
-- Configuring tmux with TPM
-- Setting macOS system defaults
-- Symlinking dotfiles with Stow
+# Remove/unstow configurations
+stow -D -t ~ dotfiles
+
+# Reload configurations
+source ~/.zshrc  # for shell changes
+tmux source-file ~/.config/tmux/tmux.conf  # for tmux changes
+```
 
 ### Package Management
-
 ```bash
-# Install/update all packages
+# Install/update homebrew packages
 brew bundle --file=homebrew/Brewfile
 
-# Install packages without applications
-brew bundle --file=homebrew/Brewfile --no-cask
+# Add new packages
+echo 'brew "package-name"' >> homebrew/Brewfile
 ```
 
-### Tmux Plugin Management
+## Key Configuration Patterns
 
-```bash
-# Install TPM (Tmux Plugin Manager)
-git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+### Performance Optimizations
+- Version managers (pyenv, nvm, jenv) use lazy loading to improve shell startup time
+- Zsh configurations include evalcache plugin for expensive command caching
+- Shell performance can be benchmarked with built-in aliases
 
-# Install plugins (within tmux)
-<prefix> + I  # Ctrl-b + I by default
+### Theme Consistency
+- Catppuccin theme is used consistently across all applications
+- Nerd Fonts provide icon integration throughout terminal applications
+- Modern CLI tools replace traditional ones (eza for ls, bat for cat, zoxide for cd)
 
-# Reload tmux config
-<prefix> + r  # Ctrl-b + r
-```
+### Security
+- GPG signing enabled for git commits and tags
+- Pre-commit hook prevents secret leakage using gitleaks
+- Karabiner keyboard modifications for enhanced security shortcuts
 
-### Neovim Setup
+## Troubleshooting
 
-Neovim uses lazy.nvim as the plugin manager. Plugins are auto-installed on first launch.
+### Karabiner Issues
+If Karabiner Elements doesn't work properly, check: https://github.com/pqrs-org/Karabiner-Elements/issues/3620
 
-```bash
-# Update plugins
-:Lazy update
+### Common Setup Issues
+- Ensure Xcode Command Line Tools are installed before running setup
+- For Apple Silicon Macs, Homebrew path may need manual addition to shell profile
+- Tmux plugins require manual installation if TPM setup fails during automated install
 
-# Check plugin status
-:Lazy
-```
+## Important Files
 
-### Dotfile Updates
-
-```bash
-# Apply dotfile changes
-stow .
-
-# Force overwrite existing files
-stow --adopt .
-```
-
-## Key Components
-
-### Shell Environment
-
-- **Zsh** with oh-my-zsh framework
-- **Starship** prompt with custom Catppuccin theme
-- **Zoxide** for smart directory navigation
-- **EZA** as modern ls replacement
-
-### Terminal Multiplexer
-
-- **Tmux** with extensive plugin ecosystem via TPM
-- Session persistence with tmux-resurrect/continuum
-
-### Editor Configuration
-
-- **Neovim** with Lua configuration
-- **Lazy.nvim** plugin manager
-- LSP, autocompletion, and debugging setup
-- Catppuccin colorscheme consistency
-
-### Development Tools
-
-- Git configuration with custom ignore patterns
-- Lazygit for terminal Git UI
-- GitHub Copilot integration
-- Karabiner-Elements for keyboard customization
-
-## Security
-
-The repository includes a pre-commit hook that prevents committing secrets:
-
-```bash
-cp ./hooks/pre-commit .git/hooks/
-```
-
-This hook uses gitleaks to scan for potential secrets before commits.
-
-## Theme Consistency
-
-All applications use the Catppuccin color scheme (specifically Macchiato variant) for visual consistency across:
-
-- Terminal (WezTerm)
-- Shell prompt (Starship)
-- Editor (Neovim)
-- Multiplexer (Tmux)
+- `setup.sh`: Main installation script with interactive prompts
+- `homebrew/Brewfile`: Complete package manifest for development environment
+- `dotfiles/dot-config/nvim/`: Modular Neovim configuration with separate plugin files
+- `dotfiles/dot-config/tmux/tmux.conf`: Comprehensive tmux configuration
+- `scripts/`: Utility scripts for installation and system configuration

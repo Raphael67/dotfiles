@@ -1,5 +1,10 @@
 #!/usr/sbin/bash
 
+printf "\n"
+printf "====================\n"
+printf "locales\n"
+printf "====================\n"
+
 # Configure locales
 if ! grep -q "^en_US.UTF-8 UTF-8" /etc/locale.gen; then
     echo "en_US.UTF-8 UTF-8" | sudo tee -a /etc/locale.gen
@@ -8,14 +13,10 @@ if ! grep -q "^en_US.UTF-8 UTF-8" /etc/locale.gen; then
     echo "LANG=fr_FR.UTF-8" | sudo tee /etc/locale.conf
 fi
 
-sudo pacman -Syu
-
-sudo pacman -Sy --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib wezterm fastfetch wget luarocks go lua51 neovim fd fzf lazygit
-
-cd ~
-git clone https://aur.archlinux.org/yay.git
-cd yay
-makepkg -si
+printf "\n"
+printf "====================\n"
+printf "Pacman\n"
+printf "====================\n"
 
 # Add multilib repository if not already present
 if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
@@ -24,19 +25,53 @@ if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
 Include = /etc/pacman.d/mirrorlist
 EOT
 fi
+# Add multilib repository if not already present
+if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
+    sudo tee -a /etc/pacman.conf >/dev/null <<EOT
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+EOT
+fi
 
-yay -S nvidia-dkms nvidia-utils lib32-nvidia-utils
+sudo pacman -Syu
 
+sudo pacman -Sy --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib wezterm fastfetch wget luarocks go lua51 neovim fd fzf lazygit
+
+printf "\n"
+printf "====================\n"
+printf "Yay\n"
+printf "====================\n"
+
+rm -rf yay
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -si
+cd ..
+rm -rf yay
+
+yay -Syu nvidia-dkms nvidia-utils lib32-nvidia-utils
+
+printf "\n"
+printf "====================\n"
+printf "Zsh\n"
+printf "====================\n"
+
+echo "setup zsh"
+yay -Syu chruby
 rm -rf ~/.oh-my-zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 git clone https://github.com/mroth/evalcache ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/evalcache
+rm ~/.zshrc
 
 # Change default shell to zsh
-chsh -s /usr/bin/zsh
+sudo chsh -s /usr/bin/zsh $USER
 
-stow .
+printf "\n"
+printf "====================\n"
+printf "Rust\n"
+printf "====================\n"
 
 if ! command -v rustup >/dev/null 2>&1; then
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -45,4 +80,16 @@ fi
 
 cargo install starship eza zoxide ripgrep
 
+printf "\n"
+printf "====================\n"
+printf "Claude\n"
+printf "====================\n"
+
 sudo npm install -g @anthropic-ai/claude-code
+
+printf "\n"
+printf "====================\n"
+printf "Stow\n"
+printf "====================\n"
+
+stow .

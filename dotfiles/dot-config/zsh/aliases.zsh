@@ -19,47 +19,45 @@ alias gbr='git branch -r'
 alias gc='git commit -v'
 alias gcanenv='git commit --amend --no-edit --no-verify'
 alias gcl="git clone"
-alias gcm='git commit -m'
 alias gcmnv='git commit --no-verify -m'
 alias gco='git checkout '
-alias gcob='git checkout -b '
 alias gcofzf='git branch | fzf | xargs git checkout' # Select branch with fzf
 alias gd="git diff --output-indicator-new=' ' --output-indicator-old=' ' --color=always"
 alias gds="git diff --staged"
 alias gf='git fetch'
 alias ggpush='git push origin $(current_branch)'
 alias gi="git init"
-alias gl="git log --all --graph --max-count=5 --decorate --pretty=format:'%C(magenta)%h %C(white) %an %ar%C(auto) %D%n%s%n'"
-alias glo='git pull origin'
+alias gl="git log --all --graph --pretty=format:'%C(magenta)%h %C(white) %an %ar%C(auto) %D%n%s%n'"
+alias glgg='git log --graph --max-count=5 --decorate --pretty="oneline"'
 alias gm='git merge'
 alias gp='git push'
 alias gpo='git push origin'
 alias gre='git remote'
 alias gres='git remote show'
-alias grfzf='git diff --name-only | fzf -m --print0 | xargs -0 -o -t git restore' # Git restore with fzf
+alias grfzf='git diff --name-only | fzf -m --print0 | xargs -0 -o -t git restore'              # Git restore with fzf
 alias grmfzf='git ls-files -m -o --exclude-standard | fzf -m --print0 | xargs -0 -o -t git rm' # Git rm with fzf
-alias grsfzf='git diff --name-only | fzf -m --print0 | xargs -0 -o -t git restore --staged' # Git restore --staged with fzf
-alias gs='git status --short'
-alias gss='git status -s'
+alias grsfzf='git diff --name-only | fzf -m --print0 | xargs -0 -o -t git restore --staged'    # Git restore --staged with fzf
+alias gs="git status --short"
 alias gtd='git tag --delete'
 alias gtdr='git tag --delete origin'
-alias gu='git pull --ff'
+alias gu="git pull"
 alias gup='git fetch && git rebase'
+
 # Function to commit with ticket ID from current branch, with optional push
 quick_commit() {
-  local branch_name ticket_id commit_message push_flag
-  branch_name=$(git branch --show-current)
-  ticket_id=$(echo "$branch_name" | awk -F '-' '{print toupper($1"-"$2)}')
-  commit_message="$ticket_id: $*"
-  push_flag=$1
+    local branch_name ticket_id commit_message push_flag
+    branch_name=$(git branch --show-current)
+    ticket_id=$(echo "$branch_name" | awk -F '-' '{print toupper($1"-"$2)}')
+    commit_message="$ticket_id: $*"
+    push_flag=$1
 
-  if [[ "$push_flag" == "push" ]]; then
-    # Remove 'push' from the commit message
-    commit_message="$ticket_id: ${*:2}" # take all positional parameters starting from the second one
-    git commit --no-verify -m "$commit_message" && git push
-  else
-    git commit --no-verify -m "$commit_message"
-  fi
+    if [[ "$push_flag" == "push" ]]; then
+        # Remove 'push' from the commit message
+        commit_message="$ticket_id: ${*:2}" # take all positional parameters starting from the second one
+        git commit --no-verify -m "$commit_message" && git push
+    else
+        git commit --no-verify -m "$commit_message"
+    fi
 }
 
 alias gqc='quick_commit'
@@ -68,11 +66,11 @@ alias gqcp='quick_commit push'
 # Neovim
 # If poetry is installed and an environment exists, run "poetry run nvim"
 poetry_run_nvim() {
-  if command -v poetry >/dev/null 2>&1 && [ -f "poetry.lock" ]; then
-    poetry run nvim "$@"
-  else
-    nvim "$@"
-  fi
+    if command -v poetry >/dev/null 2>&1 && [ -f "poetry.lock" ]; then
+        poetry run nvim "$@"
+    else
+        nvim "$@"
+    fi
 }
 alias vi='poetry_run_nvim'
 alias v='poetry_run_nvim'

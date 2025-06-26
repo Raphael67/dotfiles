@@ -28,6 +28,7 @@ ZSH_TMUX_AUTOSTART=true
 plugins=(evalcache tmux zsh-autosuggestions zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
+source ~/.config/zsh/aliases.zsh
 
 # User configuration
 
@@ -37,7 +38,7 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 # This speeds up pasting w/ autosuggest
 # https://github.com/zsh-users/zsh-autosuggestions/issues/238
 pasteinit() {
-  OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
+  OLD_SELF_INSERT=${widgets[self-insert]}
   zle -N self-insert url-quote-magic # I wonder if you'd need `.url-quote-magic`?
 }
 pastefinish() {
@@ -50,7 +51,9 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste)
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(backward-delete-char)
 # Disable underline
-(( ${+ZSH_HIGHLIGHT_STYLES} )) || typeset -A ZSH_HIGHLIGHT_STYLES
+if [[ -z ${(t)ZSH_HIGHLIGHT_STYLES} || ${(t)ZSH_HIGHLIGHT_STYLES} != *assoc* ]]; then
+  typeset -A ZSH_HIGHLIGHT_STYLES
+fi
 ZSH_HIGHLIGHT_STYLES[path]=none
 ZSH_HIGHLIGHT_STYLES[path_prefix]=none
 
@@ -238,7 +241,7 @@ source /opt/homebrew/opt/chruby/share/chruby/auto.sh
 chruby ruby-3.3.5
 
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=(/Users/raphael/.docker/completions $fpath)
+fpath=($HOME/.docker/completions $fpath)
 autoload -Uz compinit
 compinit
 # End of Docker CLI completions

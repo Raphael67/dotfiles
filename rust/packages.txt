@@ -1,0 +1,12 @@
+# Cross-shell prompt for astronauts
+starship
+# Search tool like grep and The Silver Searcher
+ripgrep
+# A simple, fast and user-friendly alternative to 'find'
+fd-find
+# A cat clone with wings
+bat
+# A modern, maintained replacement for ls
+eza
+# A smarter cd command
+zoxide

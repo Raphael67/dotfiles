@@ -51,7 +51,7 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste)
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(backward-delete-char)
 # Disable underline
-if [[ -z ${(t)ZSH_HIGHLIGHT_STYLES} || ${(t)ZSH_HIGHLIGHT_STYLES} != *assoc* ]]; then
+if [[ -z "${ZSH_HIGHLIGHT_STYLES+x}" || "$(typeset -p ZSH_HIGHLIGHT_STYLES 2>/dev/null)" != *"declare -A"* ]]; then
   typeset -A ZSH_HIGHLIGHT_STYLES
 fi
 ZSH_HIGHLIGHT_STYLES[path]=none

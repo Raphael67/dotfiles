@@ -28,6 +28,9 @@ vim.keymap.set("n", "<leader>sn", "<cmd>noautocmd w <CR>", opts)
 -- quit file
 vim.keymap.set("n", "<C-q>", "<cmd> q <CR>", opts)
 
+-- Remap :q to quit all buffers/windows
+vim.keymap.set("n", "q", "<cmd>qa<CR>", opts)
+
 -- delete single character without copying into register
 vim.keymap.set("n", "x", '"_x', opts)
 

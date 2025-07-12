@@ -247,3 +247,8 @@ alias gcl="git clone"
 alias gd="git diff --output-indicator-new=' ' --output-indicator-old=' ' --color=always"
 alias gap="git add --patch"
 alias gds="git diff --staged"
+# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+fpath=(/Users/raphael/.docker/completions $fpath)
+autoload -Uz compinit
+compinit
+# End of Docker CLI completions

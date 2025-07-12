@@ -23,7 +23,8 @@ palette = "catppuccin_macchiato"
 [directory]
 style = "fg:#e3e5e5 bg:#769ff0"
 format = "[ $path ]($style)"
-truncation_length = 3
+truncation_length = 0
+truncate_to_repo = false
 truncation_symbol = "…/"
 
 [directory.substitutions]

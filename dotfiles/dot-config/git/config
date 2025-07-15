@@ -41,6 +41,7 @@ trustExitCode = true
 compression = 9     # Save bandwidth and disk space
 whitespace = error  # Error on trailing whitespace
 preloadindex = true # Improve performance by preloading the index
+editor = code --wait
 
 [advice]
 addEmptyPathspec = false

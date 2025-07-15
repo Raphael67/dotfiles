@@ -155,9 +155,7 @@ unset ELECTRON_RUN_AS_NODE
 # zoxide
 if type zoxide > /dev/null
 then
-  _evalcache zoxide init zsh
-  alias cd="z"
-  alias cdi="zi"
+  _evalcache zoxide init zsh --cmd cd
 fi
 
 # eza

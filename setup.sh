@@ -36,6 +36,7 @@ if [[ "$install_apps" == "y" ]]; then
     fi
 
     npm install -g neovim
+    npm install -g @bitwarden/cli
 
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"

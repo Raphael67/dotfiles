@@ -47,38 +47,38 @@ require("lazy").setup({
   require("plugins.database"),
   require("plugins.misc"),
   require("plugins.harpoon"),
-  require("plugins.chatgpt"),
   require("plugins.aerial"),
   require("plugins.vim-tmux-navigator"),
+  require("plugins.claude"),
   {
     "github/copilot.vim",
   },
   {
-		"catppuccin/nvim",
-		name = "catppuccin",
-		priority = 1000,
-		config = function()
-			require("catppuccin").setup({
-				integrations = {
-					aerial = true,
-					harpoon = true,
-					mason = true,
-					neotree = true,
-					copilot_vim = true,
-					which_key = true,
-					cmp = true,
-					gitsigns = true,
-					nvimtree = true,
-					treesitter = true,
-					notify = true,
-					telescope = true,
-					bufferline = true,
-					mini = {
-						enabled = true,
-						indentscope_color = "",
-					},
-				},
-			})
+    "catppuccin/nvim",
+    name = "catppuccin",
+    priority = 1000,
+    config = function()
+      require("catppuccin").setup({
+        integrations = {
+          aerial = true,
+          harpoon = true,
+          mason = true,
+          neotree = true,
+          copilot_vim = true,
+          which_key = true,
+          cmp = true,
+          gitsigns = true,
+          nvimtree = true,
+          treesitter = true,
+          notify = true,
+          telescope = true,
+          bufferline = true,
+          mini = {
+            enabled = true,
+            indentscope_color = "",
+          },
+        },
+      })
 
       -- setup must be called before loading
       vim.cmd.colorscheme("catppuccin-macchiato") -- catppuccin-latte, catppuccin-frappe, catppuccin-macchiato, catppuccin-mocha

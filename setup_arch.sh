@@ -1,4 +1,4 @@
-#!/usr/sbin/bash
+#!/usr/bin/bash
 
 printf "\n"
 printf "====================\n"

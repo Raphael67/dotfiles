@@ -15,6 +15,13 @@ fi
 
 printf "\n"
 printf "====================\n"
+printf "Cleaning\n"
+printf "====================\n"
+
+sudo rm -rf ~/.cache ~/.zsh-evalcache
+
+printf "\n"
+printf "====================\n"
 printf "Pacman\n"
 printf "====================\n"
 
@@ -25,14 +32,8 @@ if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
 Include = /etc/pacman.d/mirrorlist
 EOT
 fi
-# Add multilib repository if not already present
-if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
-    sudo tee -a /etc/pacman.conf >/dev/null <<EOT
-[multilib]
-Include = /etc/pacman.d/mirrorlist
-EOT
-fi
 
+sudo pacman -Rsu --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib wezterm fastfetch wget luarocks go lua51 neovim fd fzf lazygit jdk-openjdk
 sudo pacman -Syu --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib wezterm fastfetch wget luarocks go lua51 neovim fd fzf lazygit jdk-openjdk
 
 if [[ -d "$HOME/.jenv" ]]; then
@@ -46,11 +47,11 @@ printf "Yay\n"
 printf "====================\n"
 
 rm -rf yay
-git clone https://aur.archlinux.org/yay.git
-cd yay
+git clone https://aur.archlinux.org/yay.git /tmp/yay
+cd /tmp/yay
 makepkg -si
-cd ..
-rm -rf yay
+cd -
+rm -rf /tmp/yay
 
 yay -Syu --noconfirm nvidia-dkms nvidia-utils lib32-nvidia-utils
 

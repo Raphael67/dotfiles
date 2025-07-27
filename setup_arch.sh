@@ -35,7 +35,8 @@ fi
 
 sudo pacman -Syu
 
-sudo pacman -Sy --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib wezterm fastfetch wget luarocks go lua51 neovim fd fzf lazygit
+sudo pacman -Sy --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib wezterm fastfetch wget luarocks go lua51 neovim fd fzf lazygit jdk-openjdk
+export JAVA_HOME=/usr/lib/jvm/default
 
 printf "\n"
 printf "====================\n"

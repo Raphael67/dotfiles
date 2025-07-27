@@ -217,10 +217,12 @@ then
   alias '?h'='ghce'
 fi
 
-# Warkaround to fix duplicate entries in PATH
-path_elements=$(echo "$PATH" | tr ':' '\n')
-unique_elements=$(echo "$path_elements" | awk '!seen[$0]++' | tr '\n' ':')
-export PATH=${unique_elements%:}
+# Workaround to fix duplicate entries in PATH
+if [[ -n "$PATH" ]]; then
+  path_elements=$(echo "$PATH" | tr ':' '\n' | awk 'NF')
+  unique_elements=$(echo "$path_elements" | awk '!seen[$0]++' | tr '\n' ':')
+  export PATH=${unique_elements%:}
+fi
 
 if [[ -n "$ZSH_DEBUG" ]]; then
   zprof
@@ -236,8 +238,14 @@ if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
   export PATH=/opt/homebrew/opt/ruby/bin:$PATH
   export PATH=`gem environment gemdir`/bin:$PATH
 fi
-source /opt/homebrew/opt/chruby/share/chruby/chruby.sh
-source /opt/homebrew/opt/chruby/share/chruby/auto.sh
+
+if  [ -f /opt/homebrew/opt/chruby/share/chruby/chruby.sh ]; then
+    source /opt/homebrew/opt/chruby/share/chruby/chruby.sh
+    source /opt/homebrew/opt/chruby/share/chruby/auto.sh
+else
+    source /usr/share/chruby/chruby.sh
+    source /usr/share/chruby/auto.sh
+fi
 chruby ruby-3.3.5
 
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
@@ -245,3 +253,6 @@ fpath=($HOME/.docker/completions $fpath)
 autoload -Uz compinit
 compinit
 # End of Docker CLI completions
+
+
+

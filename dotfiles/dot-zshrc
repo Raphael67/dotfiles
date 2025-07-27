@@ -25,7 +25,7 @@ ZSH_TMUX_AUTOSTART=true
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(evalcache tmux zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(evalcache tmux zsh-syntax-highlighting zsh-autosuggestions)
 
 source $ZSH/oh-my-zsh.sh
 source ~/.config/zsh/aliases.zsh

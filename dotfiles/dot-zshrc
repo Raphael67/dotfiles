@@ -202,7 +202,7 @@ then
   # this is a fix for not showing the correct colors using delta
   export COLORTERM=truecolor
   export XDG_CONFIG_HOME="$HOME/.config"
-  # workaround for ture colors in lazygit from tmux
+  # workaround for true colors in lazygit from tmux
   # https://github.com/jesseduffield/lazygit/issues/3668
   alias lazygit='env TERM=screen-256color lazygit'
 fi

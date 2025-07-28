@@ -34,4 +34,3 @@ mas install 1616822987 # Affinity photo 2
 mas install 409201541  # pages
 mas install 409203825  # numbers
 mas install 409183694  # keynote
-mas install 1346247457 # Endel

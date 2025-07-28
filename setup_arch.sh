@@ -46,7 +46,7 @@ printf "====================\n"
 printf "Yay\n"
 printf "====================\n"
 
-rm -rf yay
+sudo pacman -Syu --noconfirm --needed base-devel
 git clone https://aur.archlinux.org/yay.git /tmp/yay
 cd /tmp/yay
 makepkg -si

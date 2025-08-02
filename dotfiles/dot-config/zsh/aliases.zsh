@@ -11,40 +11,40 @@ alias e='exit'
 
 # Git
 alias g='git'
-alias gcl="git clone"
-alias gi="git init"
 alias ga='git add'
-alias gap="git add --patch"
 alias gafzf='git ls-files -m -o --exclude-standard | grep -v "__pycache__" | fzf -m --print0 | xargs -0 -o -t git add' # Git add with fzf
-alias grmfzf='git ls-files -m -o --exclude-standard | fzf -m --print0 | xargs -0 -o -t git rm' # Git rm with fzf
-alias grfzf='git diff --name-only | fzf -m --print0 | xargs -0 -o -t git restore' # Git restore with fzf
-alias grsfzf='git diff --name-only | fzf -m --print0 | xargs -0 -o -t git restore --staged' # Git restore --staged with fzf
-alias gf='git fetch'
-alias gs='git status --short'
-alias gss='git status -s'
-alias gup='git fetch && git rebase'
-alias gtd='git tag --delete'
-alias gtdr='git tag --delete origin'
-alias glo='git pull origin'
-alias gu='git pull --ff'
+alias gap="git add --patch"
 alias gb='git branch '
 alias gbr='git branch -r'
-alias gd="git diff --output-indicator-new=' ' --output-indicator-old=' ' --color=always"
-alias gds="git diff --staged"
+alias gc='git commit -v'
+alias gcanenv='git commit --amend --no-edit --no-verify'
+alias gcl="git clone"
+alias gcm='git commit -m'
+alias gcmnv='git commit --no-verify -m'
 alias gco='git checkout '
 alias gcob='git checkout -b '
 alias gcofzf='git branch | fzf | xargs git checkout' # Select branch with fzf
-alias gre='git remote'
-alias gres='git remote show'
+alias gd="git diff --output-indicator-new=' ' --output-indicator-old=' ' --color=always"
+alias gds="git diff --staged"
+alias gf='git fetch'
+alias ggpush='git push origin $(current_branch)'
+alias gi="git init"
 alias gl="git log --all --graph --max-count=5 --decorate --pretty=format:'%C(magenta)%h %C(white) %an %ar%C(auto) %D%n%s%n'"
+alias glo='git pull origin'
 alias gm='git merge'
 alias gp='git push'
 alias gpo='git push origin'
-alias ggpush='git push origin $(current_branch)'
-alias gc='git commit -v'
-alias gcm='git commit -m'
-alias gcmnv='git commit --no-verify -m'
-alias gcanenv='git commit --amend --no-edit --no-verify'
+alias gre='git remote'
+alias gres='git remote show'
+alias grfzf='git diff --name-only | fzf -m --print0 | xargs -0 -o -t git restore' # Git restore with fzf
+alias grmfzf='git ls-files -m -o --exclude-standard | fzf -m --print0 | xargs -0 -o -t git rm' # Git rm with fzf
+alias grsfzf='git diff --name-only | fzf -m --print0 | xargs -0 -o -t git restore --staged' # Git restore --staged with fzf
+alias gs='git status --short'
+alias gss='git status -s'
+alias gtd='git tag --delete'
+alias gtdr='git tag --delete origin'
+alias gu='git pull --ff'
+alias gup='git fetch && git rebase'
 # Function to commit with ticket ID from current branch, with optional push
 quick_commit() {
   local branch_name ticket_id commit_message push_flag

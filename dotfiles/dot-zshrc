@@ -237,18 +237,6 @@ source /opt/homebrew/opt/chruby/share/chruby/chruby.sh
 source /opt/homebrew/opt/chruby/share/chruby/auto.sh
 chruby ruby-3.3.5
 
-alias gs="git status --short"
-alias ga="git add"
-alias gc="git commit --verbose"
-alias gp="git push"
-alias gu="git pull"
-alias gl="git log --all --graph --pretty=format:'%C(magenta)%h %C(white) %an %ar%C(auto) %D%n%s%n'"
-alias gb="git branch"
-alias gi="git init"
-alias gcl="git clone"
-alias gd="git diff --output-indicator-new=' ' --output-indicator-old=' ' --color=always"
-alias gap="git add --patch"
-alias gds="git diff --staged"
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
 fpath=(/Users/raphael/.docker/completions $fpath)
 autoload -Uz compinit

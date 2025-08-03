@@ -33,8 +33,8 @@ Include = /etc/pacman.d/mirrorlist
 EOT
 fi
 
-sudo pacman -Rsu --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib wezterm fastfetch wget luarocks go lua51 neovim fd fzf lazygit jdk-openjdk
-sudo pacman -Syu --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib wezterm fastfetch wget luarocks go lua51 neovim fd fzf lazygit jdk-openjdk
+sudo pacman -Rsu --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib wezterm fastfetch wget luarocks go lua51 neovim fd fzf lazygit jdk-openjdk ruby
+sudo pacman -Syu --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib wezterm fastfetch wget luarocks go lua51 neovim fd fzf lazygit jdk-openjdk ruby
 
 if [[ -d "$HOME/.jenv" ]]; then
     git clone https://github.com/jenv/jenv.git ~/.jenv
@@ -61,7 +61,7 @@ printf "Zsh\n"
 printf "====================\n"
 
 echo "setup zsh"
-yay -Syu --noconfirm chruby
+yay -Syu --noconfirm chruby ruby-bundler
 rm -rf ~/.oh-my-zsh
 RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 git clone --branch v0.7.1 https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions

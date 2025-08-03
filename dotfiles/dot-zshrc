@@ -152,6 +152,10 @@ if [[ -d "$HOME/.nvm" ]]; then
   }
 fi
 
+if [[ -d  "/mnt/c/Users/rapha/AppData/Local/Programs/Microsoft VS Code/bin" ]]; then
+  export PATH=$PATH:"/mnt/c/Users/rapha/AppData/Local/Programs/Microsoft VS Code/bin"
+fi
+
 # Fix for Cypress - unset ELECTRON_RUN_AS_NODE to prevent Cypress from failing
 # https://github.com/cypress-io/cypress/issues/5446
 unset ELECTRON_RUN_AS_NODE
@@ -241,7 +245,6 @@ elif [ -f /usr/share/chruby/chruby.sh ]; then
     source /usr/share/chruby/chruby.sh
     source /usr/share/chruby/auto.sh
 fi
-chruby ruby-3.3.5
 
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
 fpath=($HOME/.docker/completions $fpath)

@@ -5,6 +5,10 @@ if [[ -n "$ZSH_DEBUG" ]]; then
   zmodload zsh/zprof
 fi
 
+# add npm global bin directory to path
+npm config set prefix $HOME/.npm-global
+export PATH=$HOME/.npm-global/bin:$PATH
+
 export PATH=/opt/homebrew/bin:/opt/homebrew/opt/openjdk@17/bin:$PATH
 
 # You may need to manually set your language environment

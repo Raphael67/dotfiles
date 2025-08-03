@@ -22,12 +22,14 @@
 
 ## Workflow Preferences
 
+- **Agents**: Always check if an agent is more appropriate to do a task
 - **Git**: Use conventional commits format
 - **Testing**: Run tests before commits
 - **Linting**: Always run linters/formatters before commits
 - **Documentation**: Keep README files concise and practical
 - Commit often, but with meaningful messages
-- Use branches for features/bugfixes
+- Use branches for features/bugfix
+- follow feature branch workflows
 
 ## Common Commands & Tools
 

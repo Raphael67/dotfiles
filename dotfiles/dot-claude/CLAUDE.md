@@ -17,7 +17,7 @@
   - Use semicolons
   - Prefer arrow functions for inline callbacks
   - Use TypeScript strict mode
-- **Python**: Follow PEP 8
+- **Python**: Follow PEP 8, always use uv as package manager
 - **Markdown**: Use ATX-style headers (#)
 
 ## Workflow Preferences

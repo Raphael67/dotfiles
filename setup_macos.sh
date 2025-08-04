@@ -78,3 +78,7 @@ if [[ "$overwrite_dotfiles" == "y" ]]; then
     stow .
     success "Dotfiles set up successfully."
 fi
+
+# Symlink vscode settings
+rm "/Users/raphael/Library/Application Support/Code/User/settings.json"
+ln -s $(pwd)/dotfiles/dot-config/Code/User/settings.json "/Users/raphael/Library/Application Support/Code/User/settings.json"

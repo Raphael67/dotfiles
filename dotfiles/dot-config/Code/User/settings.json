@@ -1,0 +1,275 @@
+{
+    "[cpp]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools"
+    },
+    "[csharp]": {
+        "editor.defaultFormatter": "ms-dotnettools.csharp"
+    },
+    "[dockerfile]": {
+        "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+    },
+    "[dotenv]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+    "[handlebars]": {
+        "editor.defaultFormatter": "vscode.html-language-features"
+    },
+    "[helm-template]": {
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2
+    },
+    "[helm]": {
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2
+    },
+    "[tpl]": {
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2
+    },
+    "[html]": {
+        "editor.codeActionsOnSave": [
+            "source.organizeImports",
+            "source.fixAll"
+        ],
+        "editor.defaultFormatter": "vscode.html-language-features",
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true
+    },
+    "[ignore]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+    "[java]": {
+        "editor.defaultFormatter": "redhat.java"
+    },
+    "[javascript]": {
+        "editor.codeActionsOnSave": [
+            "source.organizeImports",
+            "source.fixAll"
+        ],
+        "editor.defaultFormatter": "vscode.typescript-language-features",
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[markdown]": {
+        "editor.formatOnPaste": true,
+        "editor.formatOnSave": true,
+        "editor.quickSuggestions": {
+            "comments": "on",
+            "other": "on",
+            "strings": "on"
+        },
+        "editor.suggest.showSnippets": false,
+        "editor.tabSize": 2,
+        "editor.wordBasedSuggestions": "matchingDocuments",
+        "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+    },
+    "[properties]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.autopep8",
+        "editor.formatOnType": true
+    },
+    "plantuml.server": "https://plantuml.corteks.net",
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer"
+    },
+    "[shellscript]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format",
+        "files.eol": "\n"
+    },
+    "[toml]": {
+        "editor.defaultFormatter": "tamasfe.even-better-toml"
+    },
+    "[typescript]": {
+        "editor.codeActionsOnSave": [
+            "source.organizeImports",
+            "source.fixAll",
+            "source.fixAll.tslint"
+        ],
+        "editor.defaultFormatter": "vscode.typescript-language-features",
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true
+    },
+    "[typescriptreact]": {
+        "editor.codeActionsOnSave": [
+            "source.organizeImports",
+            "source.fixAll"
+        ],
+        "editor.defaultFormatter": "vscode.typescript-language-features",
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true
+    },
+    "[yaml]": {
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2
+    },
+    "[yml]": {
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2
+    },
+    "[xml]": {
+        "editor.defaultFormatter": "DotJoshJohnson.xml"
+    },
+    "[nix]": {
+        "editor.defaultFormatter": "brettm12345.nixfmt-vscode"
+    },
+    "[lua]": {
+        "editor.defaultFormatter": "yinfei.luahelper"
+    },
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.inlineSuggest.enabled": true,
+    "editor.suggestSelection": "first",
+    "editor.lineNumbers": "relative",
+    "editor.unicodeHighlight.invisibleCharacters": false,
+    "editor.codeActionsOnSave": {},
+    "editor.renderControlCharacters": false,
+    "emmet.excludeLanguages": [
+        "markdown"
+    ],
+    "emmet.showAbbreviationSuggestions": false,
+    "emmet.showExpandedAbbreviation": "never",
+    "explorer.confirmDelete": false,
+    "explorer.confirmDragAndDrop": false,
+    "explorer.confirmPasteNative": false,
+    "explorer.fileNesting.patterns": {
+        "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts",
+        "*.jsx": "${capture}.js",
+        "*.ts": "${capture}.js",
+        "*.tsx": "${capture}.ts",
+        "Cargo.toml": "Cargo.lock",
+        "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml",
+        "tsconfig.json": "tsconfig.*.json"
+    },
+    "files.associations": {
+        "*.compute": "shaderlab",
+        "*.yaml": "yaml",
+        "*.yml": "yaml",
+        ".env.json": "json",
+        "*.toml": "toml"
+    },
+    "files.exclude": {
+        "**/*.meta": true,
+        "**/.DS_Store": true,
+        "**/.cache": true,
+        "**/.classpath": true,
+        "**/.factorypath": true,
+        "**/.git": true,
+        "**/.hg": true,
+        "**/.next": true,
+        "**/.parcel-cache": true,
+        "**/.project": true,
+        "**/.settings": true,
+        "**/.svn": true,
+        "**/CVS": true,
+        "**/node_modules": true,
+        "**/.angular": true
+    },
+    "files.trimTrailingWhitespace": true,
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    "git.enableSmartCommit": true,
+    "git.ignoreRebaseWarning": true,
+    "git.openRepositoryInParentFolders": "always",
+    "git.replaceTagsWhenPull": true,
+    "java.configuration.runtimes": [
+        {
+            "default": true,
+            "name": "OpenJDK-22",
+            "path": "C:/Program Files/OpenJDK/jdk-22.0.2"
+        }
+    ],
+    "javascript.format.semicolons": "insert",
+    "javascript.preferences.importModuleSpecifier": "relative",
+    "javascript.preferences.quoteStyle": "single",
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "luahelper.format.column_limit": 80,
+    "plantuml.server": "https://plantuml.corteks.net",
+    "search.exclude": {
+        "**/dist": true,
+        "**/node_modules": true
+    },
+    "security.workspace.trust.untrustedFiles": "open",
+    "security.allowedUNCHosts": [
+        "wsl.localhost"
+    ],
+    "settingsSync.ignoredExtensions": [],
+    "terminal.external.linuxExec": "/usr/bin/zsh",
+    "terminal.external.osxExec": "wezterm.app",
+    "terminal.external.windowsExec": "wezterm.exe",
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.defaultProfile.windows": "archlinux",
+    "terminal.integrated.enableMultiLinePasteWarning": false,
+    "terminal.integrated.fontFamily": "Hack Nerd Font",
+    "terminal.integrated.profiles.windows": {
+        "archlinux": {
+            "args": [
+                "-d",
+                "archlinux",
+                "--user",
+                "raphael",
+                "--cd",
+                "${workspaceFolder}"
+            ],
+            "path": "C:\\Windows\\System32\\wsl.exe"
+        },
+        "PowerShell": {
+            "icon": "terminal-powershell",
+            "source": "PowerShell"
+        }
+    },
+    "typescript.format.semicolons": "insert",
+    "typescript.inlayHints.parameterNames.enabled": "all",
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.preferences.quoteStyle": "single",
+    "typescript.tsserver.log": "off",
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "window.confirmSaveUntitledWorkspace": false,
+    "window.zoomLevel": 0,
+    "workbench.editor.empty.hint": "hidden",
+    "workbench.editor.pinnedTabSizing": "shrink",
+    "workbench.editorAssociations": {
+        "*.pdf": "default",
+        "git-rebase-todo": "default"
+    },
+    "workbench.enableExperiments": false,
+    "workbench.iconTheme": "vscode-icons",
+    "workbench.startupEditor": "newUntitledFile",
+    "workbench.colorTheme": "Catppuccin Macchiato",
+    "workbench.secondarySideBar.defaultVisibility": "visible",
+    "zenMode.fullScreen": false,
+    "zenMode.hideLineNumbers": false,
+    "redhat.telemetry.enabled": true,
+    "github.copilot.nextEditSuggestions.enabled": false,
+    "docker.extension.enableComposeLanguageServer": false,
+    "yaml.schemas": {
+        "/Users/raphael/.vscode/extensions/continue.continue-1.0.19-darwin-arm64/config-yaml-schema.json": [
+            ".continue/**/*.yaml"
+        ],
+        "file:///Users/raphael/.vscode/extensions/atlassian.atlascode-3.8.7/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml"
+    },
+    "atlascode.bitbucket.enabled": false,
+    "atlascode.jira.startWorkBranchTemplate.customTemplate": "{{{issueKey}}}-{{{summary}}}",
+    "gitlab.duoCodeSuggestions.enabled": false,
+    "gitlab.duoChat.enabled": false
+}

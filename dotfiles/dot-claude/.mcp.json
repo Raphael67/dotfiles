@@ -1,0 +1,10 @@
+{
+    "mcpServers": {
+        "ElevenLabs": {
+            "command": "uvx",
+            "args": [
+                "elevenlabs-mcp"
+            ]
+        }
+    }
+}

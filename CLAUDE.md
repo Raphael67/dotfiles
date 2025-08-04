@@ -1,6 +1,7 @@
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+**IMPORTANT** : Always use the work-completion-summary agent when you finish task to let the user know.
 
 ## Repository Overview
 

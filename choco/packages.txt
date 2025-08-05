@@ -26,4 +26,4 @@ vscode
 bambustudio
 firefox
 googlechrome
-wezterm
+ghostty

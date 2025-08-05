@@ -266,7 +266,7 @@
         "/Users/raphael/.vscode/extensions/continue.continue-1.0.19-darwin-arm64/config-yaml-schema.json": [
             ".continue/**/*.yaml"
         ],
-        "file:///Users/raphael/.vscode/extensions/atlassian.atlascode-3.8.7/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml"
+        "file:///Users/raphael/.vscode/extensions/atlassian.atlascode-3.8.8/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml"
     },
     "atlascode.bitbucket.enabled": false,
     "atlascode.jira.startWorkBranchTemplate.customTemplate": "{{{issueKey}}}-{{{summary}}}",

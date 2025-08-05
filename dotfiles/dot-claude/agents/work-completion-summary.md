@@ -23,7 +23,6 @@ When invoked after work completion, you must follow these steps:
 4. **Generate audio**:
    - Use `mcp__ElevenLabs__text_to_speech` with voice_id "uYXf8XasLslADfZ2MB4u"
    - Save to absolute path: `/tmp/work-summary-{timestamp}.mp3`
-   - Create output directory if it doesn't exist
 5. **Play audio**: Use `mcp__ElevenLabs__play_audio` to automatically play the generated summary
 
 **Best Practices:**

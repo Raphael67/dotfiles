@@ -254,3 +254,10 @@ fpath=($HOME/.docker/completions $fpath)
 autoload -Uz compinit
 compinit
 # End of Docker CLI completions
+
+# bun completions
+[ -s "/Users/raphael/.bun/_bun" ] && source "/Users/raphael/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

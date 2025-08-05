@@ -33,8 +33,8 @@ Include = /etc/pacman.d/mirrorlist
 EOT
 fi
 
-sudo pacman -Rsu --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib ghostty fastfetch wget luarocks go lua51 neovim fd fzf lazygit jdk-openjdk ruby
-sudo pacman -Syu --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib ghostty fastfetch wget luarocks go lua51 neovim fd fzf lazygit jdk-openjdk ruby
+sudo pacman -Rsu --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib ghostty fastfetch wget luarocks go lua51 neovim fd fzf lazygit jdk-openjdk ruby bun
+sudo pacman -Syu --noconfirm zsh cmake nodejs npm python stow gcc tmux zlib ghostty fastfetch wget luarocks go lua51 neovim fd fzf lazygit jdk-openjdk ruby bun
 
 if [[ -d "$HOME/.jenv" ]]; then
     git clone https://github.com/jenv/jenv.git ~/.jenv

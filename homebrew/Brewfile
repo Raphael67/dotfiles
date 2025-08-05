@@ -6,6 +6,8 @@ brew "fzf"
 brew "gcc"
 # Platform built on V8 to build network applications
 brew "node"
+# Incredibly fast JavaScript runtime, bundler, test runner, and package manager
+brew "bun"
 # Python version management
 brew "pyenv"
 # Search tool like grep and The Silver Searcher

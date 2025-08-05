@@ -1,5 +1,6 @@
 7zip
 deno
+bun
 dotnet4.7.1
 dotnetfx
 ffmpeg

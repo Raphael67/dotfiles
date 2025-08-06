@@ -9,7 +9,7 @@ font-family = JetBrains Mono
 font-size = 16
 
 # Window Configuration
-window-decoration = false
+# window-decoration = false
 window-padding-x = 5
 window-padding-y = 5
 background-opacity = 1.0
@@ -25,3 +25,4 @@ auto-update = check
 
 # Background blur (macOS specific)
 background-blur-radius = 30
+macos-option-as-alt = false 

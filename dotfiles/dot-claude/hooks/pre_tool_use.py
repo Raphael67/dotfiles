@@ -105,7 +105,7 @@ def main():
                 sys.exit(2)  # Exit code 2 blocks tool call and shows error to Claude
         
         # Ensure log directory exists
-        log_dir = Path.cwd() / 'logs'
+        log_dir = Path.home() / "claude" / "logs"
         log_dir.mkdir(parents=True, exist_ok=True)
         log_path = log_dir / 'pre_tool_use.json'
         

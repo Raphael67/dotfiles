@@ -23,7 +23,7 @@ except ImportError:
 def log_user_prompt(session_id, input_data):
     """Log user prompt to logs directory."""
     # Ensure logs directory exists
-    log_dir = Path("logs")
+    log_dir = Path.home() / "claude" / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / 'user_prompt_submit.json'
     

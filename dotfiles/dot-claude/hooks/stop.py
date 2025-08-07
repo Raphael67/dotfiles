@@ -153,9 +153,9 @@ def main():
         stop_hook_active = input_data.get("stop_hook_active", False)
 
         # Ensure log directory exists
-        log_dir = os.path.join(os.getcwd(), "logs")
-        os.makedirs(log_dir, exist_ok=True)
-        log_path = os.path.join(log_dir, "stop.json")
+        log_dir = Path.home() / "claude" / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_path = log_dir / "stop.json"
 
         # Read existing log data or initialize empty list
         if os.path.exists(log_path):
@@ -191,7 +191,7 @@ def main():
                                     pass  # Skip invalid lines
                     
                     # Write to logs/chat.json
-                    chat_file = os.path.join(log_dir, 'chat.json')
+                    chat_file = log_dir / 'chat.json'
                     with open(chat_file, 'w') as f:
                         json.dump(chat_data, f, indent=2)
                 except Exception:

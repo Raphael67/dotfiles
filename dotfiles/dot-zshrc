@@ -5,6 +5,14 @@ if [[ -n "$ZSH_DEBUG" ]]; then
   zmodload zsh/zprof
 fi
 
+# VS Code Shell Integration
+if [[ -n "$VSCODE_SHELL_INTEGRATION" && -r "$VSCODE_SHELL_INTEGRATION" ]]; then
+  source "$VSCODE_SHELL_INTEGRATION"
+fi
+
+# Avoid clobbering preexec/precmd hooks (important for integration + themes)
+typeset -ga precmd_functions preexec_functions
+
 # add npm global bin directory to path
 npm config set prefix $HOME/.npm-global
 export PATH=$HOME/.npm-global/bin:$PATH
@@ -30,9 +38,10 @@ export ZSH=$HOME/.oh-my-zsh
 # Plugin config
 
 # tmux integration
-ZSH_TMUX_AUTOSTART=true
-# ZSH_TMUX_DEFAULT_SESSION_NAME="tmux"
-# TMUX_THEME="onedark"
+if [[ -z "$TMUX" && "$TERM_PROGRAM" != "vscode" && -z "$NO_TMUX" ]]; then
+  ZSH_TMUX_AUTOSTART=true
+  tmux attach -t main 2>/dev/null || tmux new -s main
+fi
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
@@ -261,3 +270,7 @@ compinit
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# vscode shell integration
+[[ "$TERM_PROGRAM" == "vscode" ]] && . "/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh"
+

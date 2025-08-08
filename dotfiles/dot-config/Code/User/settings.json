@@ -1,13 +1,4 @@
 {
-    "[cpp]": {
-        "editor.defaultFormatter": "ms-vscode.cpptools"
-    },
-    "[csharp]": {
-        "editor.defaultFormatter": "ms-dotnettools.csharp"
-    },
-    "[dockerfile]": {
-        "editor.defaultFormatter": "ms-azuretools.vscode-docker"
-    },
     "[dotenv]": {
         "editor.defaultFormatter": "foxundermoon.shell-format"
     },
@@ -73,7 +64,6 @@
         "editor.suggest.showSnippets": false,
         "editor.tabSize": 2,
         "editor.wordBasedSuggestions": "matchingDocuments",
-        "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
     },
     "[properties]": {
         "editor.defaultFormatter": "foxundermoon.shell-format"
@@ -82,7 +72,6 @@
         "editor.defaultFormatter": "ms-python.autopep8",
         "editor.formatOnType": true
     },
-    "plantuml.server": "https://plantuml.corteks.net",
     "[rust]": {
         "editor.defaultFormatter": "rust-lang.rust-analyzer"
     },
@@ -126,12 +115,6 @@
     },
     "[xml]": {
         "editor.defaultFormatter": "DotJoshJohnson.xml"
-    },
-    "[nix]": {
-        "editor.defaultFormatter": "brettm12345.nixfmt-vscode"
-    },
-    "[lua]": {
-        "editor.defaultFormatter": "yinfei.luahelper"
     },
     "diffEditor.ignoreTrimWhitespace": false,
     "editor.bracketPairColorization.enabled": true,
@@ -195,7 +178,7 @@
     "java.configuration.runtimes": [
         {
             "default": true,
-            "name": "OpenJDK-22",
+            "name": "JavaSE-22",
             "path": "C:/Program Files/OpenJDK/jdk-22.0.2"
         }
     ],
@@ -203,8 +186,6 @@
     "javascript.preferences.importModuleSpecifier": "relative",
     "javascript.preferences.quoteStyle": "single",
     "javascript.updateImportsOnFileMove.enabled": "always",
-    "luahelper.format.column_limit": 80,
-    "plantuml.server": "https://plantuml.corteks.net",
     "search.exclude": {
         "**/dist": true,
         "**/node_modules": true
@@ -265,7 +246,6 @@
         "git-rebase-todo": "default"
     },
     "workbench.enableExperiments": false,
-    "workbench.iconTheme": "vscode-icons",
     "workbench.startupEditor": "newUntitledFile",
     "workbench.colorTheme": "Catppuccin Macchiato",
     "workbench.secondarySideBar.defaultVisibility": "visible",
@@ -284,5 +264,6 @@
     "atlascode.jira.startWorkBranchTemplate.customTemplate": "{{{issueKey}}}-{{{summary}}}",
     "gitlab.duoCodeSuggestions.enabled": false,
     "gitlab.duoChat.enabled": false,
-    "python.analysis.typeCheckingMode": "strict"
+    "python.analysis.typeCheckingMode": "strict",
+    "github.copilot.selectedCompletionModel": ""
 }

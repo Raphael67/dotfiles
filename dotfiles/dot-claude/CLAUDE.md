@@ -2,12 +2,10 @@
 
 ## Personal Development Environment
 
-- **OS**: macOS
 - **Shell**: Zsh with oh-my-zsh
-- **Terminal**: WezTerm
-- **Editor**: Neovim with Lua configuration
+- **Terminal**: Ghostty
+- **Editor**: VSCode
 - **Package Manager**: Homebrew
-- **Theme**: Catppuccin (Macchiato variant)
 
 ## Code Style Preferences
 
@@ -21,26 +19,32 @@
 - **Python**:
   - Follow PEP 8
   - always use uv as package manager
-- **Markdown**: Use ATX-style headers (#)
+- **Markdown**:
+  - Use ATX-style headers (#)
 
 ## Workflow Preferences
 
-- **Agents**: Always check if an agent is more appropriate to do a task
+- **Agents**: Always check if a subagent is more appropriate to do a task
 - **Git**: Use conventional commits format
-- **Testing**: Run tests before commits
-- **Linting**: Always run linters/formatters before commits
 - **Documentation**: Keep README files concise and practical
-- Commit often, but with meaningful messages
+- Commit after every task, but with meaningful messages
+- Push your code after every commit
 - Use branches for features/bugfix
 - follow feature branch workflows
+- Fast forward merge only
 
-## Common Commands & Tools
+## Role-Based Responsibilities
 
-- **Package Management**: `brew bundle` for system packages
-- **Development**: `npm run dev`, `cargo run`, `python -m pytest`
-- **Git**: Use `lazygit` for terminal Git UI
-- **File Management**: Use `eza` instead of `ls`
-- **Navigation**: Use `zoxide` for smart directory jumping
+### For Development Work (coding tasks):
+- **Testing**: Run tests before commits
+- **Linting**: Always run linters/formatters before commits
+- **Code Quality**: Follow established patterns and conventions
+
+### For Specification/Documentation Work:
+- **No Testing Required**: Specs and docs don't need code testing
+- **No Linting Required**: Focus on content quality, not code style
+- **Commit Immediately**: Push specifications and documentation when complete
+- **Quality Focus**: Ensure completeness, clarity, and alignment with requirements
 
 ## Security & Best Practices
 
@@ -58,11 +62,4 @@
 - Do not repeat information unnecessarily
 - Do not repeat the question or prompt
 - Do not gratitude or apologies unless specifically requested
-
-## Tool Preferences
-
-- **Terminal multiplexer**: tmux with TPM plugins
-- **File searching**: ripgrep (`rg`) over grep
-- **Process monitoring**: htop, btop
-- **JSON processing**: jq
-- **HTTP requests**: curl, httpie
+- ALways use work-completion subagent

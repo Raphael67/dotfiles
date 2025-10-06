@@ -174,7 +174,9 @@ unset ELECTRON_RUN_AS_NODE
 
 # zoxide
 if type zoxide > /dev/null; then
-  _evalcache zoxide init zsh --cmd cd
+  if [[ "$CLAUDECODE" != "1" ]]; then
+    _evalcache zoxide init zsh --cmd cd
+  fi
 fi
 
 # eza
@@ -228,12 +230,8 @@ if type gh > /dev/null; then
   alias '?h'='ghce'
 fi
 
-# Workaround to fix duplicate entries in PATH
-if [[ -n "$PATH" ]]; then
-  path_elements=$(echo "$PATH" | tr ':' '\n' | awk 'NF')
-  unique_elements=$(echo "$path_elements" | awk '!seen[$0]++' | tr '\n' ':')
-  export PATH=${unique_elements%:}
-fi
+# Ensure unique PATH entries using zsh's unique array feature
+typeset -U path PATH
 
 if [[ -n "$ZSH_DEBUG" ]]; then
   zprof
@@ -260,8 +258,8 @@ fi
 
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
 fpath=($HOME/.docker/completions $fpath)
-autoload -Uz compinit
-compinit
+# Guard against double-running compinit (oh-my-zsh already does this)
+type compdef >/dev/null 2>&1 || { autoload -Uz compinit && compinit; }
 # End of Docker CLI completions
 
 # bun completions

@@ -6,3 +6,5 @@ dotfiles/dot-config/raycast/extensions
 dotfiles/dot-config/go
 .env
 logs
+swiftpm
+dotfiles/dot-config/menus/applications-merged

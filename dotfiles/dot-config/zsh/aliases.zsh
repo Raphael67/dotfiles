@@ -90,5 +90,3 @@ alias lg="lazygit"
 
 # New obsidian notes in nvim
 alias oo="cd /Users/raphael/Library/Mobile Documents/iCloud~md~obsidian/Documents ; v ."
-
-alias claude="/Users/raphael/.claude/local/claude"

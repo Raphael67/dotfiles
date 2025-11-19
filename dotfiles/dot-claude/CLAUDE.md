@@ -3,6 +3,7 @@
 ## Personal Development Environment
 
 - **Shell**: Zsh with oh-my-zsh
+  - Source `~/.zshrc` at startup to load nvm and other shell configurations
 - **Terminal**: Ghostty
 - **Editor**: VSCode
 - **Package Manager**: Homebrew
@@ -27,11 +28,6 @@
 - **Agents**: Always check if a subagent is more appropriate to do a task
 - **Git**: Use conventional commits format
 - **Documentation**: Keep README files concise and practical
-- Commit after every task, but with meaningful messages
-- Push your code after every commit
-- Use branches for features/bugfix
-- follow feature branch workflows
-- Fast forward merge only
 
 ## Role-Based Responsibilities
 
@@ -62,4 +58,3 @@
 - Do not repeat information unnecessarily
 - Do not repeat the question or prompt
 - Do not gratitude or apologies unless specifically requested
-- ALways use work-completion subagent

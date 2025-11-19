@@ -1,0 +1,14 @@
+# Homebrew
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# NVM - needed for GUI apps like VSCode to find Node.js
+export NVM_DIR="$HOME/.nvm"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+
+# Set default Node.js version
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  nvm use --lts --silent 2>/dev/null
+
+  # Make Node.js available to GUI apps like VSCode via launchctl
+  launchctl setenv PATH "/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin" 2>/dev/null
+fi

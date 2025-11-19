@@ -13,10 +13,6 @@ fi
 # Avoid clobbering preexec/precmd hooks (important for integration + themes)
 typeset -ga precmd_functions preexec_functions
 
-# add npm global bin directory to path
-npm config set prefix $HOME/.npm-global
-export PATH=$HOME/.npm-global/bin:$PATH
-
 export PATH=/opt/homebrew/bin:/opt/homebrew/opt/openjdk@17/bin:$PATH
 
 # You may need to manually set your language environment
@@ -155,13 +151,10 @@ fi
 
 # node: nvm
 if [[ -d "$HOME/.nvm" ]]; then
-  nvm() {
-    unset -f nvm
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-    nvm "$@"
-  }
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+  [ -s "/opt/homebrew/opt/nvm/bash_completion" ] && \. "/opt/homebrew/opt/nvm/bash_completion"
+  nvm use --lts --silent
 fi
 
 if [[ -d  "/mnt/c/Users/rapha/AppData/Local/Programs/Microsoft VS Code/bin" ]]; then
@@ -271,4 +264,3 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # vscode shell integration
 [[ "$TERM_PROGRAM" == "vscode" ]] && . "/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh"
-

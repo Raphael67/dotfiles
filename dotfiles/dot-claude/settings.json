@@ -1,6 +1,12 @@
 {
-    "env": {
-        "DISABLE_ZOXIDE": "1",
-        "CLAUDECODE": "1"
-    }
+  "env": {
+    "DISABLE_ZOXIDE": "1",
+    "CLAUDECODE": "1"
+  },
+  "alwaysThinkingEnabled": true,
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh",
+    "padding": 0
+  }
 }

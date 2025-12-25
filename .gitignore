@@ -7,4 +7,5 @@ dotfiles/dot-config/go
 .env
 logs
 swiftpm
-dotfiles/dot-config/menus/applications-merged
+dotfiles/dot-config/menus/applications-merged.mcp.json
+dotfiles/dot-config/menus/

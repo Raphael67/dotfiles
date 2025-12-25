@@ -34,7 +34,7 @@ export ZSH=$HOME/.oh-my-zsh
 # Plugin config
 
 # tmux integration
-if [[ -z "$TMUX" && "$TERM_PROGRAM" != "vscode" && -z "$NO_TMUX" ]]; then
+if [[ -z "$TMUX" && "$TERM_PROGRAM" != "vscode" && -z "$NO_TMUX" && "$CLAUDECODE" != "1" ]]; then
   ZSH_TMUX_AUTOSTART=true
   tmux attach -t main 2>/dev/null || tmux new -s main
 fi

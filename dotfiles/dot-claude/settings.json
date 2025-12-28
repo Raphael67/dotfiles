@@ -1,12 +1,44 @@
 {
-  "env": {
-    "DISABLE_ZOXIDE": "1",
-    "CLAUDECODE": "1"
-  },
-  "alwaysThinkingEnabled": true,
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline.sh",
-    "padding": 0
-  }
+    "env": {
+        "DISABLE_ZOXIDE": "1",
+        "CLAUDECODE": "1"
+    },
+    "alwaysThinkingEnabled": true,
+    "statusLine": {
+        "type": "command",
+        "command": "~/.claude/statusline.sh",
+        "padding": 0
+    },
+    "hooks": {
+        "UserPromptSubmit": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/ccnotify/ccnotify.py UserPromptSubmit"
+                    }
+                ]
+            }
+        ],
+        "Stop": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/ccnotify/ccnotify.py Stop"
+                    }
+                ]
+            }
+        ],
+        "Notification": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/ccnotify/ccnotify.py Notification"
+                    }
+                ]
+            }
+        ]
+    }
 }

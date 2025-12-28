@@ -79,3 +79,5 @@ brew "diff-so-fancy"
 brew "ffmpeg"
 cask "claude"
 cask "claude-code"
+# macOS notifications from terminal
+brew "terminal-notifier"

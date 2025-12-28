@@ -9,3 +9,5 @@ logs
 swiftpm
 dotfiles/dot-config/menus/applications-merged.mcp.json
 dotfiles/dot-config/menus/
+dotfiles/dot-claude/ccnotify/*.db
+dotfiles/dot-claude/ccnotify/*.log

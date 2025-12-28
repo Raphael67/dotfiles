@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "mcp-ical": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "/Users/raphael/.local/share/mcp-servers/mcp-ical",
+                "run",
+                "mcp-ical"
+            ]
+        }
+    }
+}

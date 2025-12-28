@@ -10,9 +10,20 @@ This is a comprehensive macOS dotfiles repository that uses GNU Stow for configu
 ## Architecture
 
 ### Stow-based Configuration Management
-- Configurations are stored in `dotfiles/` directory
-- Files prefixed with `dot-` get symlinked without the prefix (e.g., `dot-zshrc` → `~/.zshrc`)
-- Directory structure mirrors the target home directory structure
+
+**CRITICAL**: Always use `stow .` from the project root, never `stow <package-name>`.
+
+The `.stowrc` file configures stow with:
+- `--dir=./dotfiles` - stow directory is `./dotfiles/`
+- `--target=~/` - symlinks are created in home directory
+- `--dotfiles` - `dot-` prefix is converted to `.` (e.g., `dot-zshrc` → `~/.zshrc`)
+
+**Package structure**:
+- `dotfiles/dot-claude/` → `~/.claude/` (Claude Code global settings)
+- `dotfiles/dot-config/` → `~/.config/` (XDG config directory)
+- `dotfiles/dot-zshrc` → `~/.zshrc` (Zsh configuration)
+
+**Important**: Using `stow dot-claude` directly does NOT work correctly - it will create symlinks in `~/` instead of `~/.claude/`. Always use `stow .` to stow all packages together, which preserves the correct directory mapping.
 
 ### Modular Organization
 - **Neovim**: Full Lua configuration with lazy.nvim plugin manager (`dotfiles/dot-config/nvim/`)
@@ -39,10 +50,13 @@ cp ./hooks/pre-commit .git/hooks
 ### Development Workflow
 ```bash
 # Apply configuration changes (after editing files in dotfiles/)
-stow -t ~ dotfiles
+stow .
 
-# Remove/unstow configurations
-stow -D -t ~ dotfiles
+# Force restow (unlink and relink all)
+stow -R .
+
+# Remove/unstow all configurations
+stow -D .
 
 # Reload configurations
 source ~/.zshrc  # for shell changes

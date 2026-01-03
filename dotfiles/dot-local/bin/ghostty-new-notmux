@@ -1,0 +1,3 @@
+#!/bin/zsh
+# Open a new Ghostty window without tmux auto-start
+open -na Ghostty.app --args --command="$HOME/.local/bin/zsh-notmux"

@@ -13,8 +13,6 @@ font-size = 16
 window-padding-x = 5
 window-padding-y = 5
 background-opacity = 1.0
-macos-option-as-alt = true
-
 # Cursor Configuration
 cursor-style = bar
 cursor-style-blink = true
@@ -25,4 +23,10 @@ auto-update = check
 
 # Background blur (macOS specific)
 background-blur-radius = 30
-macos-option-as-alt = false 
+macos-option-as-alt = false
+
+# Keybinds
+# Note: To open Ghostty window without tmux, use:
+# - From tmux: prefix + N (Ctrl+x N)
+# - From shell: notmux (alias)
+# - From anywhere: global shortcut via macOS Shortcuts app

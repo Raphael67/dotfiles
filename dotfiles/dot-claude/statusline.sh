@@ -2,8 +2,14 @@
 # Claude Code Status Line - Token Usage Tracker
 # Shows current context + 5-hour rolling window usage
 
-VAULT_PATH="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/my_vault"
-USAGE_FILE="$VAULT_PATH/_Assets/claude_usage_log.json"
+# Load configuration from .env if it exists
+ENV_FILE="$HOME/.claude/.env"
+if [ -f "$ENV_FILE" ]; then
+    source "$ENV_FILE"
+fi
+
+# Default usage file path (can be overridden via .env)
+CLAUDE_USAGE_FILE="${CLAUDE_USAGE_FILE:-$HOME/.claude/usage_log.json}"
 LOCK_FILE="/tmp/claude_usage.lock"
 
 # Read input from stdin
@@ -21,9 +27,9 @@ FIVE_HOURS=18000
 FIVE_HOURS_AGO=$((NOW - FIVE_HOURS))
 
 # Ensure usage file exists
-mkdir -p "$(dirname "$USAGE_FILE")"
-if [ ! -f "$USAGE_FILE" ]; then
-    echo '{"sessions":[]}' > "$USAGE_FILE"
+mkdir -p "$(dirname "$CLAUDE_USAGE_FILE")"
+if [ ! -f "$CLAUDE_USAGE_FILE" ]; then
+    echo '{"sessions":[]}' > "$CLAUDE_USAGE_FILE"
 fi
 
 # Use mkdir-based lock (portable for macOS)
@@ -51,7 +57,7 @@ acquire_lock() {
 
 if acquire_lock; then
     # Read current log
-    LOG=$(cat "$USAGE_FILE" 2>/dev/null || echo '{"sessions":[]}')
+    LOG=$(cat "$CLAUDE_USAGE_FILE" 2>/dev/null || echo '{"sessions":[]}')
 
     # Remove entries older than 5 hours and update current session
     UPDATED_LOG=$(echo "$LOG" | jq --arg sid "$SESSION_ID" \
@@ -64,12 +70,12 @@ if acquire_lock; then
         | .sessions += [{"session_id": $sid, "tokens": $tokens, "cost": $cost, "timestamp": $now}]
         ')
 
-    echo "$UPDATED_LOG" > "$USAGE_FILE"
+    echo "$UPDATED_LOG" > "$CLAUDE_USAGE_FILE"
     rm -rf "$LOCK_FILE"
 fi
 
 # Calculate 5-hour totals
-LOG=$(cat "$USAGE_FILE" 2>/dev/null || echo '{"sessions":[]}')
+LOG=$(cat "$CLAUDE_USAGE_FILE" 2>/dev/null || echo '{"sessions":[]}')
 TOTAL_5H_TOKENS=$(echo "$LOG" | jq --argjson cutoff "$FIVE_HOURS_AGO" \
     '[.sessions[] | select(.timestamp > $cutoff) | .tokens] | add // 0')
 TOTAL_5H_COST=$(echo "$LOG" | jq --argjson cutoff "$FIVE_HOURS_AGO" \

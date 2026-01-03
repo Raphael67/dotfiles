@@ -90,3 +90,6 @@ alias lg="lazygit"
 
 # New obsidian notes in nvim
 alias oo="cd /Users/raphael/Library/Mobile Documents/iCloud~md~obsidian/Documents ; v ."
+
+# Open new Ghostty window without tmux
+alias notmux='open -na Ghostty.app --args --command=$HOME/.local/bin/zsh-notmux'

@@ -1,4 +1,5 @@
 format = """
+$hostname\
 $directory\
 $git_branch\
 $git_status\
@@ -19,6 +20,11 @@ $character"""
 
 add_newline = true
 palette = "catppuccin_macchiato"
+
+[hostname]
+ssh_only = false
+style = "fg:#cad3f5 bg:#494d64"
+format = "[ $hostname ]($style)"
 
 [directory]
 style = "fg:#e3e5e5 bg:#769ff0"

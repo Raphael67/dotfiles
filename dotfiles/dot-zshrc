@@ -13,7 +13,10 @@ fi
 # Avoid clobbering preexec/precmd hooks (important for integration + themes)
 typeset -ga precmd_functions preexec_functions
 
-export PATH=/opt/homebrew/bin:/opt/homebrew/opt/openjdk@17/bin:$PATH
+# macOS Homebrew paths (only add if they exist)
+if [[ -d /opt/homebrew/bin ]]; then
+  export PATH=/opt/homebrew/bin:/opt/homebrew/opt/openjdk@17/bin:$PATH
+fi
 
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
@@ -124,8 +127,10 @@ fi
 # If $NVIM variable is not set then update the path variable
 if [[ -z $NVIM ]]
 then
-  # add ~/.local/bin to the path
+  # add ~/.local/bin to the path (includes Claude Code)
   export PATH=$HOME/.local/bin:$PATH
+  # add cargo bin to path
+  [[ -d "$HOME/.cargo/bin" ]] && export PATH="$HOME/.cargo/bin:$PATH"
 fi
 
 # java: jenv
@@ -152,9 +157,15 @@ fi
 # node: nvm
 if [[ -d "$HOME/.nvm" ]]; then
   export NVM_DIR="$HOME/.nvm"
-  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
-  [ -s "/opt/homebrew/opt/nvm/bash_completion" ] && \. "/opt/homebrew/opt/nvm/bash_completion"
-  nvm use --lts --silent
+  # Load nvm (macOS Homebrew or standard installation)
+  if [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
+    \. "/opt/homebrew/opt/nvm/nvm.sh"
+    [ -s "/opt/homebrew/opt/nvm/bash_completion" ] && \. "/opt/homebrew/opt/nvm/bash_completion"
+  elif [[ -s "$NVM_DIR/nvm.sh" ]]; then
+    \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  fi
+  type nvm &>/dev/null && nvm use --lts --silent
 fi
 
 if [[ -d  "/mnt/c/Users/rapha/AppData/Local/Programs/Microsoft VS Code/bin" ]]; then
@@ -214,8 +225,8 @@ if type lazygit > /dev/null; then
   alias lazygit='env TERM=screen-256color lazygit'
 fi
 
-# github: copilot
-if type gh > /dev/null; then
+# github: copilot (only if gh copilot extension is installed)
+if type gh &>/dev/null && gh copilot --version &>/dev/null; then
   _evalcache gh copilot alias -- zsh
   alias '??'='ghcs -t shell'
   alias '?git'='ghcs -t git'
@@ -231,7 +242,9 @@ if [[ -n "$ZSH_DEBUG" ]]; then
 fi
 
 export STARSHIP_CONFIG=~/.config/starship/starship.toml
-eval "$(starship init zsh)"
+if type starship &>/dev/null; then
+  eval "$(starship init zsh)"
+fi
 
 # Aliases
 [ -f "$HOME/.config/zsh/aliases.zsh" ] && source "$HOME/.config/zsh/aliases.zsh"
@@ -263,4 +276,12 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 # vscode shell integration
-[[ "$TERM_PROGRAM" == "vscode" ]] && . "/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh"
+if [[ "$TERM_PROGRAM" == "vscode" ]]; then
+  # macOS
+  if [[ -f "/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh" ]]; then
+    . "/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh"
+  # Linux (code installed via package manager)
+  elif [[ -f "/usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh" ]]; then
+    . "/usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh"
+  fi
+fi

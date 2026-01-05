@@ -1,6 +1,7 @@
 -- Highlight, edit, and navigate code
 return {
 	"nvim-treesitter/nvim-treesitter",
+	commit = "cfc6f2c1", -- Pin to v0.9.3 for compatibility with nvim-treesitter-textobjects
 	build = ":TSUpdate",
 	dependencies = {
 		"nvim-treesitter/nvim-treesitter-textobjects",

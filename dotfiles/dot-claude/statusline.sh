@@ -19,7 +19,7 @@ input=$(cat)
 SESSION_ID=$(echo "$input" | jq -r '.session_id // "unknown"')
 TOKENS_USED=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
 TOKENS_MAX=$(echo "$input" | jq -r '.context_window.context_window_size // 200000')
-MODEL=$(echo "$input" | jq -r '.model.display_name // "Claude"')
+MODEL=$(echo "$input" | jq -r '(.model.display_name // .model.id // "Claude") | if . == "" or . == null then "Claude" else . end')
 COST=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
 
 NOW=$(date +%s)
@@ -43,7 +43,13 @@ acquire_lock() {
         fi
         # Check if lock is stale (older than 5 seconds)
         if [ -d "$LOCK_FILE" ]; then
-            local lock_age=$((NOW - $(stat -f %m "$LOCK_FILE" 2>/dev/null || echo $NOW)))
+            # Cross-platform stat: macOS uses -f %m, Linux uses -c %Y
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                local lock_mtime=$(stat -f %m "$LOCK_FILE" 2>/dev/null || echo $NOW)
+            else
+                local lock_mtime=$(stat -c %Y "$LOCK_FILE" 2>/dev/null || echo $NOW)
+            fi
+            local lock_age=$((NOW - lock_mtime))
             if [ $lock_age -gt 5 ]; then
                 rm -rf "$LOCK_FILE"
                 continue

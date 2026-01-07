@@ -93,3 +93,6 @@ alias oo="cd /Users/raphael/Library/Mobile Documents/iCloud~md~obsidian/Document
 
 # Open new Ghostty window without tmux
 alias notmux='open -na Ghostty.app --args --command=$HOME/.local/bin/zsh-notmux'
+
+# hys: filter recent news (last 48 hours)
+alias news="$HOME/Projects/hys-fork/zig-out/bin/hys --all -p 48"

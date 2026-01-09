@@ -383,10 +383,15 @@ zeroAccessPaths:
   # ---------------------------------------------------------------------------
   # ENVIRONMENT FILES (HIGH RISK - contain secrets)
   # ---------------------------------------------------------------------------
+  # Note: example.env and sample.env are excluded (template files safe to commit)
   - ".env"
   - ".env.*"
   - ".env*.local"
-  - "*.env"
+  - "local.env"
+  - "production.env"
+  - "staging.env"
+  - "dev.env"
+  - "secrets.env"
 
   # ---------------------------------------------------------------------------
   # SSH KEYS AND CONFIG

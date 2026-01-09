@@ -285,3 +285,5 @@ if [[ "$TERM_PROGRAM" == "vscode" ]]; then
     . "/usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh"
   fi
 fi
+
+fpath+=~/.zfunc; autoload -Uz compinit; compinit

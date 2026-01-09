@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a comprehensive macOS dotfiles repository that uses GNU Stow for configuration management. It automates the complete setup of a development environment including shell, editors, terminal multiplexers, and system preferences.
+This is a cross-platform dotfiles repository (macOS and Linux/Raspberry Pi) that uses GNU Stow for configuration management. It automates the complete setup of a development environment including shell, editors, terminal multiplexers, and system preferences.
 
 ## Architecture
 
@@ -30,7 +30,8 @@ The `.stowrc` file configures stow with:
 - **Tmux**: Comprehensive setup with TPM plugin manager (`dotfiles/dot-config/tmux/`)
 - **Shell**: Zsh with Oh My Zsh, Starship prompt, and modern CLI tools replacements
 - **Git**: Professional setup with GPG signing and commit templates
-- **System**: macOS-specific configurations and homebrew package management
+- **Claude Code**: Status line, damage control hooks, and notification system (`dotfiles/dot-claude/`)
+- **System**: Cross-platform configurations (macOS homebrew, Linux package management)
 
 ## Common Commands
 
@@ -88,6 +89,18 @@ echo 'brew "package-name"' >> homebrew/Brewfile
 - GPG signing enabled for git commits and tags
 - Pre-commit hook prevents secret leakage using gitleaks
 - Karabiner keyboard modifications for enhanced security shortcuts
+- Claude Code damage control hooks prevent destructive operations
+
+### Claude Code Integration
+- **Status Line** (`statusline.sh`): Custom tmux status bar showing context usage and 5-hour rolling window token tracking with color-coded progress bars
+- **Damage Control Hooks** (`hooks/damage-control/`): PreToolUse hooks that validate bash commands, file edits, and writes to prevent destructive operations
+- **Notification System** (`ccnotify/`): Desktop notifications for Claude Code events
+- **Configuration**: Environment variables in `~/.claude/.env` (see `example.env`)
+
+### Utility Scripts
+- `ghostty-new-notmux`: Open new Ghostty window bypassing tmux auto-start
+- `zsh-notmux`: Launch shell without tmux (used by ghostty-new-notmux)
+- Tmux keybinding: `prefix + N` opens Ghostty window without tmux
 
 ## Troubleshooting
 
@@ -99,10 +112,19 @@ If Karabiner Elements doesn't work properly, check: https://github.com/pqrs-org/
 - For Apple Silicon Macs, Homebrew path may need manual addition to shell profile
 - Tmux plugins require manual installation if TPM setup fails during automated install
 
+### Ghostty SSH Issues
+If Ghostty terminal renders incorrectly on remote servers, export terminfo:
+```bash
+infocmp -x | ssh user@host -- tic -x -
+```
+
 ## Important Files
 
 - `setup.sh`: Main installation script with interactive prompts
 - `homebrew/Brewfile`: Complete package manifest for development environment
 - `dotfiles/dot-config/nvim/`: Modular Neovim configuration with separate plugin files
 - `dotfiles/dot-config/tmux/tmux.conf`: Comprehensive tmux configuration
+- `dotfiles/dot-claude/statusline.sh`: Claude Code usage status bar script
+- `dotfiles/dot-claude/hooks/damage-control/`: PreToolUse validation hooks
+- `dotfiles/dot-local/bin/`: Utility scripts (ghostty-new-notmux, zsh-notmux)
 - `scripts/`: Utility scripts for installation and system configuration

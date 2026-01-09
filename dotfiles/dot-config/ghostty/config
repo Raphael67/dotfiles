@@ -17,6 +17,9 @@ background-opacity = 1.0
 cursor-style = bar
 cursor-style-blink = true
 
+# Link Configuration
+link-url = true
+
 # Misc Configuration
 confirm-close-surface = false
 auto-update = check

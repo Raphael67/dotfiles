@@ -1,3 +1,4 @@
 --dir=./dotfiles
 --target=~/
 --dotfiles
+--ignore='\.DS_Store'

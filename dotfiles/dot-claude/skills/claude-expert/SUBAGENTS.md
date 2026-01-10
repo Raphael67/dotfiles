@@ -1,0 +1,320 @@
+# Claude Code Sub-Agents Reference
+
+## What Are Sub-Agents?
+
+Sub-agents are specialized Claude instances that can be invoked via the Task tool for specific tasks. They run in isolation with their own context, tools, and instructions.
+
+## Built-in Agent Types
+
+Claude Code includes several built-in agent types:
+
+| Agent Type | Use Case |
+|------------|----------|
+| `Bash` | Command execution, git operations, terminal tasks |
+| `general-purpose` | Research, code search, multi-step tasks |
+| `Explore` | Fast codebase exploration, file pattern search |
+| `Plan` | Implementation planning, architecture design |
+
+## Using the Task Tool
+
+### Basic Usage
+```
+Use the Task tool with subagent_type="Explore" to find all API endpoints.
+```
+
+### Task Tool Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `description` | Short (3-5 word) description of the task |
+| `prompt` | Detailed task instructions |
+| `subagent_type` | Agent type to use |
+| `model` | Optional model override (`sonnet`, `opus`, `haiku`) |
+| `run_in_background` | Run asynchronously |
+| `resume` | Agent ID to resume previous execution |
+
+### Examples
+
+**Explore Agent:**
+```xml
+<invoke name="Task">
+<parameter name="description">Find API endpoints</parameter>
+<parameter name="prompt">Search the codebase for all REST API endpoint definitions. Look for route handlers, controller methods, and OpenAPI specs.</parameter>
+<parameter name="subagent_type">Explore</parameter>
+</invoke>
+```
+
+**Plan Agent:**
+```xml
+<invoke name="Task">
+<parameter name="description">Plan auth implementation</parameter>
+<parameter name="prompt">Design an implementation plan for adding JWT authentication to the API. Consider middleware, token refresh, and logout.</parameter>
+<parameter name="subagent_type">Plan</parameter>
+</invoke>
+```
+
+**Background Execution:**
+```xml
+<invoke name="Task">
+<parameter name="description">Run test suite</parameter>
+<parameter name="prompt">Run the full test suite and report failures.</parameter>
+<parameter name="subagent_type">Bash</parameter>
+<parameter name="run_in_background">true</parameter>
+</invoke>
+```
+
+## Creating Custom Agents
+
+Custom agents are defined as markdown files with YAML frontmatter.
+
+### Directory Structure
+```
+.claude/agents/
+└── agent-name.md
+```
+
+Or globally:
+```
+~/.claude/agents/
+└── agent-name.md
+```
+
+### Agent File Format
+
+```yaml
+---
+name: my-custom-agent
+description: Description shown in Task tool agent list. Include when to use this agent.
+model: sonnet
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - WebFetch
+---
+
+# Agent Instructions
+
+You are a specialized agent for [specific purpose].
+
+## Your Capabilities
+- Capability 1
+- Capability 2
+
+## Guidelines
+- Guideline 1
+- Guideline 2
+
+## Output Format
+Always respond with:
+1. Summary
+2. Details
+3. Recommendations
+```
+
+### Frontmatter Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Unique agent identifier |
+| `description` | Yes | What + when, used for discovery |
+| `model` | No | Default model (`sonnet`, `opus`, `haiku`) |
+| `allowed-tools` | No | Restrict available tools |
+| `max-turns` | No | Limit conversation turns |
+
+## Complete Agent Example
+
+### Security Reviewer Agent
+
+```yaml
+---
+name: security-reviewer
+description: Review code for security vulnerabilities. Use for security audits, dependency checks, or when security concerns are raised.
+model: sonnet
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash
+---
+
+# Security Review Agent
+
+You are a security expert specializing in code review and vulnerability detection.
+
+## Focus Areas
+
+1. **Injection Vulnerabilities**
+   - SQL injection
+   - Command injection
+   - XSS (Cross-Site Scripting)
+
+2. **Authentication/Authorization**
+   - Weak credentials
+   - Missing auth checks
+   - Privilege escalation
+
+3. **Data Exposure**
+   - Hardcoded secrets
+   - Sensitive data in logs
+   - Insecure transmission
+
+4. **Dependencies**
+   - Known vulnerabilities
+   - Outdated packages
+   - Malicious dependencies
+
+## Review Process
+
+1. Scan for hardcoded secrets and credentials
+2. Check input validation and sanitization
+3. Review authentication flows
+4. Analyze authorization logic
+5. Check dependency versions
+6. Review error handling and logging
+
+## Output Format
+
+```markdown
+## Security Review Report
+
+### Critical Issues
+- Issue 1: [Description] at `file:line`
+
+### High Priority
+- Issue 1: [Description]
+
+### Medium Priority
+- Issue 1: [Description]
+
+### Recommendations
+1. Recommendation 1
+2. Recommendation 2
+```
+
+## Commands to Use
+
+```bash
+# Find hardcoded secrets
+grep -r "password\|secret\|api_key\|token" --include="*.{js,ts,py,env}"
+
+# Check for vulnerable patterns
+grep -r "eval\|exec\|shell\|system" --include="*.{js,ts,py}"
+
+# Review dependencies
+npm audit
+pip-audit
+```
+```
+
+### Test Runner Agent
+
+```yaml
+---
+name: test-runner
+description: Run tests and analyze failures. Use after code changes, for debugging test failures, or when asked to run tests.
+model: haiku
+allowed-tools:
+  - Bash
+  - Read
+  - Grep
+---
+
+# Test Runner Agent
+
+You run tests and provide clear analysis of failures.
+
+## Process
+
+1. Identify test framework (jest, pytest, vitest, etc.)
+2. Run appropriate test command
+3. Parse output for failures
+4. Analyze failing tests
+5. Suggest fixes
+
+## Common Commands
+
+```bash
+# JavaScript/TypeScript
+npm test
+npm run test:coverage
+npx jest --testPathPattern="pattern"
+
+# Python
+pytest
+pytest -v --tb=short
+pytest tests/test_file.py -k "test_name"
+
+# Go
+go test ./...
+go test -v -run TestName
+```
+
+## Output Format
+
+### All Tests Pass
+```
+All X tests passed in Y seconds.
+Coverage: Z%
+```
+
+### Test Failures
+```
+## Failed Tests (X/Y)
+
+### test_name (file:line)
+- Expected: value
+- Received: value
+- Likely cause: [analysis]
+- Suggested fix: [recommendation]
+```
+```
+
+## Parallel Agent Execution
+
+Launch multiple agents simultaneously:
+
+```xml
+<invoke name="Task">
+<parameter name="description">Find components</parameter>
+<parameter name="prompt">Find all React components in src/</parameter>
+<parameter name="subagent_type">Explore</parameter>
+</invoke>
+
+<invoke name="Task">
+<parameter name="description">Find API routes</parameter>
+<parameter name="prompt">Find all API route definitions</parameter>
+<parameter name="subagent_type">Explore</parameter>
+</invoke>
+```
+
+## Resuming Agents
+
+Use the agent ID to resume:
+
+```xml
+<invoke name="Task">
+<parameter name="description">Continue analysis</parameter>
+<parameter name="prompt">Continue with the next step</parameter>
+<parameter name="resume">a3840f8</parameter>
+<parameter name="subagent_type">Explore</parameter>
+</invoke>
+```
+
+## Best Practices
+
+1. **Choose the right agent**: Use `Explore` for search, `Plan` for architecture, `Bash` for commands
+2. **Be specific**: Give clear, detailed prompts
+3. **Use background**: For long-running tasks that don't need immediate results
+4. **Limit tools**: Restrict `allowed-tools` to what's needed for security
+5. **Use haiku for simple tasks**: Faster and cheaper for straightforward operations
+6. **Parallel when possible**: Launch independent agents simultaneously
+
+## When to Create Custom Agents
+
+Create a custom agent when you have:
+- Recurring specialized tasks
+- Domain-specific expertise needs
+- Complex multi-step workflows
+- Need for tool restrictions
+- Specific output format requirements

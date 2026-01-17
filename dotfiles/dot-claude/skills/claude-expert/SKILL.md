@@ -14,6 +14,8 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 |-------|------|----------|
 | Prompting | [PROMPTING.md](PROMPTING.md) | Writing effective prompts, XML tags, CoT, few-shot |
 | Skills | [SKILLS.md](SKILLS.md) | Creating or editing Claude Code skills |
+| Workflows | [WORKFLOWS.md](WORKFLOWS.md) | Building multi-step workflow prompts |
+| Commands | [COMMANDS.md](COMMANDS.md) | Creating /commands for quick invocation |
 | Hooks | [HOOKS.md](HOOKS.md) | Setting up PreToolUse, validation, notifications |
 | MCP | [MCP.md](MCP.md) | Adding MCP servers, tools, resources |
 | Sub-agents | [SUBAGENTS.md](SUBAGENTS.md) | Creating custom agents, Task tool config |
@@ -47,6 +49,17 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - YAML frontmatter + markdown instructions
 - Can specify model, tools, allowed-tools
 
+### Workflows
+- Variables at top for constants
+- Instructions for rules/constraints
+- Step-by-step workflow section
+- Report template at end
+
+### Commands
+- Quick-access prompts in `.claude/commands/`
+- Can restrict tools and specify model
+- Support argument passing
+
 ## When to Read Reference Files
 
 **Read PROMPTING.md when:**
@@ -58,6 +71,18 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - Creating a new skill
 - Editing skill YAML frontmatter
 - Debugging skill discovery
+- Understanding cookbook/prompts patterns
+
+**Read WORKFLOWS.md when:**
+- Building multi-step workflow prompts
+- Defining variables and instructions
+- Creating orchestrated workflows
+- Handling parallel execution
+
+**Read COMMANDS.md when:**
+- Creating /command shortcuts
+- Setting up prime or install commands
+- Understanding command vs skill differences
 
 **Read HOOKS.md when:**
 - Setting up security validation
@@ -73,3 +98,5 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - Creating custom agents
 - Configuring agent tools/permissions
 - Understanding Task tool options
+- Setting up parallel agent execution
+- Managing multi-agent safety

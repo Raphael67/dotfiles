@@ -272,7 +272,7 @@ Coverage: Z%
 
 ## Parallel Agent Execution
 
-Launch multiple agents simultaneously:
+Launch multiple agents simultaneously in a SINGLE message:
 
 ```xml
 <invoke name="Task">
@@ -286,6 +286,82 @@ Launch multiple agents simultaneously:
 <parameter name="prompt">Find all API route definitions</parameter>
 <parameter name="subagent_type">Explore</parameter>
 </invoke>
+```
+
+### Advanced Parallel Patterns
+
+#### Port Isolation for Parallel Agents
+When running multiple agents that use network resources:
+
+```markdown
+### Port Validation (Primary Agent)
+
+Assign ports BEFORE launching subagents:
+
+```bash
+# Assign deterministic ports based on index
+# Agent 1 → port 9223
+# Agent 2 → port 9224
+# Agent 3 → port 9225
+
+# Validate each port is available
+for port in 9223 9224 9225; do
+  lsof -i :$port 2>/dev/null && echo "Port $port: IN USE" || echo "Port $port: AVAILABLE"
+done
+```
+
+If a port is in use, increment until available.
+```
+
+#### Subagent Prompt Template
+Structure for parallel subagent prompts:
+
+```markdown
+<subagent-prompt>
+You are executing a specific task.
+
+**YOUR ASSIGNED PORT: [UNIQUE_PORT]**
+This port is exclusively yours. No other agent will use it.
+
+**Setup:**
+1. cd to `[WORKING_DIR]`
+2. Your port is: [UNIQUE_PORT] (pre-validated by parent)
+3. Start service: `command --port [UNIQUE_PORT]`
+
+**Task:**
+[Specific instructions for this agent]
+
+**CRITICAL - CLEANUP:**
+- ONLY close YOUR service on YOUR port
+- NEVER close without specifying your port
+- NEVER touch ports other than [UNIQUE_PORT]
+
+**Return this exact format:**
+```
+Task: [Name]
+Port: [UNIQUE_PORT]
+Status: PASSED or FAILED
+Details: [summary]
+```
+</subagent-prompt>
+```
+
+#### Collecting Parallel Results
+After launching parallel agents:
+
+```markdown
+### Collect Results (Primary Agent)
+
+After all subagents complete:
+1. Collect status from each
+2. Count passed/failed
+3. Generate consolidated report
+
+| Task | Port | Status | Details |
+|------|------|--------|---------|
+| Task 1 | 9223 | PASSED | ... |
+| Task 2 | 9224 | PASSED | ... |
+| Task 3 | 9225 | FAILED | ... |
 ```
 
 ## Resuming Agents
@@ -318,3 +394,92 @@ Create a custom agent when you have:
 - Complex multi-step workflows
 - Need for tool restrictions
 - Specific output format requirements
+
+## Multi-Agent Safety Patterns
+
+### ID Management
+When working with resources that need tracking across operations:
+
+```markdown
+## Instructions
+
+- **CAPTURE AND REMEMBER IDs** - Store in your context, not shell variables
+- **Multi-agent safe** - Each agent tracks its own IDs independently
+- **Never use shell variables** like `export ID=...` (conflicts with other agents)
+- **Never rely on files** like `.sandbox_id` (gets overwritten by other agents)
+
+**Example of proper ID handling:**
+```bash
+# When you run this:
+uv run sbx init
+
+# Capture the ID from output (e.g., "sbx_abc123def456")
+# Store it in YOUR context/memory as: sandbox_id = "sbx_abc123def456"
+
+# Then use it directly in all commands:
+uv run sbx exec sbx_abc123def456 "python --version"
+```
+```
+
+### Context Isolation
+Each agent maintains its own state:
+
+| What | Good | Bad |
+|------|------|-----|
+| Store IDs | In agent context/memory | In shell variables |
+| Track URLs | Returned from commands | Constructed manually |
+| Pass data | Through function returns | Through shared files |
+
+### Conflict Prevention
+When multiple agents might operate simultaneously:
+
+```markdown
+## Instructions
+
+1. **Unique identifiers**: Always use workflow ID in resource names
+2. **Port isolation**: Pre-assign unique ports per agent
+3. **Directory isolation**: Use `temp/<WORKFLOW_ID>/` for working files
+4. **Explicit cleanup**: Only clean up YOUR resources
+```
+
+## Agent Communication Patterns
+
+### Parent-Child Communication
+Pass context from orchestrating agent to subagents:
+
+```markdown
+### Launch Subagent
+
+Use Task tool with full context:
+
+<subagent-prompt>
+**Context from parent:**
+- Sandbox ID: [SANDBOX_ID]
+- Plan path: [PLAN_PATH]
+- Workflow ID: [WORKFLOW_ID]
+
+**Your task:**
+[Specific instructions]
+
+**Return to parent:**
+- Status: PASSED/FAILED
+- Output path: [generated file]
+- Errors: [if any]
+</subagent-prompt>
+```
+
+### Result Aggregation
+Parent agent collects and processes subagent results:
+
+```markdown
+### Process Results
+
+After all subagents complete:
+
+1. Parse each result for status
+2. Aggregate metrics
+3. Handle failures:
+   - If any FAILED: report specific failures
+   - If all PASSED: proceed to next phase
+4. Generate consolidated report
+```

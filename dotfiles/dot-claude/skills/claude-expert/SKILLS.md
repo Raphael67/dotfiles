@@ -15,6 +15,7 @@ Skills are markdown files that extend Claude Code's capabilities by providing sp
 
 ## Directory Structure
 
+### Standard Structure
 ```
 .claude/skills/
 └── skill-name/              # Directory (lowercase, hyphens)
@@ -22,6 +23,32 @@ Skills are markdown files that extend Claude Code's capabilities by providing sp
     ├── REFERENCE.md         # Additional docs (optional)
     ├── PATTERNS.md          # Code patterns (optional)
     └── scripts/             # Helper scripts (optional)
+        └── helper.py
+```
+
+### Advanced Structure (Cookbook Pattern)
+For complex skills with multiple workflows:
+```
+.claude/skills/
+└── skill-name/
+    ├── SKILL.md                 # Main file with decision tree
+    ├── patterns.yaml            # Shared configuration (single source of truth)
+    ├── cookbook/                # Workflow documentation
+    │   ├── install_workflow.md
+    │   ├── modify_workflow.md
+    │   └── test_workflow.md
+    ├── prompts/                 # Reusable prompt templates
+    │   ├── build.md
+    │   ├── test.md
+    │   └── report.md
+    ├── examples/                # Progressive disclosure examples
+    │   ├── 01_basic_usage.md
+    │   ├── 02_advanced_usage.md
+    │   └── 03_edge_cases.md
+    ├── hooks/                   # Implementation variants
+    │   ├── implementation-python/
+    │   └── implementation-typescript/
+    └── tools/                   # Helper scripts
         └── helper.py
 ```
 
@@ -55,6 +82,87 @@ Instructions and content...
 | `allowed-tools` | No | Restrict available tools (e.g., `Read, Grep, Glob`) |
 | `version` | No | Version number for tracking |
 | `disable-model-invocation` | No | `true` to disable auto-invocation |
+
+## SKILL.md Sections
+
+A well-structured SKILL.md follows this pattern:
+
+### 1. Variables Section
+Define skill-wide constants that can be referenced throughout:
+
+```markdown
+## Variables
+
+SKILL_DIR: .claude/skills/my-skill
+CONFIG_FILE: SKILL_DIR/config.yaml
+TIMEOUT_SECONDS: 3600
+DEFAULT_MODEL: sonnet
+```
+
+### 2. Instructions Section
+Core guidance for the skill:
+
+```markdown
+## Instructions
+
+- Follow the `Workflow` to complete the task
+- Use AskUserQuestion for decision points
+- **IMPORTANT**: Never skip validation steps
+- All commands must be run from `SKILL_DIR`
+```
+
+### 3. Workflow Section
+Step-by-step execution flow:
+
+```markdown
+## Workflow
+
+### Step 1: Validate Environment
+1. Check for required configuration
+2. Verify dependencies are installed
+
+### Step 2: Execute Task
+1. Perform the main action
+2. Handle errors gracefully
+
+### Step 3: Report Results
+1. Summarize what was done
+2. Provide next steps
+```
+
+### 4. Cookbook Section (Decision Tree)
+Route to specific workflows based on user intent:
+
+```markdown
+## Cookbook
+
+### Installation Pathway
+**Trigger phrases**: "install", "setup", "deploy"
+**Workflow**: Read and execute [cookbook/install_workflow.md](cookbook/install_workflow.md)
+
+### Modification Pathway
+**Trigger phrases**: "modify", "update", "change"
+**Workflow**: Read and execute [cookbook/modify_workflow.md](cookbook/modify_workflow.md)
+
+### Direct Command Pathway
+**Trigger phrases**: "add X to Y", "block command Z"
+**Action**: Execute immediately without prompts - user knows the system
+```
+
+### 5. Report Section
+Standard output format:
+
+```markdown
+## Report
+
+Present the summary:
+
+### Task Complete
+
+**Status**: [Success/Partial/Failed]
+**Files Modified**: [list]
+**Next Steps**: [recommendations]
+```
 
 ## Writing Effective Descriptions
 
@@ -249,3 +357,206 @@ Test discovery by asking Claude about a topic your skill covers.
 4. **Test triggers**: Ask related questions to verify discovery
 5. **Version your skills**: Track changes with version field
 6. **Document reference files**: Table showing when to read each
+
+## Advanced Patterns
+
+### Cookbook/Prompts Pattern
+Separate workflow logic from the main skill file:
+
+```
+skill-name/
+├── SKILL.md              # Decision tree + quick reference
+├── cookbook/             # Complex workflows with full context
+│   └── install.md        # Complete installation workflow
+└── prompts/              # Reusable prompt templates
+    └── build.md          # Build workflow template
+```
+
+**In SKILL.md:**
+```markdown
+## Cookbook
+
+### Installation
+**Trigger**: "install", "setup"
+**Workflow**: Read and execute [cookbook/install.md](cookbook/install.md)
+```
+
+**In cookbook/install.md:**
+```yaml
+---
+model: opus
+description: Interactive workflow to install the skill
+---
+
+# Purpose
+Guide the user through installation.
+
+## Variables
+TARGET_DIR: ~/.claude/skills/
+
+## Instructions
+- Use AskUserQuestion at each decision point
+- Verify installation by checking file existence
+
+## Workflow
+### Step 1: Choose Location
+1. Use AskUserQuestion to determine install location
+
+### Step 2: Copy Files
+...
+
+## Report
+Present the installation summary.
+```
+
+### Progressive Disclosure Pattern
+Use numbered examples to control context loading:
+
+```
+skill-name/
+├── SKILL.md
+└── examples/
+    ├── 01_basic.md        # Read first for simple tasks
+    ├── 02_intermediate.md # Read when needed
+    └── 03_advanced.md     # Read for complex scenarios
+```
+
+**In SKILL.md:**
+```markdown
+## Examples
+
+**Progressive Disclosure**: Read only the example you need.
+
+### Example 1: Basic Usage
+**Read when**: Simple task, getting started
+**See**: [examples/01_basic.md](examples/01_basic.md)
+
+### Example 2: Advanced Usage
+**Read when**: Complex task, multiple steps
+**See**: [examples/02_advanced.md](examples/02_advanced.md)
+```
+
+### Variables + Instructions Pattern
+Use clear variable definitions for reusability:
+
+```markdown
+## Variables
+
+SKILL_DIR: .claude/skills/my-skill
+CONFIG_FILE: SKILL_DIR/config.yaml
+TIMEOUT_SECONDS: 43200
+DEFAULT_PORT: 5173
+
+## Instructions
+
+- **ALWAYS USE --timeout TIMEOUT_SECONDS**
+- Change directory to SKILL_DIR before operations
+- Use DEFAULT_PORT unless specified otherwise
+- Never create files outside SKILL_DIR
+```
+
+### Argument Hint Pattern
+For prompts that accept arguments:
+
+```yaml
+---
+description: Build the application from a plan
+argument-hint: [path-to-plan] [options]
+---
+
+# Build
+
+## Variables
+PATH_TO_PLAN: $1
+OPTIONS: $2 default "" if not provided
+```
+
+### Config as Single Source of Truth
+Use YAML/JSON for shared configuration:
+
+```yaml
+# patterns.yaml - Single source of truth
+blockedCommands:
+  - pattern: '\brm\s+-rf'
+    reason: Dangerous recursive delete
+
+protectedPaths:
+  - ".env"
+  - "~/.ssh/"
+```
+
+Reference in multiple scripts:
+```python
+# hook.py
+import yaml
+config = yaml.safe_load(open("patterns.yaml"))
+```
+
+### Tools Integration
+Include helper tools with your skill:
+
+```
+skill-name/
+├── SKILL.md
+└── tools/
+    └── helper.py   # Executable helper script
+```
+
+**In SKILL.md:**
+```markdown
+## Workflow
+
+1. Execute the helper tool:
+\`\`\`bash
+uv run .claude/skills/skill-name/tools/helper.py "argument"
+\`\`\`
+```
+
+## Commands Integration
+
+Skills can work with commands (`.claude/commands/`) for quick invocation:
+
+### Prime Command Pattern
+A `/prime` command orients the agent on a codebase:
+
+```yaml
+---
+description: Prime agent on the codebase
+allowed-tools: Bash, Read, Glob
+---
+
+# Purpose
+Get oriented on the codebase. Read-only exploration.
+
+## Workflow
+- `git ls-files`
+- Read `README.md`
+- Read `.claude/skills/skill-name/SKILL.md`
+
+## Report
+Summarize what you learned.
+```
+
+### Workflow Command Pattern
+Chain multiple skill prompts in sequence:
+
+```yaml
+---
+description: Full workflow - plan, build, test, deploy
+argument-hint: [user_prompt]
+---
+
+# Purpose
+Complete end-to-end workflow.
+
+## Variables
+USER_PROMPT: $1
+
+## Workflow
+> Run top to bottom. DO NOT STOP between steps.
+
+1. **Plan**: Run `\skill-name:plan [USER_PROMPT]`
+2. **Build**: Run `\skill-name:build [path_to_plan]`
+3. **Test**: Run `\skill-name:test`
+4. **Report**: Summarize all steps
+```

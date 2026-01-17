@@ -99,3 +99,5 @@ alias news="$HOME/Projects/hys-fork/zig-out/bin/hys --all -p 48"
 
 # Fix stuck mouse reporting mode (when scrolling outputs escape sequences)
 alias fixmouse="printf '\e[?1000l\e[?1002l\e[?1003l\e[?1006l'"
+
+alias clyo="claude --dangerously-skip-permissions"

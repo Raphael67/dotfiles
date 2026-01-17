@@ -13,6 +13,13 @@ fi
 # Avoid clobbering preexec/precmd hooks (important for integration + themes)
 typeset -ga precmd_functions preexec_functions
 
+# Auto-reset mouse reporting mode before each prompt
+# Fixes stuck mouse mode when programs (vim, tmux, less) crash or don't clean up
+_reset_mouse_mode() {
+  printf '\e[?1000l\e[?1002l\e[?1003l\e[?1006l'
+}
+precmd_functions+=(_reset_mouse_mode)
+
 # macOS Homebrew paths (only add if they exist)
 if [[ -d /opt/homebrew/bin ]]; then
   export PATH=/opt/homebrew/bin:/opt/homebrew/opt/openjdk@17/bin:$PATH

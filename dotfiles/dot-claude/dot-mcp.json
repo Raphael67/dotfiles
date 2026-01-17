@@ -8,6 +8,23 @@
                 "run",
                 "mcp-ical"
             ]
+        },
+        "pw-fast": {
+            "command": "npx",
+            "args": [
+                "@tontoko/fast-playwright-mcp@latest",
+                "--headless"
+            ]
+        },
+        "pw-writer": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "playwriter@latest"
+            ],
+            "env": {
+                "PLAYWRITER_AUTO_ENABLE": "1"
+            }
         }
     }
 }

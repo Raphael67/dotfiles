@@ -1,94 +1,138 @@
 {
-    "env": {
-        "DISABLE_ZOXIDE": "1",
-        "CLAUDECODE": "1"
-    },
-    "alwaysThinkingEnabled": true,
-    "statusLine": {
-        "type": "command",
-        "command": "~/.claude/statusline.sh",
-        "padding": 0
-    },
-    "hooks": {
-        "UserPromptSubmit": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "~/.claude/ccnotify/ccnotify.py UserPromptSubmit"
-                    }
-                ]
-            }
-        ],
-        "Stop": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "~/.claude/ccnotify/ccnotify.py Stop"
-                    }
-                ]
-            }
-        ],
-        "Notification": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "~/.claude/ccnotify/ccnotify.py Notification"
-                    }
-                ]
-            }
-        ],
-        "PreToolUse": [
-            {
-                "matcher": "Bash",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "uv run ~/.claude/hooks/damage-control/bash-tool-damage-control.py",
-                        "timeout": 5
-                    },
-                    {
-                        "type": "prompt",
-                        "prompt": "You are a security reviewer evaluating a bash command for destructive potential. Analyze this command: $ARGUMENTS\n\nBLOCK if the command would:\n- Delete, remove, or destroy files/directories recursively or in bulk\n- Overwrite or corrupt critical system files, configs, or data\n- Cause irreversible data loss\n- Execute destructive operations via find, xargs, or loops\n- Wipe, format, or damage filesystems\n\nALLOW if the command is:\n- Read-only (cat, ls, grep, find without -delete/-exec rm)\n- Safe write operations to non-critical paths\n- Standard development commands (git status, npm install, stow, etc.)\n- Stow commands for dotfile management (stow, stow -R, stow -D, stow --adopt)\n- Precise SQL DELETE with a specific ID in WHERE clause\n\nRespond with JSON: {\"decision\": \"approve\" or \"block\", \"reason\": \"brief explanation\"}",
-                        "timeout": 10
-                    }
-                ]
-            },
-            {
-                "matcher": "Edit",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "uv run ~/.claude/hooks/damage-control/edit-tool-damage-control.py",
-                        "timeout": 5
-                    }
-                ]
-            },
-            {
-                "matcher": "Write",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "uv run ~/.claude/hooks/damage-control/write-tool-damage-control.py",
-                        "timeout": 5
-                    }
-                ]
-            }
+  "env": {
+    "DISABLE_ZOXIDE": "1",
+    "CLAUDECODE": "1"
+  },
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "Bash(chmod:*)",
+      "Bash(\"/Users/raphael/Library/Mobile Documents/iCloud~md~obsidian/Documents/my_vault/_Assets/claude_usage_log.json\")",
+      "Bash(~/.claude/statusline.sh)",
+      "Bash(cat:*)",
+      "Bash(mkdir -p:*)",
+      "Bash(bun run:*)",
+      "Bash(curl:*)",
+      "Bash(/bin/ls:*)",
+      "Bash(bdg:*)",
+      "Bash(claude mcp add:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_close",
+      "mcp__playwright__browser_run_code",
+      "WebSearch",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:developer.api.fr.carrefour.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:lobehub.com)",
+      "WebFetch(domain:crawlee.dev)",
+      "mcp__playwright__browser_evaluate",
+      "mcp__playwright__browser_network_requests",
+      "Bash(npx @tontoko/fast-playwright-mcp@latest:*)",
+      "Bash(claude mcp list:*)",
+      "mcp__playwright__browser_batch_execute",
+      "mcp__playwright__browser_take_screenshot",
+      "Bash(xargs:*)",
+      "Skill(playwright)",
+      "mcp__playwright__browser_tab_list",
+      "mcp__playwright__browser_tab_new",
+      "mcp__playwright__browser_tab_select",
+      "WebFetch(domain:agenticengineer.com)",
+      "WebFetch(domain:www.youtube.com)",
+      "WebFetch(domain:amityadu8007.medium.com)",
+      "WebFetch(domain:datasciocean.com)",
+      "WebFetch(domain:airbyte.com)"
+    ],
+    "deny": [
+      "Bash(rm -rf /*:*)",
+      "Bash(rm -rf ~/*:*)",
+      "Bash(sudo rm -rf:*)",
+      "Bash(mkfs:*)",
+      "Bash(dd if=* of=/dev/*:*)"
+    ],
+    "ask": [
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)"
+    ],
+    "defaultMode": "default"
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/ccnotify/ccnotify.py UserPromptSubmit"
+          }
         ]
-    },
-    "permissions": {
-        "deny": [
-            "Bash(rm -rf /*:*)",
-            "Bash(rm -rf ~/*:*)",
-            "Bash(sudo rm -rf:*)",
-            "Bash(mkfs:*)",
-            "Bash(dd if=* of=/dev/*:*)"
-        ],
-        "ask": [
-            "Bash(git push --force:*)",
-            "Bash(git reset --hard:*)"
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/ccnotify/ccnotify.py Stop"
+          }
         ]
-    }
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/ccnotify/ccnotify.py Notification"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ~/.claude/hooks/damage-control/bash-tool-damage-control.py",
+            "timeout": 5
+          },
+          {
+            "type": "prompt",
+            "prompt": "You are a security reviewer evaluating a bash command for destructive potential. Analyze this command: $ARGUMENTS\n\nBLOCK if the command would:\n- Delete, remove, or destroy files/directories recursively or in bulk\n- Overwrite or corrupt critical system files, configs, or data\n- Cause irreversible data loss\n- Execute destructive operations via find, xargs, or loops\n- Wipe, format, or damage filesystems\n\nALLOW if the command is:\n- Read-only (cat, ls, grep, find without -delete/-exec rm)\n- Safe write operations to non-critical paths\n- Standard development commands (git status, npm install, stow, etc.)\n- Stow commands for dotfile management (stow, stow -R, stow -D, stow --adopt)\n- Precise SQL DELETE with a specific ID in WHERE clause\n\nRespond with JSON: {\"decision\": \"approve\" or \"block\", \"reason\": \"brief explanation\"}",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ~/.claude/hooks/damage-control/edit-tool-damage-control.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ~/.claude/hooks/damage-control/write-tool-damage-control.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx -y @owloops/claude-powerline@latest | sed 's/§/💬/g; s/☉/☀️/g; s/◱/⏱️/g; s/◔/💾/g; s/tokens/T/g'"
+  }
 }

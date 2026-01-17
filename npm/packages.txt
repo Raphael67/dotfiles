@@ -27,3 +27,6 @@ jsdom
 
 # Canvas implementation for Node.js (for image generation)
 canvas
+
+# Claude CLI
+@anthropic-ai/claude-code

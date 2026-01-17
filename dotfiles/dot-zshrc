@@ -162,17 +162,27 @@ if [[ -d "$HOME/.pyenv" ]]; then
 fi
 
 # node: nvm
-if [[ -d "$HOME/.nvm" ]]; then
-  export NVM_DIR="$HOME/.nvm"
+export NVM_DIR="$HOME/.nvm"
+# Check if installed via XDG config home (default for new installs on Linux)
+if [[ -d "$HOME/.config/nvm" ]]; then
+  export NVM_DIR="$HOME/.config/nvm"
+fi
+
+if [[ -d "$NVM_DIR" || -d "/opt/homebrew/opt/nvm" ]]; then
   # Load nvm (macOS Homebrew or standard installation)
   if [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
+    export NVM_DIR="/opt/homebrew/opt/nvm"
     \. "/opt/homebrew/opt/nvm/nvm.sh"
     [ -s "/opt/homebrew/opt/nvm/bash_completion" ] && \. "/opt/homebrew/opt/nvm/bash_completion"
   elif [[ -s "$NVM_DIR/nvm.sh" ]]; then
     \. "$NVM_DIR/nvm.sh"
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
   fi
-  type nvm &>/dev/null && nvm use --lts --silent
+  
+  # Use LTS version if nvm is loaded
+  if type nvm &>/dev/null; then
+    nvm use --lts --silent
+  fi
 fi
 
 if [[ -d  "/mnt/c/Users/rapha/AppData/Local/Programs/Microsoft VS Code/bin" ]]; then

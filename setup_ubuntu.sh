@@ -17,4 +17,23 @@ rustup update
 # Install Rust packages from rust/packages.txt
 grep -v '^#' "$SCRIPT_DIR/rust/packages.txt" | grep -v '^$' | xargs -I {} cargo install {}
 
+# Install nvm and Node.js LTS
+echo "Installing nvm..."
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+
+# Load nvm to install Node
+export NVM_DIR="$HOME/.nvm"
+[ -d "$HOME/.config/nvm" ] && export NVM_DIR="$HOME/.config/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+echo "Installing Node.js LTS..."
+nvm install --lts
+nvm use --lts
+
+# Install npm global packages
+echo "Installing npm global packages..."
+grep -v '^#' "$SCRIPT_DIR/npm/packages.txt" | grep -v '^$' | while read -r package; do
+    npm install -g "$package"
+done
+
 stow .

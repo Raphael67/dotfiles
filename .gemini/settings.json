@@ -1,0 +1,22 @@
+{
+  "ui": {
+    "useAlternateBuffer": true
+  },
+  "security": {
+    "folderTrust": {
+      "enabled": true
+    }
+  },
+  "experimental": {
+    "skills": true,
+    "introspectionAgentSettings": {
+      "enabled": true
+    }
+  },
+  "tools": {
+    "sandbox": false
+  },
+  "telemetry": {
+    "enabled": false
+  }
+}

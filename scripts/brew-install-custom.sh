@@ -28,9 +28,13 @@ if [ "$(basename "$0")" = "$(basename "${BASH_SOURCE[0]}")" ]; then
     run_brew_bundle
 fi
 
-mas install 1616831348 # Affinity designer 2
-mas install 1606941598 # Affinity publisher 2
-mas install 1616822987 # Affinity photo 2
-mas install 409201541  # pages
-mas install 409203825  # numbers
-mas install 409183694  # keynote
+# Install Mac App Store apps from MAS_APPS environment variable
+# Default: Affinity suite + iWork apps
+# To customize: set MAS_APPS in .env (space-separated bundle IDs)
+# To skip: set MAS_APPS="" in .env
+MAS_APPS_LIST="${MAS_APPS:-1616831348 1606941598 1616822987 409201541 409203825 409183694}"
+if [[ -n "$MAS_APPS_LIST" ]] && command -v mas &>/dev/null; then
+    for app_id in $MAS_APPS_LIST; do
+        mas install "$app_id"
+    done
+fi

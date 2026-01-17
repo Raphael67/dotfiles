@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Source environment variables if .env exists
+if [[ -f "$(dirname "$0")/.env" ]]; then
+    source "$(dirname "$0")/.env"
+fi
+
 . scripts/utils.sh
 . scripts/prerequisites.sh
 . scripts/brew-install-custom.sh
@@ -31,8 +36,9 @@ if [[ "$install_apps" == "y" ]]; then
     run_brew_bundle
 
     sed "s/^#auth/auth/" /etc/pam.d/sudo_local.template | sudo tee /etc/pam.d/sudo_local
-    if [[ /opt/homebrew/lib/pam/pam_reattach.so ]]; then
-        sed "1s/^/auth     optional     \/opt\/homebrew\/lib\/pam\/pam_reattach.so ignore_ssh\n/" /etc/pam.d/sudo_local | sudo tee /etc/pam.d/sudo_local
+    BREW_PREFIX="${HOMEBREW_PREFIX:-/opt/homebrew}"
+    if [[ -f "${BREW_PREFIX}/lib/pam/pam_reattach.so" ]]; then
+        sed "1s|^|auth     optional     ${BREW_PREFIX}/lib/pam/pam_reattach.so ignore_ssh\n|" /etc/pam.d/sudo_local | sudo tee /etc/pam.d/sudo_local
     fi
 
     # Install npm global packages from packages.txt
@@ -63,9 +69,11 @@ if [[ "$install_apps" == "y" ]]; then
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
     git clone https://github.com/mroth/evalcache ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/evalcache
 
-    echo >>/Users/raphael/.zprofile
-    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>/Users/raphael/.zprofile
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+    USER_HOME="${DOTFILES_HOME:-$HOME}"
+    BREW_PREFIX="${HOMEBREW_PREFIX:-/opt/homebrew}"
+    echo >>"${USER_HOME}/.zprofile"
+    echo "eval \"\$(${BREW_PREFIX}/bin/brew shellenv)\"" >>"${USER_HOME}/.zprofile"
+    eval "$(${BREW_PREFIX}/bin/brew shellenv)"
 
     rm -rf ~/.config/tmux/plugins/tpm
     git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
@@ -99,5 +107,6 @@ if [[ "$overwrite_dotfiles" == "y" ]]; then
 fi
 
 # Symlink vscode settings
-rm "/Users/raphael/Library/Application Support/Code/User/settings.json"
-ln -s $(pwd)/dotfiles/dot-config/Code/User/settings.json "/Users/raphael/Library/Application Support/Code/User/settings.json"
+USER_HOME="${DOTFILES_HOME:-$HOME}"
+rm "${USER_HOME}/Library/Application Support/Code/User/settings.json"
+ln -s $(pwd)/dotfiles/dot-config/Code/User/settings.json "${USER_HOME}/Library/Application Support/Code/User/settings.json"

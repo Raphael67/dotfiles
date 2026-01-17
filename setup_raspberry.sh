@@ -1,5 +1,10 @@
 #!/usr/bin/bash
 
+# Source environment variables if .env exists
+if [[ -f "$(dirname "$0")/.env" ]]; then
+    source "$(dirname "$0")/.env"
+fi
+
 . scripts/utils.sh
 
 info "Dotfiles installation initialized..."
@@ -15,11 +20,16 @@ info "===================="
 info "Locales"
 info "===================="
 
-if ! grep -q "^en_US.UTF-8 UTF-8" /etc/locale.gen; then
-    echo "en_US.UTF-8 UTF-8" | sudo tee -a /etc/locale.gen
-    echo "fr_FR.UTF-8 UTF-8" | sudo tee -a /etc/locale.gen
+DEFAULT_LOCALE="${DOTFILES_LOCALE:-en_US.UTF-8}"
+EXTRA_LOCALES="${DOTFILES_EXTRA_LOCALES:-fr_FR.UTF-8}"
+
+if ! grep -q "^${DEFAULT_LOCALE} UTF-8" /etc/locale.gen; then
+    echo "${DEFAULT_LOCALE} UTF-8" | sudo tee -a /etc/locale.gen
+    for locale in $EXTRA_LOCALES; do
+        echo "${locale} UTF-8" | sudo tee -a /etc/locale.gen
+    done
     sudo locale-gen
-    echo "LANG=fr_FR.UTF-8" | sudo tee /etc/locale.conf
+    echo "LANG=${DEFAULT_LOCALE}" | sudo tee /etc/locale.conf
 fi
 
 if [[ "$install_apps" == "y" ]]; then
@@ -140,8 +150,8 @@ if [[ "$install_apps" == "y" ]]; then
         # Clean up incomplete installation
         rm -rf "$NVM_DIR"
         mkdir -p "$NVM_DIR"
-        # Download and install nvm
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+        # Download and install nvm (always latest)
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
     else
         info "NVM already installed, skipping..."
     fi
@@ -206,7 +216,7 @@ if [[ "$install_apps" == "y" ]]; then
     else
         info "Jenv already installed, skipping..."
     fi
-    export JAVA_HOME=/usr/lib/jvm/default
+    export JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/default}"
 
     # ====================
     # NPM packages (using nvm's npm)

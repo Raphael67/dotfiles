@@ -1,7 +1,15 @@
 #!/bin/bash
 
-ALERT_IF_IN_NEXT_MINUTES=10
-ALERT_POPUP_BEFORE_SECONDS=10
+# Source environment variables if .env exists in home directory
+[[ -f "${HOME}/.env" ]] && source "${HOME}/.env"
+
+# Configuration with environment variable defaults
+ALERT_IF_IN_NEXT_MINUTES="${CALENDAR_ALERT_MINUTES:-10}"
+ALERT_POPUP_BEFORE_SECONDS="${CALENDAR_POPUP_SECONDS:-10}"
+
+# Build exclude list from environment variables
+EXCLUDE_CALS="${CALENDAR_EXCLUDE_CALS:-training}"
+[[ -n "${CALENDAR_EXCLUDE_EMAIL}" ]] && EXCLUDE_CALS="${EXCLUDE_CALS},${CALENDAR_EXCLUDE_EMAIL}"
 NERD_FONT_FREE="󱁕 "
 NERD_FONT_MEETING="󰤙"
 
@@ -18,7 +26,7 @@ get_attendees() {
 		--separateByDate \
 		--excludeEndDates \
 		--bullet "" \
-		--excludeCals "training,omerxx@gmail.com" \
+		--excludeCals "$EXCLUDE_CALS" \
 		eventsToday)
 }
 
@@ -41,7 +49,7 @@ get_next_meeting() {
 		--excludeAllDayEvents \
 		--separateByDate \
 		--bullet "" \
-		--excludeCals "training,omerxx@gmail.com" \
+		--excludeCals "$EXCLUDE_CALS" \
 		eventsToday)
 }
 
@@ -58,7 +66,7 @@ get_next_next_meeting() {
 		--excludeAllDayEvents \
 		--separateByDate \
 		--bullet "" \
-		--excludeCals "training,omerxx@gmail.com" \
+		--excludeCals "$EXCLUDE_CALS" \
 		eventsFrom:"${end_timestamp}" to:"${tonight}")
 }
 

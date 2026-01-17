@@ -35,9 +35,27 @@ if [[ "$install_apps" == "y" ]]; then
         sed "1s/^/auth     optional     \/opt\/homebrew\/lib\/pam\/pam_reattach.so ignore_ssh\n/" /etc/pam.d/sudo_local | sudo tee /etc/pam.d/sudo_local
     fi
 
-    npm install -g neovim
-    npm install -g @bitwarden/cli
-    npm install -g browser-debugger-cli@alpha
+    # Install npm global packages from packages.txt
+    info "Installing npm global packages..."
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Skip empty lines and comments
+        if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
+            npm install -g "$line"
+        fi
+    done < npm/packages.txt
+
+    # Install Python tools with uv (isolated environments)
+    info "Installing Python tools..."
+    if command -v uv &> /dev/null; then
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            # Skip empty lines and comments
+            if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
+                uv tool install "$line"
+            fi
+        done < pip/packages.txt
+    else
+        info "Warning: uv not found, skipping Python tools"
+    fi
 
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"

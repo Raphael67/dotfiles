@@ -7,7 +7,8 @@ brew "gcc"
 # Platform built on V8 to build network applications
 brew "node"
 # Incredibly fast JavaScript runtime, bundler, test runner, and package manager
-brew "bun"
+# Note: bun is installed via its own installer: curl -fsSL https://bun.sh/install | bash
+# brew "bun"
 # Python version management
 brew "pyenv"
 # Search tool like grep and The Silver Searcher
@@ -81,3 +82,15 @@ cask "claude"
 cask "claude-code"
 # macOS notifications from terminal
 brew "terminal-notifier"
+
+# ================================
+# Visual Assets / Diagram Tools
+# ================================
+# UML and diagram generation tool
+brew "plantuml"
+# Modern diagram scripting language
+brew "d2"
+# SVG to PNG/PDF converter (for D3.js exports)
+brew "librsvg"
+# Image manipulation (for format conversions)
+brew "imagemagick"

@@ -1,0 +1,29 @@
+# Global npm packages
+# Install with: xargs -I {} npm install -g {} < npm/packages.txt
+
+# Neovim integration
+neovim
+
+# Bitwarden CLI for secrets management
+@bitwarden/cli
+
+# Browser debugger CLI
+browser-debugger-cli@alpha
+
+# ================================
+# Visual Assets / Diagram Tools
+# ================================
+# Mermaid diagram CLI renderer
+@mermaid-js/mermaid-cli
+
+# Headless browser for p5.js rendering
+puppeteer
+
+# D3.js data visualization library
+d3
+
+# DOM implementation for server-side D3
+jsdom
+
+# Canvas implementation for Node.js (for image generation)
+canvas

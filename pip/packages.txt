@@ -1,0 +1,9 @@
+# Python tools (install with uv tool install)
+# Install with: while read pkg; do uv tool install "$pkg"; done < pip/packages.txt
+# These are installed as isolated tools, not system-wide packages
+
+# ================================
+# Visual Assets / Animation Tools
+# ================================
+# Mathematical animation engine (like 3Blue1Brown)
+manim

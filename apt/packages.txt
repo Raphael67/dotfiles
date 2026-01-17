@@ -44,3 +44,25 @@ python3-pip
 python3-venv
 # Git security scanner
 gitleaks
+
+# ================================
+# Visual Assets / Diagram Tools
+# ================================
+# UML and diagram generation tool
+plantuml
+# SVG to PNG converter
+librsvg2-bin
+# Image manipulation
+imagemagick
+# FFmpeg for video processing (animations)
+ffmpeg
+# Cairo graphics library (for canvas)
+libcairo2-dev
+# Pango text rendering (for canvas)
+libpango1.0-dev
+# JPEG library (for canvas)
+libjpeg-dev
+# GIF library (for canvas)
+libgif-dev
+# Pixman library (for canvas)
+libpixman-1-dev

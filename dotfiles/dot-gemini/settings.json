@@ -1,0 +1,56 @@
+{
+  "security": {
+    "auth": {
+      "selectedType": "oauth-personal"
+    },
+    "permissions": {
+      "autoConfirm": [
+        {
+          "tool": "read_file"
+        },
+        {
+          "tool": "list_directory"
+        },
+        {
+          "tool": "search_file_content"
+        },
+        {
+          "tool": "glob"
+        },
+        {
+          "tool": "google_web_search"
+        },
+        {
+          "tool": "web_fetch"
+        },
+        {
+          "tool": "activate_skill"
+        }
+      ]
+    }
+  },
+  "experimental": {
+    "skills": true
+  },
+  "general": {
+    "previewFeatures": true,
+    "vimMode": true
+  },
+  "ui": {
+    "footer": {
+      "hideContextPercentage": false
+    },
+    "showMemoryUsage": true,
+    "showCitations": true,
+    "showModelInfoInChat": false,
+    "useFullWidth": true
+  },
+  "context": {
+    "loadMemoryFromIncludeDirectories": false
+  },
+  "tools": {
+    "shell": {
+      "showColor": true
+    }
+  }
+}

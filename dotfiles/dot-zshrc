@@ -168,6 +168,11 @@ if [[ -d "$HOME/.config/nvm" ]]; then
   export NVM_DIR="$HOME/.config/nvm"
 fi
 
+# Unset NPM_CONFIG_PREFIX if invalid (causes nvm errors in sandboxed environments)
+if [[ -n "$NPM_CONFIG_PREFIX" && ! -d "$NPM_CONFIG_PREFIX" ]]; then
+  unset NPM_CONFIG_PREFIX
+fi
+
 if [[ -d "$NVM_DIR" || -d "/opt/homebrew/opt/nvm" ]]; then
   # Load nvm (macOS Homebrew or standard installation)
   if [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
@@ -178,10 +183,10 @@ if [[ -d "$NVM_DIR" || -d "/opt/homebrew/opt/nvm" ]]; then
     \. "$NVM_DIR/nvm.sh"
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
   fi
-  
-  # Use LTS version if nvm is loaded
+
+  # Use LTS version if nvm is loaded (suppress stderr for pmset errors on Linux)
   if type nvm &>/dev/null; then
-    nvm use --lts --silent
+    nvm use --lts --silent 2>/dev/null
   fi
 fi
 

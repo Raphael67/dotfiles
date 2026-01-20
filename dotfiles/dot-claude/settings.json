@@ -1,7 +1,8 @@
 {
   "env": {
     "DISABLE_ZOXIDE": "1",
-    "CLAUDECODE": "1"
+    "CLAUDECODE": "1",
+    "ENABLE_TOOL_SEARCH": "true"
   },
   "permissions": {
     "allow": [
@@ -69,7 +70,22 @@
       "Bash(npx @tontoko/fast-playwright-mcp@latest:*)",
       "Bash(claude mcp list:*)",
       "Bash(xargs:*)",
-      "Skill"
+      "Skill",
+      "mcp__atlassian__getJiraIssue",
+      "mcp__atlassian__getJiraIssueRemoteIssueLinks",
+      "mcp__atlassian__getJiraIssueTypeMetaWithFields",
+      "mcp__atlassian__getJiraProjectIssueTypesMetadata",
+      "mcp__atlassian__getTransitionsForJiraIssue",
+      "mcp__atlassian__getVisibleJiraProjects",
+      "mcp__atlassian__lookupJiraAccountId",
+      "mcp__atlassian__searchJiraIssuesUsingJql",
+      "mcp__atlassian__getConfluencePage",
+      "mcp__atlassian__getConfluencePageDescendants",
+      "mcp__atlassian__getConfluencePageFooterComments",
+      "mcp__atlassian__getConfluencePageInlineComments",
+      "mcp__atlassian__getConfluenceSpaces",
+      "mcp__atlassian__getPagesInConfluenceSpace",
+      "mcp__atlassian__searchConfluenceUsingCql"
     ],
     "deny": [
       "Bash(rm -rf /*:*)",

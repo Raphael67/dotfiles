@@ -25,6 +25,10 @@
             "env": {
                 "PLAYWRITER_AUTO_ENABLE": "1"
             }
+        },
+        "atlassian": {
+            "type": "sse",
+            "url": "https://mcp.atlassian.com/v1/sse"
         }
     }
 }

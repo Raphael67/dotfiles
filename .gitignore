@@ -11,3 +11,10 @@ dotfiles/dot-config/menus/applications-merged.mcp.json
 dotfiles/dot-config/menus/
 dotfiles/dot-claude/ccnotify/*.db
 dotfiles/dot-claude/ccnotify/*.log*
+
+# Gemini CLI - auto-generated with OAuth tokens and session data
+dotfiles/dot-gemini/
+
+# Local state files
+dotfiles/dot-claude/skills/*/.self-update-state.json
+dotfiles/dot-config/cagent/.cagent_first_run

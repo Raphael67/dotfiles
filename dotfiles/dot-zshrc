@@ -43,11 +43,12 @@ export ZSH=$HOME/.oh-my-zsh
 
 # Plugin config
 
-# tmux integration
-if [[ -z "$TMUX" && "$TERM_PROGRAM" != "vscode" && -z "$NO_TMUX" && "$CLAUDECODE" != "1" ]]; then
-  ZSH_TMUX_AUTOSTART=true
-  tmux attach -t main 2>/dev/null || tmux new -s main
-fi
+# tmux integration (manual start - use `tmux attach -t main || tmux new -s main`)
+# Disabled auto-start to allow manual decision
+# if [[ -z "$TMUX" && "$TERM_PROGRAM" != "vscode" && -z "$NO_TMUX" && "$CLAUDECODE" != "1" ]]; then
+#   ZSH_TMUX_AUTOSTART=true
+#   tmux attach -t main 2>/dev/null || tmux new -s main
+# fi
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/

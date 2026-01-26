@@ -6,6 +6,9 @@
   },
   "permissions": {
     "allow": [
+      "Read",
+      "Glob",
+      "Grep",
       "WebFetch",
       "WebSearch",
       "Bash(chmod:*)",
@@ -70,6 +73,20 @@
       "Bash(npx @tontoko/fast-playwright-mcp@latest:*)",
       "Bash(claude mcp list:*)",
       "Bash(xargs:*)",
+      "Bash(echo:*)",
+      "Bash(env:*)",
+      "Bash(printenv:*)",
+      "Bash(basename:*)",
+      "Bash(dirname:*)",
+      "Bash(date:*)",
+      "Bash(uname:*)",
+      "Bash(id:*)",
+      "Bash(whoami:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
       "Skill",
       "mcp__atlassian__getJiraIssue",
       "mcp__atlassian__getJiraIssueRemoteIssueLinks",
@@ -142,7 +159,7 @@
           },
           {
             "type": "prompt",
-            "prompt": "You are a security reviewer evaluating a bash command for destructive potential. Analyze this command: $ARGUMENTS\n\nBLOCK if the command would:\n- Delete, remove, or destroy files/directories recursively or in bulk\n- Overwrite or corrupt critical system files, configs, or data\n- Cause irreversible data loss\n- Execute destructive operations via find, xargs, or loops\n- Wipe, format, or damage filesystems\n\nALLOW if the command is:\n- Read-only (cat, ls, grep, find without -delete/-exec rm)\n- Safe write operations to non-critical paths\n- Standard development commands (git status, npm install, stow, etc.)\n- Stow commands for dotfile management (stow, stow -R, stow -D, stow --adopt)\n- Precise SQL DELETE with a specific ID in WHERE clause\n\nRespond with JSON: {\"decision\": \"approve\" or \"block\", \"reason\": \"brief explanation\"}",
+            "prompt": "You are a security reviewer evaluating a bash command for destructive potential. Analyze this command: $ARGUMENTS\n\nBLOCK if the command would:\n- Delete, remove, or destroy files/directories recursively or in bulk\n- Overwrite or corrupt critical system files, configs, or data\n- Cause irreversible data loss\n- Execute destructive operations via find, xargs, or loops\n- Wipe, format, or damage filesystems\n\nALLOW if the command is:\n- Read-only (cat, ls, grep, find without -delete/-exec rm)\n- Safe write operations to non-critical paths\n- Standard development commands (git status, npm install, stow, etc.)\n- Stow commands for dotfile management (stow, stow -R, stow -D, stow --adopt)\n- Precise SQL DELETE with a specific ID in WHERE clause\n\nRespond with JSON: {\"decision\": \"approve\" or \"block\", \"reason\": \"[HOOK:security-reviewer] brief explanation\"}",
             "timeout": 10
           }
         ]

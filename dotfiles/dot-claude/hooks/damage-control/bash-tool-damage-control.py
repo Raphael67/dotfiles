@@ -34,19 +34,34 @@ def is_glob_pattern(pattern: str) -> bool:
 
 
 def glob_to_regex(glob_pattern: str) -> str:
-    """Convert a glob pattern to a regex pattern for matching in commands."""
+    """Convert a glob pattern to a regex pattern for matching file paths in commands.
+
+    For patterns like *.key, we need to match actual file extensions, not substrings
+    within words. The key insight is that file extensions follow a dot, and the
+    wildcard (*) should match filename characters, not be empty.
+
+    Examples:
+    - *.key should match: secret.key, /path/to/api.key, "my.key"
+    - *.key should NOT match: keypilot, keychain, AlgaeNodeUpdates
+    """
     # Escape special regex chars except * and ?
     result = ""
     for char in glob_pattern:
         if char == '*':
-            result += r'[^\s/]*'  # Match any chars except whitespace and path sep
+            # Match word characters (letters, digits, underscore, hyphen, dot for paths)
+            # but require at least one character (+ instead of *)
+            # This ensures *.key matches "foo.key" but not just ".key" alone
+            result += r'[\w.\-]+'
         elif char == '?':
-            result += r'[^\s/]'   # Match single char except whitespace and path sep
+            result += r'[\w.\-]'  # Match single filename char
         elif char in r'\.^$+{}[]|()':
             result += '\\' + char
         else:
             result += char
-    return result
+    # Allow match at word boundary, after path separator, or in quotes
+    # The (?<![a-zA-Z]) negative lookbehind prevents matching when preceded by a letter
+    # This stops "keypilot" from matching *.key (since 'y' is preceded by 'e')
+    return r'(?:^|(?<=[\s\'"/]))' + result + r'(?=$|[\s\'"])'
 
 # ============================================================================
 # OPERATION PATTERNS - Edit these to customize what operations are blocked
@@ -286,7 +301,7 @@ def main() -> None:
     is_blocked, should_ask, reason = check_command(command, config)
 
     if is_blocked:
-        print(f"SECURITY: {reason}", file=sys.stderr)
+        print(f"[HOOK:damage-control] SECURITY: {reason}", file=sys.stderr)
         print(f"Command: {command[:100]}{'...' if len(command) > 100 else ''}", file=sys.stderr)
         sys.exit(2)
     elif should_ask:
@@ -295,7 +310,7 @@ def main() -> None:
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
                 "permissionDecision": "ask",
-                "permissionDecisionReason": reason
+                "permissionDecisionReason": f"[HOOK:damage-control] {reason}"
             }
         }
         print(json.dumps(output))

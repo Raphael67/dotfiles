@@ -22,3 +22,5 @@ if type nvm &>/dev/null; then
     launchctl setenv PATH "/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin" 2>/dev/null
   fi
 fi
+
+eval "$(/opt/homebrew/bin/brew shellenv)"

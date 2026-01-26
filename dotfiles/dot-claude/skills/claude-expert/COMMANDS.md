@@ -49,6 +49,28 @@ argument-hint: [arg1] [arg2]        # Optional: show expected args
 /skill-name:command arg1
 ```
 
+## Commands and Skills Merge (v2.1.16+)
+
+Commands and skills are now unified:
+- Files at `.claude/commands/review.md` and `.claude/skills/review/SKILL.md` both create `/review`
+- Existing `.claude/commands/` files continue to work (backwards compatible)
+- Skills add optional features: directory structure, supporting files, frontmatter control, auto-loading
+
+## Argument Syntax (v2.1.19+)
+
+```yaml
+# Shorthand (preferred)
+USER_PROMPT: $0
+OUTPUT_PATH: $1
+
+# Bracket syntax
+USER_PROMPT: $ARGUMENTS[0]
+OUTPUT_PATH: $ARGUMENTS[1]
+
+# All arguments
+ALL_ARGS: $ARGUMENTS
+```
+
 ## Common Command Patterns
 
 ### Prime Command

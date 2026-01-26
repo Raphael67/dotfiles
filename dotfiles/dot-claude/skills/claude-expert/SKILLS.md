@@ -82,6 +82,66 @@ Instructions and content...
 | `allowed-tools` | No | Restrict available tools (e.g., `Read, Grep, Glob`) |
 | `version` | No | Version number for tracking |
 | `disable-model-invocation` | No | `true` to disable auto-invocation |
+| `context` | No | Set to `fork` to run in subagent context |
+| `agent` | No | Agent type when `context: fork` (e.g., `Explore`, `Plan`) |
+| `hooks` | No | Lifecycle hooks: PreToolUse, PostToolUse, Stop |
+| `argument-hint` | No | Hint for expected arguments (e.g., `[filename]`) |
+| `model` | No | Model to use (`sonnet`, `opus`, `haiku`) |
+
+## Argument Substitution
+
+Skills support variable substitution patterns:
+
+### Shorthand Syntax (v2.1.19+)
+```markdown
+## Variables
+
+USER_INPUT: $0          # First argument
+OUTPUT_PATH: $1         # Second argument
+OPTIONS: $2             # Third argument
+```
+
+### Bracket Syntax
+```markdown
+## Variables
+
+USER_INPUT: $ARGUMENTS[0]
+OUTPUT_PATH: $ARGUMENTS[1]
+ALL_ARGS: $ARGUMENTS
+```
+
+### Session Variables
+- `${CLAUDE_SESSION_ID}` - Current session ID for logging/tracking
+
+### Dynamic Context Injection
+Use shell command output in skills:
+```yaml
+---
+name: context-aware-skill
+---
+
+# Recent Changes
+!`git log --oneline -5`
+
+Use the commits above for context.
+```
+
+## Extended Thinking
+
+Include "ultrathink" anywhere in skill content to enable extended thinking mode:
+```yaml
+---
+name: complex-analyzer
+---
+
+ultrathink
+
+Analyze this complex problem thoroughly before responding.
+```
+
+## Skill Approval (v2.1.19+)
+
+Skills without additional permissions or hooks no longer require user approval. Only skills requesting extra permissions or defining hooks need approval.
 
 ## SKILL.md Sections
 
@@ -357,6 +417,28 @@ Test discovery by asking Claude about a topic your skill covers.
 4. **Test triggers**: Ask related questions to verify discovery
 5. **Version your skills**: Track changes with version field
 6. **Document reference files**: Table showing when to read each
+
+## Nested Skill Discovery (Monorepos)
+
+Skills in nested `.claude/skills` directories are auto-discovered:
+```
+project-root/
+├── .claude/skills/          # Root-level skills
+└── packages/app/
+    └── .claude/skills/      # Auto-discovered when working in packages/app
+```
+
+## Plugin Skills
+
+Plugin-provided skills use namespace format:
+```
+plugin-name:skill-name
+```
+Example: `my-plugin:formatter`
+
+## Environment Variables
+
+- `SLASH_COMMAND_TOOL_CHAR_BUDGET` - Character budget for skill descriptions (default: 15000)
 
 ## Advanced Patterns
 

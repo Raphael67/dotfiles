@@ -2,6 +2,7 @@
 name: claude-expert
 description: Expert in Claude prompting, skill creation, hooks management, MCP configuration, and sub-agents. Use when writing prompts, creating Claude Code skills, configuring hooks, setting up MCP servers, creating custom sub-agents, or asking about Claude Code architecture.
 user-invocable: true
+argument-hint: [self-update]
 ---
 
 # Claude Expert Skill
@@ -19,6 +20,12 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 | Hooks | [HOOKS.md](HOOKS.md) | Setting up PreToolUse, validation, notifications |
 | MCP | [MCP.md](MCP.md) | Adding MCP servers, tools, resources |
 | Sub-agents | [SUBAGENTS.md](SUBAGENTS.md) | Creating custom agents, Task tool config |
+
+## Argument Routing
+
+**If $ARGUMENTS is "self-update"**: Read and execute [cookbook/self-update.md](cookbook/self-update.md)
+
+**Otherwise**: Continue with normal skill guidance below.
 
 ## Core Principles
 

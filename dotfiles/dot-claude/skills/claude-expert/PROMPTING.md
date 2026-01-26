@@ -193,6 +193,23 @@ invoke all relevant tools simultaneously rather than sequentially.
 </instructions>
 ```
 
+### Extended Thinking with "ultrathink"
+Include "ultrathink" in prompts for extended thinking mode:
+```xml
+<instructions>
+ultrathink
+
+Analyze this complex problem thoroughly, considering multiple approaches
+before providing your solution.
+</instructions>
+```
+
+Extended thinking is ideal for:
+- Complex multi-step reasoning
+- Deep analysis and consideration
+- Problems with multiple valid approaches
+- Debugging and architectural analysis
+
 ## Advanced Patterns
 
 ### Self-Critique

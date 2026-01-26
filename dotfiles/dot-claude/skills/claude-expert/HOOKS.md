@@ -4,15 +4,23 @@
 
 Hooks are scripts or prompts that execute in response to Claude Code events. They can validate, block, modify, or log operations.
 
-## Hook Types
+## Hook Events
 
 | Hook | Trigger | Use Case |
 |------|---------|----------|
 | `PreToolUse` | Before tool execution | Security validation, blocking dangerous commands |
 | `PostToolUse` | After tool execution | Logging, notifications |
+| `PostToolUseFailure` | After tool fails | Error handling |
 | `UserPromptSubmit` | When user sends a message | Logging, preprocessing |
-| `Stop` | When Claude stops | Notifications, cleanup |
-| `Notification` | When Claude sends notification | Desktop notifications |
+| `Stop` | When Claude finishes responding | Notifications, cleanup |
+| `SubagentStart` | When subagent spawns | Monitoring initialization |
+| `SubagentStop` | When subagent finishes | Logging results |
+| `SessionStart` | Session begins/resumes | Environment setup |
+| `SessionEnd` | Session terminates | Cleanup, logging |
+| `PreCompact` | Before context compaction | Pre-compaction actions |
+| `Setup` | On --init or --maintenance | Initial setup |
+| `PermissionRequest` | Permission dialog shown | Dynamic permission decisions |
+| `Notification` | Claude sends notification | Desktop notifications |
 
 ## Configuration Location
 
@@ -338,4 +346,73 @@ with open(config_path) as f:
 3. **Log decisions**: Write to log file for debugging
 4. **Use patterns file**: Separate configuration from code
 5. **Test thoroughly**: Verify both block and allow cases
-6. **Chain hooks**: Multiple hooks run in order, all must pass
+6. **Chain hooks**: Multiple hooks run in parallel, all must pass
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `CLAUDE_PROJECT_DIR` | Absolute path to project root |
+| `CLAUDE_CODE_REMOTE` | `true` if running in remote/web environment |
+| `CLAUDE_ENV_FILE` | Path to persist env vars (SessionStart only) |
+
+## Advanced Hook Output
+
+### PreToolUse Decision Control
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "allow|deny|ask",
+    "permissionDecisionReason": "explanation",
+    "updatedInput": {"command": "modified command"},
+    "additionalContext": "Extra context for Claude"
+  }
+}
+```
+
+### PermissionRequest Control
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PermissionRequest",
+    "decision": {
+      "behavior": "allow|deny",
+      "updatedInput": {...},
+      "message": "reason",
+      "interrupt": false
+    }
+  }
+}
+```
+
+### SessionStart Matchers
+- `startup` - New session
+- `resume` - Resumed session
+- `clear` - After /clear
+- `compact` - After compaction
+
+### SessionEnd Reasons
+- `clear` - Session cleared
+- `logout` - User logged out
+- `prompt_input_exit` - Exited at prompt
+- `other` - Other reasons
+
+## Plugin and Skill Hooks
+
+### Plugin Hooks
+Define in `plugins/your-plugin/hooks/hooks.json`
+
+### Skill/Agent Hooks
+```yaml
+---
+name: my-skill
+hooks:
+  PreToolUse:
+    - matcher: Bash
+      hooks:
+        - type: command
+          command: validate.py
+          once: true  # Run once per session
+---
+```

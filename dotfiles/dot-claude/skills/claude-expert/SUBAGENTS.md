@@ -118,9 +118,54 @@ Always respond with:
 |-------|----------|-------------|
 | `name` | Yes | Unique agent identifier |
 | `description` | Yes | What + when, used for discovery |
-| `model` | No | Default model (`sonnet`, `opus`, `haiku`) |
+| `model` | No | Default model (`sonnet`, `opus`, `haiku`, `inherit`) |
 | `allowed-tools` | No | Restrict available tools |
+| `disallowedTools` | No | Tools to deny (removed from inherited list) |
+| `permissionMode` | No | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan` |
+| `skills` | No | Preload skills into agent context |
+| `hooks` | No | Lifecycle hooks: PreToolUse, PostToolUse, Stop |
 | `max-turns` | No | Limit conversation turns |
+
+### Permission Modes
+
+| Mode | Behavior |
+|------|----------|
+| `default` | Standard permission prompts |
+| `acceptEdits` | Auto-accept file edits |
+| `dontAsk` | Auto-deny permission prompts |
+| `bypassPermissions` | Skip all permission checks |
+| `plan` | Read-only exploration mode |
+
+### Skills Preloading
+
+Inject skill content at startup:
+```yaml
+---
+name: api-developer
+skills:
+  - api-conventions
+  - error-handling-patterns
+---
+```
+
+### Hooks in Agent Frontmatter
+
+```yaml
+---
+name: code-reviewer
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: "./scripts/validate.sh"
+  PostToolUse:
+    - matcher: "Edit|Write"
+      hooks:
+        - type: command
+          command: "./scripts/lint.sh"
+---
+```
 
 ## Complete Agent Example
 
@@ -385,6 +430,72 @@ Use the agent ID to resume:
 4. **Limit tools**: Restrict `allowed-tools` to what's needed for security
 5. **Use haiku for simple tasks**: Faster and cheaper for straightforward operations
 6. **Parallel when possible**: Launch independent agents simultaneously
+
+## Agent Management
+
+### /agents Command
+Interactive agent management:
+- List active agents
+- Create new agents
+- Edit agent configuration
+- View agent status
+
+### CLI Agent Configuration
+```bash
+claude --agents '{
+  "reviewer": {
+    "description": "Code reviewer",
+    "prompt": "Review code for quality",
+    "tools": ["Read", "Grep"],
+    "model": "sonnet"
+  }
+}'
+```
+
+### Disabling Agents
+Add to permissions deny list:
+```json
+{
+  "permissions": {
+    "deny": ["Task(Explore)", "Task(my-agent)"]
+  }
+}
+```
+
+## Background Execution
+
+### Auto-Compaction
+Subagents compact at 95% capacity. Override with:
+```bash
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=85
+```
+
+### Transcript Storage
+```
+~/.claude/projects/{project}/{sessionId}/subagents/agent-{agentId}.jsonl
+```
+
+### Controls
+- `Ctrl+B` - Background running task
+- `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1` - Disable background tasks
+
+## Subagent Hook Events
+
+In `settings.json`:
+```json
+{
+  "hooks": {
+    "SubagentStart": [{
+      "matcher": "db-agent",
+      "hooks": [{"type": "command", "command": "./setup-db.sh"}]
+    }],
+    "SubagentStop": [{
+      "matcher": "db-agent",
+      "hooks": [{"type": "command", "command": "./cleanup-db.sh"}]
+    }]
+  }
+}
+```
 
 ## When to Create Custom Agents
 

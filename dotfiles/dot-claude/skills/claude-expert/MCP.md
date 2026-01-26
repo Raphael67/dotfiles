@@ -7,10 +7,17 @@ MCP (Model Context Protocol) is a standard for connecting AI assistants to exter
 - **Resources**: Data Claude can access (e.g., files, databases)
 - **Prompts**: Pre-defined prompt templates
 
-## Configuration Location
+## Configuration Scopes
 
-MCP servers are configured in `~/.claude/.mcp.json`:
+MCP servers can be configured at multiple levels (in precedence order):
 
+| Scope | Location | Use Case |
+|-------|----------|----------|
+| Local (default) | `~/.claude.json` under project | Personal, single project |
+| Project | `.mcp.json` | Shared via git, team use |
+| User | `~/.claude.json` | Cross-project, personal |
+
+### Basic Configuration
 ```json
 {
   "mcpServers": {
@@ -22,13 +29,42 @@ MCP servers are configured in `~/.claude/.mcp.json`:
 }
 ```
 
-Alternative locations:
-- Project level: `.claude/.mcp.json`
-- Global: `~/.claude/.mcp.json`
+### Environment Variable Expansion
+```json
+{
+  "mcpServers": {
+    "api-server": {
+      "env": {
+        "API_KEY": "${API_KEY}",
+        "DEBUG": "${DEBUG:-false}"
+      }
+    }
+  }
+}
+```
 
 ## Transport Types
 
-### stdio (Most Common)
+### HTTP (Recommended for Cloud)
+Primary transport for cloud-based MCP servers:
+
+```bash
+claude mcp add --transport http my-server https://api.example.com/mcp
+```
+
+```json
+{
+  "mcpServers": {
+    "my-server": {
+      "type": "http",
+      "url": "https://api.example.com/mcp",
+      "headers": {"Authorization": "Bearer token"}
+    }
+  }
+}
+```
+
+### stdio (Local Servers)
 Server communicates via stdin/stdout:
 
 ```json
@@ -42,8 +78,8 @@ Server communicates via stdin/stdout:
 }
 ```
 
-### SSE (Server-Sent Events)
-For HTTP-based servers:
+### SSE (Deprecated)
+Server-Sent Events - use HTTP instead:
 
 ```json
 {
@@ -299,6 +335,82 @@ Once configured, MCP tools appear with prefix `mcp__ServerName__`:
 mcp__github__search_repositories
 mcp__filesystem__read_file
 mcp__postgres__query
+```
+
+### MCP Resources via @ Mentions
+```
+@resource_name
+```
+
+### MCP Prompts as Commands
+```
+/mcp__servername__promptname
+```
+
+## MCP Tool Search (v2.1.7+)
+
+Dynamic tool loading when many MCP servers configured:
+
+```bash
+ENABLE_TOOL_SEARCH=auto        # Default (10% context threshold)
+ENABLE_TOOL_SEARCH=auto:5      # Custom threshold (5%)
+ENABLE_TOOL_SEARCH=true        # Always enabled
+ENABLE_TOOL_SEARCH=false       # Disabled
+```
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `MAX_MCP_OUTPUT_TOKENS` | Max tokens in output (default: 25,000) |
+| `MCP_TIMEOUT` | Server startup timeout |
+| `ENABLE_TOOL_SEARCH` | Dynamic tool loading mode |
+
+## CLI Commands
+
+```bash
+# Add servers
+claude mcp add --transport http my-server https://example.com/mcp
+claude mcp add --transport stdio my-server -- npx server-package
+
+# Import from JSON
+claude mcp add-json my-server '{"command": "node", "args": ["server.js"]}'
+
+# Import from Claude Desktop
+claude mcp add-from-claude-desktop
+
+# Use Claude Code as MCP server
+claude mcp serve
+
+# Authentication
+/mcp  # In Claude Code for OAuth setup
+
+# Reset project choices
+claude mcp reset-project-choices
+```
+
+## Managed MCP (Enterprise)
+
+For enterprise control via `managed-mcp.json`:
+
+```json
+{
+  "allowedMcpServers": [{"serverName": "allowed-server"}],
+  "deniedMcpServers": [{"serverUrl": "https://blocked.com/*"}]
+}
+```
+
+## Plugin MCP Servers
+
+In plugin's `.mcp.json` or `plugin.json`:
+```json
+{
+  "mcpServers": {
+    "plugin-server": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/server.js"
+    }
+  }
+}
 ```
 
 Claude can use them like built-in tools:

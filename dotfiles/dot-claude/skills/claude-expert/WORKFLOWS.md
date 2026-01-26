@@ -49,14 +49,24 @@ DEFAULT_PORT: 5173
 DEFAULT_MODEL: sonnet
 ```
 
-### Argument Variables
+### Argument Variables (v2.1.19+)
 Passed from user or parent workflow:
+
+**Shorthand syntax (preferred):**
 ```markdown
 ## Variables
 
-USER_PROMPT: $1
-WORKFLOW_ID: $2 default "workflow-<timestamp>" if not provided
-OPTIONS: $3 default "" if not provided
+USER_PROMPT: $0
+WORKFLOW_ID: $1 default "workflow-<timestamp>" if not provided
+OPTIONS: $2 default "" if not provided
+```
+
+**Bracket syntax:**
+```markdown
+## Variables
+
+USER_PROMPT: $ARGUMENTS[0]
+WORKFLOW_ID: $ARGUMENTS[1] default "workflow-<timestamp>" if not provided
 ```
 
 ### Computed Variables

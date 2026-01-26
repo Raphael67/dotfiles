@@ -29,12 +29,19 @@ if [ "$(basename "$0")" = "$(basename "${BASH_SOURCE[0]}")" ]; then
 fi
 
 # Install Mac App Store apps from MAS_APPS environment variable
-# Default: Affinity suite + iWork apps
+# Default: iWork apps (free, always available)
 # To customize: set MAS_APPS in .env (space-separated bundle IDs)
 # To skip: set MAS_APPS="" in .env
-MAS_APPS_LIST="${MAS_APPS:-1616831348 1606941598 1616822987 409201541 409203825 409183694}"
+MAS_APPS_LIST="${MAS_APPS:-409201541 409203825 409183694}"
 if [[ -n "$MAS_APPS_LIST" ]] && command -v mas &>/dev/null; then
     for app_id in $MAS_APPS_LIST; do
-        mas install "$app_id"
+        # Skip if already installed
+        if mas list | grep -q "^$app_id"; then
+            info "Mac App Store app $app_id already installed, skipping"
+            continue
+        fi
+        if ! mas install "$app_id" 2>/dev/null; then
+            warning "Could not install Mac App Store app $app_id (may not be available or not purchased)"
+        fi
     done
 fi

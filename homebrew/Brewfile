@@ -32,7 +32,7 @@ brew "zoxide"
 # Simple terminal UI for git commands
 brew "lazygit"
 # App to build and share containerized applications and microservices
-cask "docker"
+cask "docker-desktop"
 # Developer targeted fonts with a high number of glyphs
 cask "font-hack-nerd-font"
 # Developer targeted fonts with a high number of glyphs
@@ -64,7 +64,7 @@ cask "microsoft-office-businesspro"
 brew "pam-reattach"
 brew "fd"
 brew "wget"
-brew "lua@5.1"
+brew "lua"
 brew "luarocks"
 brew "go"
 brew "openjdk"

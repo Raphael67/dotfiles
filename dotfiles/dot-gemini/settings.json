@@ -25,6 +25,9 @@
         },
         {
           "tool": "activate_skill"
+        },
+        {
+          "tool": "run_shell_command"
         }
       ]
     }
@@ -43,7 +46,8 @@
     "showMemoryUsage": true,
     "showCitations": true,
     "showModelInfoInChat": false,
-    "useFullWidth": true
+    "useFullWidth": true,
+    "showHomeDirectoryWarning": false
   },
   "context": {
     "loadMemoryFromIncludeDirectories": false
@@ -51,6 +55,19 @@
   "tools": {
     "shell": {
       "showColor": true
+    },
+    "autoAccept": true
+  },
+  "mcpServers": {
+    "keymaging-rag": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "/Users/raphael/Library/CloudStorage/keymaging-rag",
+        "keymaging-rag",
+        "mcp"
+      ]
     }
   }
 }

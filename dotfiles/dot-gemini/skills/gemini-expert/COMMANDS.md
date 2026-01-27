@@ -2,6 +2,10 @@
 
 Custom slash commands allow users to define reusable prompts as personal shortcuts within the Gemini CLI. They are defined in TOML files.
 
+## Built-in Commands (New)
+*   `/rewind`: Undoes the last turn of the conversation, effectively "rewinding" the state.
+*   `/agents config`: Opens an interactive configuration dialog for discovering and managing available agents and sub-agents.
+
 ## Locations & Precedence
 1.  **Project-scoped:** `<project-root>/.gemini/commands/` (Overrides user commands).
 2.  **User-scoped:** `~/.gemini/commands/` (Available everywhere).

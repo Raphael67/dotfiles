@@ -1,5 +1,7 @@
 # Global Claude Configuration
 
+<!-- This file applies to ALL projects. Project-level CLAUDE.md files override these settings. -->
+
 ## Personal Development Environment
 
 - **Shell**: Zsh with oh-my-zsh
@@ -7,6 +9,16 @@
 - **Terminal**: Ghostty
 - **Editor**: VSCode
 - **Package Manager**: Homebrew
+
+## Quick Reference
+
+| Task | Approach |
+|------|----------|
+| New TypeScript project | bun init, bun add |
+| New Python project | uv init, uv add |
+| Browser debugging | bdg CLI |
+| Library docs lookup | context7 MCP |
+| Run tests | Project-specific (check CLAUDE.md) |
 
 ## Code Style Preferences
 
@@ -16,7 +28,7 @@
   - Use semicolons
   - Prefer arrow functions for inline callbacks
   - Use TypeScript strict mode
-  - Use bun as package manager for every command
+  - Use bun as package manager (unless project CLAUDE.md specifies otherwise)
 - **Python**:
   - Follow PEP 8
   - always use uv as package manager
@@ -49,17 +61,52 @@
 - Always review changes before committing
 - Prefer explicit imports over wildcards
 
+## Error Handling
+
+- **Build/Test failures**: Fix the issue, don't skip or ignore
+- **Missing dependencies**: Ask before installing new packages
+- **Ambiguous requirements**: Ask clarifying questions early
+- **Permission errors**: Report and suggest solutions, don't force
+
+## File Organization
+
+- **New source files**: Follow existing project structure
+- **Test files**: Colocate with source or in `tests/` (project-dependent)
+- **Config files**: Root directory unless project has specific convention
+- **Generated files**: Never commit (add to .gitignore)
+- **Temporary files**: Use OS temp folder (`/tmp` or `$TMPDIR`)
+- **One-shot scripts**: OS temp folder, delete after use
+- **Persistent scripts**: Store in the skill/project that requires them (self-contained)
+
+### Script Languages
+
+| Script Type | Language Priority |
+|-------------|-------------------|
+| Inline/temporary | Best for task (bash, python, ts, rust) |
+| Persistent (user-facing) | TypeScript > Python |
+| Skill scripts | Best for task (self-contained in skill) |
+
+Allowed languages: Python, Bash, TypeScript, Rust
+
 ## Communication Style
 
-- Be concise and direct
-- Focus on practical solutions
-- Minimize unnecessary explanations
-- Use examples when helpful
-- Do not repeat information unnecessarily
-- Do not repeat the question or prompt
-- Do not gratitude or apologies unless specifically requested
+- Concise: bullet points over prose
+- Direct: state facts, skip preamble
+- Structured: use markdown (headers, tables, lists)
+- No filler: avoid gratitude, apologies, paraphrasing
+- No repetition: don't echo the question back
+- Examples when useful, not for padding
 
 ## Available Tools
+
+### context7 MCP (Library Documentation)
+
+Fetch up-to-date documentation for libraries:
+- Before implementing unfamiliar APIs
+- When Stack Overflow answers seem outdated
+- For framework-specific patterns (React, NestJS, etc.)
+
+**Usage**: Use `resolve-library-id` to find the library, then `query-docs` to fetch relevant sections.
 
 ### Browser Debugger CLI (bdg)
 

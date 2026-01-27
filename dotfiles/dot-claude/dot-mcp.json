@@ -29,6 +29,34 @@
         "atlassian": {
             "type": "sse",
             "url": "https://mcp.atlassian.com/v1/sse"
+        },
+        "context7": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@upstash/context7-mcp"
+            ]
+        },
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "@playwright/mcp@latest"
+            ]
+        },
+        "serena": {
+            "command": "uvx",
+            "args": [
+                "--from",
+                "git+https://github.com/oraios/serena",
+                "serena",
+                "start-mcp-server"
+            ]
+        },
+        "keymaging-rag": {
+            "command": "/Users/raphael/Library/CloudStorage/keymaging-rag/.venv/bin/keymaging-rag",
+            "args": [
+                "mcp"
+            ]
         }
     }
 }

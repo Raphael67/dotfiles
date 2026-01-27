@@ -52,6 +52,15 @@ user-invocable: true  # Can be triggered via /activate_skill
 *   **Manual:** User runs `/activate_skill name="my-skill"`.
 *   **Auto:** Gemini decides to call `activate_skill` based on the user's request and the skill's `description`.
 
+## Sub-Agents & Registry
+Gemini now supports a more robust `AgentRegistry` for managing specialized sub-agents.
+*   **Capabilities:** Sub-agents can now accept strict JSON schema inputs, improving reliability for complex tasks.
+*   **Discovery:** Use the `/agents config` command to manage and discover available agents.
+
+## Standard Skills
+New installations often include standard skills:
+*   **docs-writer:** specialized in generating and maintaining project documentation.
+
 ## Best Practices
 *   **Specialized:** Keep skills focused (e.g., `react-migration`, `sql-optimization`).
 *   **Procedural:** Use the instructions to enforce a specific workflow (e.g., "Always run tests before committing").

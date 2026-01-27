@@ -4,6 +4,9 @@
 *   **File System:** `ls`, `read_file`, `write_file`, `replace`, `search_file_content` (grep), `glob`.
 *   **Execution:** `run_shell_command`.
 *   **Web:** `web_fetch` (content), `google_web_search`.
+*   **Interaction:**
+    *   `AskUser`: Request explicit input or choices from the user via UI components.
+    *   `communicate`: Used specifically in planning mode to interact with the user or other agents.
 *   **Memory:** `save_memory` (Long-term facts).
 
 ## Task Management (`write_todos`)

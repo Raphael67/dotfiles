@@ -25,7 +25,21 @@ Gemini loads `.env` files from the current and parent directories.
 *   `GEMINI_SYSTEM_MD`: Path to a markdown file to completely override the system prompt (Advanced).
 
 ## Settings.json
+
 Key configurations:
+
 *   `experimental.skills`: `true` (Enable skills).
+
 *   `tools.sandbox`: `true` (Enable Docker/Seatbelt sandbox).
+
 *   `telemetry.enabled`: `false` (Disable analytics).
+
+*   `mcp.servers`: Configure Model Context Protocol servers. You can now enable/disable them via commands.
+
+*   `approval.persistent`: `true` (Retain tool approval choices across sessions).
+
+
+
+## GEMINI.md (Context)
+
+

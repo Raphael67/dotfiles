@@ -101,3 +101,4 @@ alias news="$HOME/Projects/hys-fork/zig-out/bin/hys --all -p 48"
 alias fixmouse="printf '\e[?1000l\e[?1002l\e[?1003l\e[?1006l'"
 
 alias clyo="claude --dangerously-skip-permissions"
+alias gemini="npx https://github.com/google-gemini/gemini-cli"

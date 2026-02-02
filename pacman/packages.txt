@@ -1,0 +1,31 @@
+# Shell
+zsh
+
+# Terminal multiplexer
+tmux
+
+# Text editor
+neovim
+
+# CLI tools (matching macOS Homebrew setup)
+fzf
+lazygit
+starship
+bat
+eza
+ripgrep
+zoxide
+fd
+diff-so-fancy
+stow
+wget
+fastfetch
+
+# Build essentials
+base-devel
+git
+
+# Languages
+go
+jdk-openjdk
+ruby

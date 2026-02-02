@@ -1,3 +1,4 @@
+# Development tools
 7zip
 deno
 bun
@@ -11,20 +12,31 @@ kubernetes-helm
 make
 nmap
 nvm
-obsidian
 openjdk
-openvpn
 postman
 processhacker
 putty
-signal
-slack
 sourcetree
 virtualbox
 Wget
 wireshark
 vscode
+
+# CLI tools (matching macOS/Linux setup)
+starship
+bat
+eza
+fzf
+zoxide
+lazygit
+ripgrep
+fd
+
+# Applications
 bambustudio
 firefox
 googlechrome
-ghostty
+obsidian
+openvpn
+signal
+slack

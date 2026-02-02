@@ -23,6 +23,7 @@ wireshark
 vscode
 
 # CLI tools (matching macOS/Linux setup)
+gitleaks
 starship
 bat
 eza

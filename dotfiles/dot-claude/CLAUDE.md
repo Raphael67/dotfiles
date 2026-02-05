@@ -38,6 +38,7 @@
 ## Workflow Preferences
 
 - **Agents**: Always check if a subagent is more appropriate to do a task
+- **Skills**: Never update or alter a skill without explicit user request
 - **Git**: Use conventional commits format
 - **Documentation**: Keep README files concise and practical
 

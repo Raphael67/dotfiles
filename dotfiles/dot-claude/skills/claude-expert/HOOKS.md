@@ -18,13 +18,23 @@ Hooks are scripts or prompts that execute in response to Claude Code events. The
 | `SessionStart` | Session begins/resumes | Environment setup |
 | `SessionEnd` | Session terminates | Cleanup, logging |
 | `PreCompact` | Before context compaction | Pre-compaction actions |
-| `Setup` | On --init or --maintenance | Initial setup |
 | `PermissionRequest` | Permission dialog shown | Dynamic permission decisions |
 | `Notification` | Claude sends notification | Desktop notifications |
 
 ## Configuration Location
 
-Hooks are configured in `~/.claude/settings.json` under the `hooks` key:
+| Location | Scope |
+|----------|-------|
+| `~/.claude/settings.json` | All your projects |
+| `.claude/settings.json` | Single project (committable) |
+| `.claude/settings.local.json` | Single project (gitignored) |
+| Managed policy settings | Organization-wide |
+| Plugin `hooks/hooks.json` | When plugin is enabled |
+| Skill/agent frontmatter | While component is active |
+
+Use `/hooks` in Claude Code to interactively view, add, and delete hooks.
+
+Hooks are configured under the `hooks` key:
 
 ```json
 {
@@ -59,16 +69,40 @@ Hooks are configured in `~/.claude/settings.json` under the `hooks` key:
 }
 ```
 
-### Fields
+### Matcher Patterns
+
+| Event | What matcher filters | Example values |
+|-------|---------------------|----------------|
+| PreToolUse, PostToolUse, PostToolUseFailure, PermissionRequest | Tool name | `Bash`, `Edit\|Write`, `mcp__.*` |
+| SessionStart | How session started | `startup`, `resume`, `clear`, `compact` |
+| SessionEnd | Why session ended | `clear`, `logout`, `prompt_input_exit`, `other` |
+| Notification | Notification type | `permission_prompt`, `idle_prompt`, `auth_success` |
+| SubagentStart, SubagentStop | Agent type | `Bash`, `Explore`, `Plan`, custom names |
+| PreCompact | Trigger type | `manual`, `auto` |
+| UserPromptSubmit, Stop | No matcher support | Always fires |
+
+### Common Fields
 
 | Field | Description |
 |-------|-------------|
-| `matcher` | Tool name to match (e.g., `Bash`, `Edit`, `Write`) |
-| `hooks` | Array of hook definitions |
-| `type` | `command` (script) or `prompt` (LLM validation) |
-| `command` | Script path to execute |
-| `prompt` | Prompt for LLM validation |
-| `timeout` | Timeout in seconds |
+| `type` | `command`, `prompt`, or `agent` |
+| `timeout` | Seconds. Defaults: 600 (command), 30 (prompt), 60 (agent) |
+| `statusMessage` | Custom spinner message while hook runs |
+| `once` | If `true`, runs only once per session (skills only) |
+
+### Command Hook Fields
+
+| Field | Description |
+|-------|-------------|
+| `command` | Shell command to execute |
+| `async` | If `true`, runs in background without blocking |
+
+### Prompt/Agent Hook Fields
+
+| Field | Description |
+|-------|-------------|
+| `prompt` | Prompt text. Use `$ARGUMENTS` for hook input JSON |
+| `model` | Model to use. Defaults to fast model |
 
 ## Hook Types
 
@@ -84,13 +118,36 @@ Runs an external script:
 ```
 
 ### Prompt Hook
-Uses LLM for validation:
+Uses LLM for single-turn validation (returns `{ok: true/false, reason: "..."}`):
 
 ```json
 {
   "type": "prompt",
-  "prompt": "You are a security reviewer. Analyze this command: $ARGUMENTS\n\nRespond with JSON: {\"decision\": \"approve\" or \"block\", \"reason\": \"explanation\"}",
+  "prompt": "Evaluate if this action is safe: $ARGUMENTS. Check for destructive operations.",
   "timeout": 10
+}
+```
+
+### Agent Hook
+Spawns a subagent with tool access (Read, Grep, Glob) for up to 50 turns:
+
+```json
+{
+  "type": "agent",
+  "prompt": "Verify all unit tests pass. Run the test suite and check results. $ARGUMENTS",
+  "timeout": 120
+}
+```
+
+### Async Hooks
+Command hooks with `"async": true` run in background. Cannot block or return decisions. Output delivered on next conversation turn.
+
+```json
+{
+  "type": "command",
+  "command": "/path/to/run-tests.sh",
+  "async": true,
+  "timeout": 120
 }
 ```
 
@@ -117,16 +174,27 @@ To trigger a confirmation dialog:
 
 ## Input Format
 
-Hooks receive JSON on stdin:
+All hooks receive common fields via stdin JSON, plus event-specific fields:
 
 ```json
 {
+  "session_id": "abc123",
+  "transcript_path": "/path/to/transcript.jsonl",
+  "cwd": "/path/to/project",
+  "permission_mode": "default",
+  "hook_event_name": "PreToolUse",
   "tool_name": "Bash",
   "tool_input": {
     "command": "rm -rf /tmp/test"
   }
 }
 ```
+
+## Disabling Hooks
+
+Set `"disableAllHooks": true` in settings or use `/hooks` menu toggle. Hooks snapshot at startup - mid-session changes require review in `/hooks` menu.
+
+Debug with `claude --debug` to see hook execution details.
 
 ## Complete Example: Security Firewall
 

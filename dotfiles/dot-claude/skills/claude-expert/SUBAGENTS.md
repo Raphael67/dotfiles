@@ -8,12 +8,14 @@ Sub-agents are specialized Claude instances that can be invoked via the Task too
 
 Claude Code includes several built-in agent types:
 
-| Agent Type | Use Case |
-|------------|----------|
-| `Bash` | Command execution, git operations, terminal tasks |
-| `general-purpose` | Research, code search, multi-step tasks |
-| `Explore` | Fast codebase exploration, file pattern search |
-| `Plan` | Implementation planning, architecture design |
+| Agent Type | Model | Use Case |
+|------------|-------|----------|
+| `Explore` | Haiku | Fast read-only codebase exploration, file search |
+| `Plan` | Inherit | Research for plan mode (read-only) |
+| `general-purpose` | Inherit | Complex multi-step tasks, code modifications |
+| `Bash` | Inherit | Command execution in separate context |
+| `statusline-setup` | Sonnet | Configure status line via `/statusline` |
+| `Claude Code Guide` | Haiku | Answer questions about Claude Code features |
 
 ## Using the Task Tool
 
@@ -66,6 +68,39 @@ Use the Task tool with subagent_type="Explore" to find all API endpoints.
 ## Creating Custom Agents
 
 Custom agents are defined as markdown files with YAML frontmatter.
+
+### Agent Scopes (Priority Order)
+
+| Location | Scope | Priority |
+|----------|-------|----------|
+| `--agents` CLI flag | Current session only | 1 (highest) |
+| `.claude/agents/` | Current project | 2 |
+| `~/.claude/agents/` | All your projects | 3 |
+| Plugin `agents/` directory | Where plugin is enabled | 4 (lowest) |
+
+When multiple agents share the same name, higher-priority location wins.
+
+### /agents Command
+
+Run `/agents` in Claude Code to interactively:
+- View all available agents (built-in, user, project, plugin)
+- Create new agents (guided setup or Claude generation)
+- Edit existing agent configuration and tool access
+- Delete custom agents
+
+### CLI-Defined Agents
+
+Pass JSON with `--agents` for session-only agents:
+```bash
+claude --agents '{
+  "reviewer": {
+    "description": "Code reviewer",
+    "prompt": "Review code for quality",
+    "tools": ["Read", "Grep"],
+    "model": "sonnet"
+  }
+}'
+```
 
 ### Directory Structure
 ```
@@ -123,7 +158,8 @@ Always respond with:
 | `disallowedTools` | No | Tools to deny (removed from inherited list) |
 | `permissionMode` | No | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan` |
 | `skills` | No | Preload skills into agent context |
-| `hooks` | No | Lifecycle hooks: PreToolUse, PostToolUse, Stop |
+| `hooks` | No | Lifecycle hooks: PreToolUse, PostToolUse, Stop (converted to SubagentStop) |
+| `memory` | No | Persistent memory scope: `user`, `project`, or `local` |
 | `max-turns` | No | Limit conversation turns |
 
 ### Permission Modes
@@ -147,6 +183,24 @@ skills:
   - error-handling-patterns
 ---
 ```
+
+### Persistent Memory
+
+Enable cross-session memory for agents:
+```yaml
+---
+name: code-reviewer
+memory: user    # Scope: user, project, or local
+---
+```
+
+| Scope | Location | Use Case |
+|-------|----------|----------|
+| `user` | `~/.claude/agent-memory/<name>/` | Learnings across all projects |
+| `project` | `.claude/agent-memory/<name>/` | Project-specific, shareable via git |
+| `local` | `.claude/agent-memory-local/<name>/` | Project-specific, not committed |
+
+When memory is enabled, agents can read/write to their memory directory and maintain `MEMORY.md` for persistent context.
 
 ### Hooks in Agent Frontmatter
 
@@ -422,6 +476,19 @@ Use the agent ID to resume:
 </invoke>
 ```
 
+### Auto-Resume with Agent Type (v2.1.32+)
+
+When using `--resume`, the `--agent` value from the previous conversation is automatically re-used:
+
+```bash
+# Original invocation
+claude --agent my-researcher "Find all database schemas"
+
+# Later - agent type is automatically inherited
+claude --resume a3840f8 "Continue from previous findings"
+# Equivalent to: claude --agent my-researcher --resume a3840f8
+```
+
 ## Best Practices
 
 1. **Choose the right agent**: Use `Explore` for search, `Plan` for architecture, `Bash` for commands
@@ -461,6 +528,18 @@ Add to permissions deny list:
   }
 }
 ```
+
+## Foreground vs Background Execution
+
+- **Foreground**: Blocks main conversation. Permission prompts and questions pass through to user.
+- **Background**: Runs concurrently. Claude prompts for permissions before launching. Auto-denies anything not pre-approved. MCP tools not available. `AskUserQuestion` fails (but agent continues).
+
+If a background agent fails due to missing permissions, resume it in foreground.
+
+Controls:
+- Ask Claude to "run this in the background"
+- `Ctrl+B` to background a running task
+- `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1` to disable all background tasks
 
 ## Background Execution
 

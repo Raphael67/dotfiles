@@ -13,9 +13,12 @@ MCP servers can be configured at multiple levels (in precedence order):
 
 | Scope | Location | Use Case |
 |-------|----------|----------|
-| Local (default) | `~/.claude.json` under project | Personal, single project |
-| Project | `.mcp.json` | Shared via git, team use |
+| Local (default) | `~/.claude.json` under project path | Personal, single project |
+| Project | `.mcp.json` in project root | Shared via git, team use |
 | User | `~/.claude.json` | Cross-project, personal |
+| Managed | `managed-mcp.json` (system dir) | Enterprise, admin-controlled |
+
+**Note**: Scope names changed: "local" was previously "project", "user" was previously "global".
 
 ### Basic Configuration
 ```json
@@ -30,12 +33,21 @@ MCP servers can be configured at multiple levels (in precedence order):
 ```
 
 ### Environment Variable Expansion
+
+Supported in `command`, `args`, `env`, `url`, and `headers` fields:
+- `${VAR}` - expand to value of VAR
+- `${VAR:-default}` - expand to VAR if set, otherwise use default
+
 ```json
 {
   "mcpServers": {
     "api-server": {
+      "type": "http",
+      "url": "${API_BASE_URL:-https://api.example.com}/mcp",
+      "headers": {
+        "Authorization": "Bearer ${API_KEY}"
+      },
       "env": {
-        "API_KEY": "${API_KEY}",
         "DEBUG": "${DEBUG:-false}"
       }
     }
@@ -50,6 +62,10 @@ Primary transport for cloud-based MCP servers:
 
 ```bash
 claude mcp add --transport http my-server https://api.example.com/mcp
+
+# With authentication header
+claude mcp add --transport http my-server https://api.example.com/mcp \
+  --header "Authorization: Bearer your-token"
 ```
 
 ```json
@@ -63,6 +79,27 @@ claude mcp add --transport http my-server https://api.example.com/mcp
   }
 }
 ```
+
+### OAuth Authentication
+
+For servers requiring OAuth 2.0, use `/mcp` inside Claude Code to authenticate via browser. Tokens are stored securely and refreshed automatically.
+
+### Pre-Configured OAuth (v2.1.30+)
+
+For servers without Dynamic Client Registration, pre-configure OAuth credentials:
+
+```bash
+# With CLI flags
+claude mcp add --transport http my-server https://api.example.com/mcp \
+  --client-id YOUR_CLIENT_ID \
+  --client-secret
+
+# With environment variable
+MCP_CLIENT_SECRET=your-secret claude mcp add --transport http my-server \
+  https://api.example.com/mcp --client-id YOUR_CLIENT_ID --client-secret
+```
+
+The `--client-secret` flag prompts for masked input. Use `MCP_CLIENT_SECRET` env var for CI/automation.
 
 ### stdio (Local Servers)
 Server communicates via stdin/stdout:
@@ -358,13 +395,20 @@ ENABLE_TOOL_SEARCH=true        # Always enabled
 ENABLE_TOOL_SEARCH=false       # Disabled
 ```
 
+## Output Limits
+
+MCP tool output warning at 10,000 tokens. Default max: 25,000 tokens. Increase for large outputs:
+```bash
+MAX_MCP_OUTPUT_TOKENS=50000 claude
+```
+
 ## Environment Variables
 
 | Variable | Description |
 |----------|-------------|
 | `MAX_MCP_OUTPUT_TOKENS` | Max tokens in output (default: 25,000) |
-| `MCP_TIMEOUT` | Server startup timeout |
-| `ENABLE_TOOL_SEARCH` | Dynamic tool loading mode |
+| `MCP_TIMEOUT` | Server startup timeout in ms |
+| `ENABLE_TOOL_SEARCH` | Dynamic tool loading: `auto` (default), `auto:N`, `true`, `false` |
 
 ## CLI Commands
 
@@ -391,14 +435,36 @@ claude mcp reset-project-choices
 
 ## Managed MCP (Enterprise)
 
-For enterprise control via `managed-mcp.json`:
+### Option 1: Exclusive control via `managed-mcp.json`
+Deploy fixed servers that users cannot modify (macOS: `/Library/Application Support/ClaudeCode/managed-mcp.json`):
+```json
+{
+  "mcpServers": {
+    "company-tools": {
+      "type": "http",
+      "url": "https://internal.company.com/mcp"
+    }
+  }
+}
+```
+
+### Option 2: Policy-based control via managed settings
+Allow users to add servers within restrictions. Each entry uses one of: `serverName`, `serverCommand`, or `serverUrl`:
 
 ```json
 {
-  "allowedMcpServers": [{"serverName": "allowed-server"}],
-  "deniedMcpServers": [{"serverUrl": "https://blocked.com/*"}]
+  "allowedMcpServers": [
+    {"serverName": "github"},
+    {"serverCommand": ["npx", "-y", "@approved/package"]},
+    {"serverUrl": "https://mcp.company.com/*"}
+  ],
+  "deniedMcpServers": [
+    {"serverUrl": "https://*.untrusted.com/*"}
+  ]
 }
 ```
+
+Denylist takes absolute precedence over allowlist.
 
 ## Plugin MCP Servers
 

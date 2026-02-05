@@ -49,7 +49,7 @@ argument-hint: [arg1] [arg2]        # Optional: show expected args
 /skill-name:command arg1
 ```
 
-## Commands and Skills Merge (v2.1.16+)
+## Commands and Skills Merge
 
 Commands and skills are now unified:
 - Files at `.claude/commands/review.md` and `.claude/skills/review/SKILL.md` both create `/review`
@@ -270,19 +270,19 @@ WORKFLOW_ID: workflow-<timestamp>
 > Execute ALL steps. DO NOT STOP between steps.
 
 1. **Plan**
-   - Run `\skill:plan [USER_PROMPT]`
+   - Run `/skill:plan [USER_PROMPT]`
    - Capture: `PLAN_PATH`
 
 2. **Build**
-   - Run `\skill:build [PLAN_PATH]`
+   - Run `/skill:build [PLAN_PATH]`
    - Validate before proceeding
 
 3. **Test**
-   - Run `\skill:test`
+   - Run `/skill:test`
    - All tests must pass
 
 4. **Deploy**
-   - Run `\skill:deploy`
+   - Run `/skill:deploy`
    - Report final URL
 
 ## Report
@@ -392,7 +392,7 @@ description: Invoke skill workflow
 
 ## Workflow
 
-1. Run `\skill-name:workflow-name [args]`
+1. Run `/skill-name:workflow-name [args]`
 2. Process results
 3. Report summary
 ```

@@ -84,6 +84,72 @@ cask "claude-code"
 brew "terminal-notifier"
 
 # ================================
+# CLI Tools & Utilities
+# ================================
+# Secure and free password manager for all of your devices
+brew "bitwarden-cli"
+# Resource monitor
+brew "btop"
+# Terminal document viewer for .docx files
+brew "doxx"
+# Utilities for the ext2, ext3, and ext4 file systems
+brew "e2fsprogs"
+# A modern, keyboard-first PostgreSQL CLI
+brew "fcoury/tap/tsql"
+# GNU database manager
+brew "gdbm"
+# Quickly rewrite git repository history
+brew "git-filter-repo"
+# Open-source GitLab command-line tool
+brew "glab"
+# Feature-rich interactive Jira CLI
+brew "jira-cli"
+# Kubernetes CLI To Manage Your Clusters In Style!
+brew "k9s"
+# Mac App Store command-line interface
+brew "mas"
+# Run multiple commands in parallel
+brew "mprocs"
+# Manage multiple Node.js versions
+brew "nvm"
+# Create, run, and share large language models (LLMs)
+brew "ollama"
+# Execute binaries from Python packages in isolated environments
+brew "pipx"
+# Rsync for cloud storage
+brew "rclone"
+# Rust toolchain installer
+brew "rustup"
+# RSS Reader for Digital Minimalists
+brew "superstarryeyes/tap/hys"
+# Extremely fast Python package installer and resolver, written in Rust
+brew "uv"
+# Simple terminal image viewer written in Rust
+brew "viu"
+# Pager/text based browser
+brew "w3m"
+# Executes a program periodically, showing output fullscreen
+brew "watch"
+# Watch files and take action when they change
+brew "watchman"
+# Feature-rich command-line audio/video downloader
+brew "yt-dlp"
+
+# ================================
+# GUI Applications
+# ================================
+# Voice and text chat software
+cask "discord"
+# Free cross-platform office suite, fresh version
+cask "libreoffice"
+# Collaboration platform for API development
+cask "postman"
+# IDE for Python programming - Community Edition
+cask "pycharm-ce"
+# Graphical client for Git version control
+cask "sourcetree"
+
+# ================================
 # Visual Assets / Diagram Tools
 # ================================
 # UML and diagram generation tool

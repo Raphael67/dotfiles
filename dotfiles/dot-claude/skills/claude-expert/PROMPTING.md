@@ -187,6 +187,13 @@ Opus 4.6 is Anthropic's most advanced model with:
 - **Enhanced coding** - superior performance in large codebases, planning, code review
 - **Agentic excellence** - improved autonomous task execution and tool coordination
 
+### Fast Mode (Opus 4.6)
+
+Opus 4.6 supports fast mode (`/fast` toggle) for accelerated output:
+- Same model, faster responses
+- Ideal for straightforward tasks where speed matters
+- Toggle with `/fast` in Claude Code
+
 ### Literal Instruction Following
 Claude 4 models follow instructions more literally. Be explicit about thoroughness:
 

@@ -156,11 +156,12 @@ Always respond with:
 | `model` | No | Default model (`sonnet`, `opus`, `haiku`, `inherit`) |
 | `allowed-tools` | No | Restrict available tools |
 | `disallowedTools` | No | Tools to deny (removed from inherited list) |
-| `permissionMode` | No | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan` |
+| `permissionMode` | No | `default`, `acceptEdits`, `delegate`, `dontAsk`, `bypassPermissions`, `plan` |
 | `skills` | No | Preload skills into agent context |
 | `hooks` | No | Lifecycle hooks: PreToolUse, PostToolUse, Stop (converted to SubagentStop) |
 | `memory` | No | Persistent memory scope: `user`, `project`, or `local` |
-| `max-turns` | No | Limit conversation turns |
+| `mcpServers` | No | MCP servers: reference configured names or define inline |
+| `maxTurns` | No | Limit conversation turns |
 
 ### Permission Modes
 
@@ -168,6 +169,7 @@ Always respond with:
 |------|----------|
 | `default` | Standard permission prompts |
 | `acceptEdits` | Auto-accept file edits |
+| `delegate` | Coordination-only for team leads (team management tools only) |
 | `dontAsk` | Auto-deny permission prompts |
 | `bypassPermissions` | Skip all permission checks |
 | `plan` | Read-only exploration mode |
@@ -200,7 +202,11 @@ memory: user    # Scope: user, project, or local
 | `project` | `.claude/agent-memory/<name>/` | Project-specific, shareable via git |
 | `local` | `.claude/agent-memory-local/<name>/` | Project-specific, not committed |
 
-When memory is enabled, agents can read/write to their memory directory and maintain `MEMORY.md` for persistent context.
+When memory is enabled:
+- Read, Write, Edit tools are auto-enabled for memory access
+- Agent maintains `MEMORY.md` automatically
+- First 200 lines of `MEMORY.md` are included in system prompt each session
+- If `MEMORY.md` exceeds 200 lines, agent is instructed to curate it
 
 ### Hooks in Agent Frontmatter
 
@@ -572,6 +578,31 @@ In `settings.json`:
       "matcher": "db-agent",
       "hooks": [{"type": "command", "command": "./cleanup-db.sh"}]
     }]
+  }
+}
+```
+
+## Restricting Spawnable Agents with Task(agent_type)
+
+When an agent runs as main thread with `claude --agent`, restrict which subagent types it can spawn:
+
+```yaml
+---
+name: orchestrator
+tools: Task(worker, researcher), Read, Bash
+---
+```
+
+- This is an **allowlist**: only `worker` and `researcher` can be spawned
+- Use `Task` without parentheses to allow all subagent types
+- Omit `Task` entirely to prevent spawning any subagents
+- Only applies to main thread agents (`claude --agent`); subagents cannot spawn other subagents
+
+Also usable in permissions deny list:
+```json
+{
+  "permissions": {
+    "deny": ["Task(Explore)", "Task(my-agent)"]
   }
 }
 ```

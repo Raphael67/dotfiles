@@ -15,6 +15,8 @@ Hooks are scripts or prompts that execute in response to Claude Code events. The
 | `Stop` | When Claude finishes responding | Notifications, cleanup |
 | `SubagentStart` | When subagent spawns | Monitoring initialization |
 | `SubagentStop` | When subagent finishes | Logging results |
+| `TeammateIdle` | Agent team teammate about to go idle | Quality gates, prevent idle |
+| `TaskCompleted` | Task being marked as completed | Enforce completion criteria |
 | `SessionStart` | Session begins/resumes | Environment setup |
 | `SessionEnd` | Session terminates | Cleanup, logging |
 | `PreCompact` | Before context compaction | Pre-compaction actions |
@@ -76,10 +78,10 @@ Hooks are configured under the `hooks` key:
 | PreToolUse, PostToolUse, PostToolUseFailure, PermissionRequest | Tool name | `Bash`, `Edit\|Write`, `mcp__.*` |
 | SessionStart | How session started | `startup`, `resume`, `clear`, `compact` |
 | SessionEnd | Why session ended | `clear`, `logout`, `prompt_input_exit`, `other` |
-| Notification | Notification type | `permission_prompt`, `idle_prompt`, `auth_success` |
+| Notification | Notification type | `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog` |
 | SubagentStart, SubagentStop | Agent type | `Bash`, `Explore`, `Plan`, custom names |
 | PreCompact | Trigger type | `manual`, `auto` |
-| UserPromptSubmit, Stop | No matcher support | Always fires |
+| UserPromptSubmit, Stop, TeammateIdle, TaskCompleted | No matcher support | Always fires |
 
 ### Common Fields
 
@@ -423,6 +425,7 @@ with open(config_path) as f:
 | `CLAUDE_PROJECT_DIR` | Absolute path to project root |
 | `CLAUDE_CODE_REMOTE` | `true` if running in remote/web environment |
 | `CLAUDE_ENV_FILE` | Path to persist env vars (SessionStart only) |
+| `CLAUDE_PLUGIN_ROOT` | Plugin script directory path (for plugin hooks) |
 
 ## Advanced Hook Output
 
@@ -464,6 +467,7 @@ with open(config_path) as f:
 - `clear` - Session cleared
 - `logout` - User logged out
 - `prompt_input_exit` - Exited at prompt
+- `bypass_permissions_disabled` - Bypass permissions were disabled
 - `other` - Other reasons
 
 ## Plugin and Skill Hooks

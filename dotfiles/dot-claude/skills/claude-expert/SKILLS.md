@@ -467,7 +467,9 @@ Skills in `.claude/skills/` within directories specified via `--add-dir` are aut
 claude --add-dir ./company-skills --add-dir ./team-skills
 ```
 
-Skills in `./company-skills/.claude/skills/` and `./team-skills/.claude/skills/` are discovered and loaded alongside project and personal skills.
+Skills in `./company-skills/.claude/skills/` and `./team-skills/.claude/skills/` are discovered and loaded alongside project and personal skills. Live change detection is supported.
+
+**Note**: CLAUDE.md files from `--add-dir` directories are NOT loaded by default. Set `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` to enable.
 
 ## Plugin Skills
 
@@ -479,7 +481,7 @@ Example: `my-plugin:formatter`
 
 ## Environment Variables
 
-- `SLASH_COMMAND_TOOL_CHAR_BUDGET` - Character budget for skill descriptions (default: 15,000 characters; scales to 2% of context window in v2.1.32+)
+- `SLASH_COMMAND_TOOL_CHAR_BUDGET` - Character budget for skill descriptions (scales to 2% of context window; fallback minimum 16,000 chars)
 
 ## Advanced Patterns
 

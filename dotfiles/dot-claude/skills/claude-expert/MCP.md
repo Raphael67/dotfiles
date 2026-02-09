@@ -384,9 +384,9 @@ mcp__postgres__query
 /mcp__servername__promptname
 ```
 
-## MCP Tool Search (v2.1.7+)
+## MCP Tool Search
 
-Dynamic tool loading when many MCP servers configured:
+Dynamic tool loading when many MCP servers configured. Requires Sonnet 4+ or Opus 4+ (not available with Haiku).
 
 ```bash
 ENABLE_TOOL_SEARCH=auto        # Default (10% context threshold)
@@ -394,6 +394,15 @@ ENABLE_TOOL_SEARCH=auto:5      # Custom threshold (5%)
 ENABLE_TOOL_SEARCH=true        # Always enabled
 ENABLE_TOOL_SEARCH=false       # Disabled
 ```
+
+Disable via `disallowedTools` setting:
+```json
+{"permissions": {"deny": ["MCPSearch"]}}
+```
+
+### Dynamic Tool Updates
+
+MCP servers can send `list_changed` notifications to dynamically update their available tools without reconnecting.
 
 ## Output Limits
 
@@ -408,6 +417,7 @@ MAX_MCP_OUTPUT_TOKENS=50000 claude
 |----------|-------------|
 | `MAX_MCP_OUTPUT_TOKENS` | Max tokens in output (default: 25,000) |
 | `MCP_TIMEOUT` | Server startup timeout in ms |
+| `MCP_CLIENT_SECRET` | OAuth client secret for CI/automation |
 | `ENABLE_TOOL_SEARCH` | Dynamic tool loading: `auto` (default), `auto:N`, `true`, `false` |
 
 ## CLI Commands

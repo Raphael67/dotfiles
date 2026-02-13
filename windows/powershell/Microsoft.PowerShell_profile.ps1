@@ -64,7 +64,7 @@ function glgg { git log --graph --max-count=5 --decorate --pretty="oneline" @arg
 function gm { git merge @args }
 function gp { git push @args }
 function gpo { git push origin @args }
-function gs { git status --short @args }
+function gs { git status --short --branch @args }
 function gu { git pull @args }
 function gup { git fetch; git rebase @args }
 function gre { git remote @args }

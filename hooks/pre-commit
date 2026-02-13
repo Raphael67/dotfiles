@@ -1,8 +1,0 @@
-#!/bin/sh
-
-if ! command -v gitleaks >/dev/null 2>&1; then
-    echo "Error: gitleaks not found. Install it or use --no-verify to skip."
-    exit 1
-fi
-
-gitleaks git . -v

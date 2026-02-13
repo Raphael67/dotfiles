@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# Global pre-commit hook: runs gitleaks to prevent secrets from being committed.
+# Installed via core.hooksPath in ~/.config/git/config.
+#
+# Chain to repo-local hooks (husky, lefthook, etc.) if they exist.
+
+# --- Gitleaks ---
+if command -v gitleaks >/dev/null 2>&1; then
+    gitleaks git . -v
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+else
+    echo "Warning: gitleaks not found. Skipping secret scan."
+    echo "Install it with: brew install gitleaks (macOS) or pacman -S gitleaks (Arch)"
+fi
+
+# --- Chain to repo-local hook ---
+LOCAL_HOOK="$(git rev-parse --git-dir)/hooks/pre-commit"
+if [ -f "$LOCAL_HOOK" ] && [ -x "$LOCAL_HOOK" ]; then
+    exec "$LOCAL_HOOK" "$@"
+fi

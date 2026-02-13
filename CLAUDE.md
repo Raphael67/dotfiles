@@ -5,7 +5,7 @@ This file provides guidance to Claude Code when working with this repository.
 
 ## Repository Overview
 
-Cross-platform dotfiles repository (macOS/Linux) using GNU Stow for symlink management.
+Cross-platform dotfiles repository (macOS/Linux/Windows) using GNU Stow for symlink management.
 
 ## Critical: Stow & Symlinks
 
@@ -41,8 +41,17 @@ tmux source ~/.config/tmux/tmux.conf  # Reload tmux
 | `dotfiles/dot-config/tmux/` | `~/.config/tmux/` |
 | `dotfiles/dot-config/starship/` | `~/.config/starship/` |
 | `dotfiles/dot-config/ghostty/` | `~/.config/ghostty/` |
+| `dotfiles/dot-config/git/` | `~/.config/git/` |
 | `dotfiles/dot-claude/` | `~/.claude/` |
 | `homebrew/Brewfile` | Package manifest |
+
+## Global Git Hooks
+
+Gitleaks runs automatically on every commit via a global pre-commit hook:
+- Hook location: `dotfiles/dot-config/git/hooks/pre-commit` (stowed to `~/.config/git/hooks/`)
+- Enabled by `core.hooksPath` in `dotfiles/dot-config/git/config`
+- Chains to repo-local hooks (husky, lefthook, etc.) if they exist
+- Skip with `--no-verify` when needed
 
 ## Detailed Documentation
 

@@ -50,6 +50,11 @@ $links = @(
         Source = "dotfiles\dot-config\bat\config"
         Target = "$HOME\.config\bat\config"
         Description = "bat (cat replacement) config"
+    },
+    @{
+        Source = "dotfiles\dot-config\git\hooks\pre-commit"
+        Target = "$HOME\.config\git\hooks\pre-commit"
+        Description = "Git global pre-commit hook (gitleaks)"
     }
 )
 

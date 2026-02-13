@@ -1,7 +1,5 @@
 # Global Claude Configuration
 
-<!-- This file applies to ALL projects. Project-level CLAUDE.md files override these settings. -->
-
 ## Personal Development Environment
 
 - **Shell**: Zsh with oh-my-zsh

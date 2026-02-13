@@ -19,6 +19,13 @@ CHANGELOG_URL = https://github.com/anthropics/claude-code/releases
 | Hooks Docs | https://code.claude.com/docs/en/hooks | HOOKS.md |
 | MCP Docs | https://code.claude.com/docs/en/mcp | MCP.md |
 | Agent SDK | https://code.claude.com/docs/en/sub-agents | SUBAGENTS.md |
+| Anthropic News | https://www.anthropic.com/news | PROMPTING.md (model updates) |
+
+### Model-Specific Sources
+
+For model updates and capabilities, also check:
+- https://www.anthropic.com/news/claude-opus-4-6 (or latest model announcement)
+- Look for new model announcements on https://www.anthropic.com/news
 
 ## Workflow
 
@@ -40,7 +47,7 @@ Prompt: Extract release notes since {lastVersion}. For each release, list: versi
 
 ### Step 2: Fetch Documentation (Parallel)
 
-Launch 4 parallel WebFetch calls:
+Launch 5 parallel WebFetch calls:
 
 | URL | Prompt |
 |-----|--------|
@@ -48,6 +55,7 @@ Launch 4 parallel WebFetch calls:
 | Hooks Docs | Extract all information about Claude Code hooks: PreToolUse, PostToolUse, event types, exit codes, JSON output format, and configuration options. |
 | MCP Docs | Extract all information about MCP in Claude Code: server configuration, transport types, tool definitions, resource handling, and troubleshooting. |
 | Agent SDK Docs | Extract all information about sub-agents in Claude Code: agent definition files, YAML options, tool restrictions, Task tool usage, and parallel execution. |
+| Anthropic News | Extract recent announcements about Claude models: new model releases, capabilities, pricing, API changes, and features. Focus on model IDs, performance benchmarks, and technical details. |
 
 ### Step 3: Launch Parallel Subagents
 

@@ -40,6 +40,7 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - Description is **critical** for auto-discovery
 - Keep SKILL.md < 500 lines, split into reference files
 - Use semantic XML tags in content
+- **MANDATORY**: Every skill with external resources must include a self-update cookbook (see SKILLS.md Self-Update Pattern)
 
 ### Hooks
 - PreToolUse hooks validate before execution

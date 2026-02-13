@@ -1,6 +1,8 @@
 # Web Scraping Patterns
 
-Reusable patterns for common scraping tasks.
+Reusable patterns for common scraping tasks with pw-writer and pw-fast.
+
+---
 
 ## Table Extraction
 
@@ -106,20 +108,16 @@ console.log(`Page ${state.pageNum}: Total ${state.allItems.length} items`);
   "steps": [
     { "tool": "browser_navigate", "arguments": { "url": "/contact" }},
     { "tool": "browser_type", "arguments": {
-      "selectors": [{ "css": "input[name='name']" }],
-      "text": "John Doe"
+      "selectors": [{ "css": "input[name='name']" }], "text": "John Doe"
     }},
     { "tool": "browser_type", "arguments": {
-      "selectors": [{ "css": "input[name='email']" }],
-      "text": "john@example.com"
+      "selectors": [{ "css": "input[name='email']" }], "text": "john@example.com"
     }},
     { "tool": "browser_type", "arguments": {
-      "selectors": [{ "css": "textarea[name='message']" }],
-      "text": "Hello, I have a question..."
+      "selectors": [{ "css": "textarea[name='message']" }], "text": "Hello, I have a question..."
     }},
     { "tool": "browser_select_option", "arguments": {
-      "selectors": [{ "css": "select[name='subject']" }],
-      "values": ["support"]
+      "selectors": [{ "css": "select[name='subject']" }], "values": ["support"]
     }},
     { "tool": "browser_click", "arguments": {
       "selectors": [{ "role": "button", "text": "Submit" }]
@@ -135,32 +133,20 @@ console.log(`Page ${state.pageNum}: Total ${state.allItems.length} items`);
 ### pw-writer (Complex Forms)
 
 ```javascript
-// Navigate to form
 await page.goto('https://example.com/apply', { waitUntil: 'domcontentloaded' });
 await waitForPageLoad({ page });
 
-// Fill form fields
 await page.getByLabel('Full Name').fill('John Doe');
 await page.getByLabel('Email').fill('john@example.com');
 await page.getByLabel('Phone').fill('+1-555-123-4567');
-
-// Handle dropdown
 await page.getByLabel('Country').selectOption('US');
-
-// Handle date picker
 await page.getByLabel('Birth Date').fill('1990-01-15');
-
-// Handle file upload
 await page.getByLabel('Resume').setInputFiles('/path/to/resume.pdf');
-
-// Handle checkbox
 await page.getByLabel('I agree to terms').check();
 
-// Submit
 await page.getByRole('button', { name: 'Submit Application' }).click();
 await waitForPageLoad({ page });
 
-// Verify success
 const result = await getCleanHTML({ locator: page.locator('.confirmation') });
 console.log(result);
 ```
@@ -172,7 +158,6 @@ console.log(result);
 ### Setup and Capture
 
 ```javascript
-// Initialize capture
 state.apiCalls = [];
 
 page.on('request', req => {
@@ -208,11 +193,9 @@ console.log('Network capture started. Now trigger actions...');
 ### Trigger Actions and Analyze
 
 ```javascript
-// Trigger actions that make API calls
 await page.click('button.load-data');
 await waitForPageLoad({ page, timeout: 5000 });
 
-// Analyze captured calls
 console.log(`Captured ${state.apiCalls.length} API calls:`);
 state.apiCalls.forEach(call => {
   console.log(`${call.method} ${call.url.slice(0, 80)}`);
@@ -226,10 +209,8 @@ state.apiCalls.forEach(call => {
 ### Replay API Directly
 
 ```javascript
-// Find the API call you want to replay
 const productApi = state.apiCalls.find(c => c.url.includes('/products'));
 
-// Replay with different parameters (e.g., pagination)
 const nextPage = await page.evaluate(async ({ url, headers }) => {
   const newUrl = url.replace('page=1', 'page=2');
   const res = await fetch(newUrl, { headers });
@@ -244,7 +225,6 @@ console.log('Next page data:', JSON.stringify(nextPage).slice(0, 500));
 ```javascript
 page.removeAllListeners('request');
 page.removeAllListeners('response');
-console.log('Network capture stopped');
 ```
 
 ---
@@ -254,21 +234,17 @@ console.log('Network capture stopped');
 ### pw-writer
 
 ```javascript
-// Initialize
 state.items = [];
 state.scrollCount = 0;
 const maxScrolls = 10;
 
-// Get current items
 const getItems = async () => {
   return page.$$eval('.item', els => els.map(e => e.textContent.trim()));
 };
 
-// Scroll loop
 while (state.scrollCount < maxScrolls) {
   const before = (await getItems()).length;
 
-  // Scroll to bottom
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   await waitForPageLoad({ page, timeout: 3000 });
 
@@ -277,11 +253,9 @@ while (state.scrollCount < maxScrolls) {
 
   console.log(`Scroll ${state.scrollCount}: ${before} → ${after} items`);
 
-  // Stop if no new items loaded
   if (after === before) break;
 }
 
-// Get all items
 state.items = await getItems();
 console.log(`Total: ${state.items.length} items`);
 ```
@@ -293,20 +267,16 @@ console.log(`Total: ${state.items.length} items`);
 ### pw-writer with Tab Management
 
 ```javascript
-// Get all links to crawl
 const links = await page.$$eval('a.product-link', els =>
-  els.map(e => e.href).slice(0, 10)  // Limit to 10
+  els.map(e => e.href).slice(0, 10)
 );
 state.results = [];
 
-// Crawl each link
 for (const link of links) {
-  // Open in new tab
   const newPage = await context.newPage();
   await newPage.goto(link, { waitUntil: 'domcontentloaded' });
   await waitForPageLoad({ page: newPage, timeout: 5000 });
 
-  // Extract data
   const data = await newPage.evaluate(() => ({
     title: document.querySelector('h1')?.textContent,
     price: document.querySelector('.price')?.textContent,
@@ -314,8 +284,6 @@ for (const link of links) {
   }));
 
   state.results.push({ url: link, ...data });
-
-  // Close tab
   await newPage.close();
 }
 
@@ -330,23 +298,17 @@ console.log(JSON.stringify(state.results, null, 2));
 ### Before/After Visual Diff
 
 ```javascript
-// Take "before" screenshot
 await page.screenshot({ path: '/tmp/before.png', scale: 'css' });
-console.log('Before screenshot saved');
 
-// Perform action
 await page.click('button.apply-changes');
 await waitForPageLoad({ page });
 
-// Take "after" screenshot
 await page.screenshot({ path: '/tmp/after.png', scale: 'css' });
-console.log('After screenshot saved');
 ```
 
 ### Element Screenshot
 
 ```javascript
-// Screenshot specific element
 const element = page.locator('.product-card').first();
 await element.screenshot({ path: '/tmp/product.png' });
 ```
@@ -358,12 +320,10 @@ await element.screenshot({ path: '/tmp/product.png' });
 ### pw-writer (Reuses Session)
 
 ```javascript
-// Check if already logged in
 const isLoggedIn = await page.$('.user-menu');
 if (isLoggedIn) {
   console.log('Already logged in (using existing session)');
 } else {
-  // Perform login
   await page.goto('https://example.com/login');
   await page.getByLabel('Email').fill('user@example.com');
   await page.getByLabel('Password').fill('password123');
@@ -371,7 +331,6 @@ if (isLoggedIn) {
   await waitForPageLoad({ page });
 }
 
-// Now scrape authenticated content
 const data = await getCleanHTML({ locator: page.locator('.dashboard') });
 console.log(data);
 ```
@@ -406,14 +365,10 @@ console.log(data);
 ### Autocomplete / Typeahead
 
 ```javascript
-// Type to trigger autocomplete
 await page.getByLabel('City').fill('New Y');
 await page.waitForSelector('.autocomplete-dropdown');
-
-// Select from dropdown
 await page.getByRole('option', { name: 'New York, NY' }).click();
 
-// Verify selection
 const value = await page.getByLabel('City').inputValue();
 console.log('Selected:', value);
 ```
@@ -421,15 +376,10 @@ console.log('Selected:', value);
 ### Select2 / Custom Dropdowns
 
 ```javascript
-// Click to open dropdown
 await page.click('.select2-container');
 await page.waitForSelector('.select2-results');
-
-// Search within dropdown
 await page.locator('.select2-search input').fill('United States');
 await page.waitForSelector('.select2-results__option--highlighted');
-
-// Select option
 await page.click('.select2-results__option--highlighted');
 ```
 
@@ -440,7 +390,6 @@ await page.click('.select2-results__option--highlighted');
 ### With Retry Logic
 
 ```javascript
-// Initialize state
 state.maxRetries = 3;
 state.currentRetry = 0;
 
@@ -450,14 +399,14 @@ const scrapeWithRetry = async () => {
     await waitForPageLoad({ page, timeout: 5000 });
 
     const data = await getCleanHTML({ locator: page.locator('.content') });
-    state.currentRetry = 0;  // Reset on success
+    state.currentRetry = 0;
     return data;
   } catch (error) {
     state.currentRetry++;
     console.log(`Attempt ${state.currentRetry} failed: ${error.message}`);
 
     if (state.currentRetry < state.maxRetries) {
-      await page.waitForTimeout(2000);  // Wait before retry
+      await page.waitForTimeout(2000);
       return scrapeWithRetry();
     }
     throw error;
@@ -476,11 +425,7 @@ console.log(result);
 
 ```javascript
 const fs = require('node:fs');
-
-// After scraping
 const data = state.allItems;
-
-// Save to file
 fs.writeFileSync('/tmp/scraped-data.json', JSON.stringify(data, null, 2));
 console.log(`Saved ${data.length} items to /tmp/scraped-data.json`);
 ```
@@ -489,8 +434,6 @@ console.log(`Saved ${data.length} items to /tmp/scraped-data.json`);
 
 ```javascript
 const fs = require('node:fs');
-
-// Convert to CSV
 const headers = Object.keys(state.allItems[0]).join(',');
 const rows = state.allItems.map(item =>
   Object.values(item).map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')

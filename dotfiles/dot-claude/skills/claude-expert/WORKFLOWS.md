@@ -198,6 +198,15 @@ Chain multiple sub-workflows:
    - Follow Report section format
 ```
 
+### Task Tool Metrics (v2.1.30+)
+
+Task tool results now include metrics for monitoring:
+- **Token count**: Input/output tokens used
+- **Tool uses**: Number of tool invocations
+- **Duration**: Execution time in milliseconds
+
+Capture these in reports for workflow visibility.
+
 ### Parallel Execution Pattern
 Launch multiple operations simultaneously:
 ```markdown

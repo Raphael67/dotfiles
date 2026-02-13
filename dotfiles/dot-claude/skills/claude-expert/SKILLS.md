@@ -4,11 +4,13 @@
 
 Skills are markdown files that extend Claude Code's capabilities by providing specialized instructions, context, and patterns for specific domains or tasks.
 
+Claude Code skills follow the [Agent Skills](https://agentskills.io) open standard.
+
 ## How Skills Work
 
-1. **Startup**: Claude Code loads the **name** and **description** of each installed skill
-2. **Discovery**: Claude automatically decides when to use a skill based on these metadata
-3. **Loading**: Full skill content is loaded only when invoked
+1. **Startup**: Claude Code loads skill **descriptions** into context so it knows what's available
+2. **Discovery**: Claude automatically decides when to use a skill based on description match
+3. **Loading**: Full skill content is loaded only when invoked (not at startup)
 4. **Execution**: Claude follows the skill's instructions for the task
 
 **Critical**: The description determines if Claude will find and use your skill.
@@ -53,8 +55,15 @@ For complex skills with multiple workflows:
 ```
 
 ### Locations
-- **Personal**: `~/.claude/skills/skill-name/SKILL.md`
-- **Project**: `.claude/skills/skill-name/SKILL.md` (shared via git)
+
+| Location | Path | Applies to |
+|----------|------|------------|
+| Enterprise | Managed settings | All users in org |
+| Personal | `~/.claude/skills/<name>/SKILL.md` | All your projects |
+| Project | `.claude/skills/<name>/SKILL.md` | This project only |
+| Plugin | `<plugin>/skills/<name>/SKILL.md` | Where plugin is enabled |
+
+When skills share the same name, higher-priority locations win: enterprise > personal > project. Plugin skills use `plugin-name:skill-name` namespace (no conflicts).
 
 ## SKILL.md Format
 
@@ -76,17 +85,16 @@ Instructions and content...
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `name` | Yes | Unique name, **lowercase + hyphens only**, max 64 chars |
-| `description` | Yes | What + when, max 1024 chars. **Critical for discovery** |
-| `user-invocable` | No | `true` to allow `/skill-name` invocation |
+| `name` | No | Display name. If omitted, uses directory name. Lowercase + hyphens, max 64 chars |
+| `description` | Recommended | What + when. **Critical for discovery**. If omitted, uses first paragraph |
+| `user-invocable` | No | Set to `false` to hide from `/` menu. Default: `true` |
+| `disable-model-invocation` | No | `true` to prevent Claude from auto-loading. Default: `false` |
 | `allowed-tools` | No | Restrict available tools (e.g., `Read, Grep, Glob`) |
-| `version` | No | Version number for tracking |
-| `disable-model-invocation` | No | `true` to disable auto-invocation |
-| `context` | No | Set to `fork` to run in subagent context |
-| `agent` | No | Agent type when `context: fork` (e.g., `Explore`, `Plan`) |
-| `hooks` | No | Lifecycle hooks: PreToolUse, PostToolUse, Stop |
-| `argument-hint` | No | Hint for expected arguments (e.g., `[filename]`) |
+| `context` | No | Set to `fork` to run in forked subagent context |
+| `agent` | No | Agent type when `context: fork` (e.g., `Explore`, `Plan`, custom) |
 | `model` | No | Model to use (`sonnet`, `opus`, `haiku`) |
+| `hooks` | No | Lifecycle hooks scoped to skill. See Hooks reference |
+| `argument-hint` | No | Hint shown during autocomplete (e.g., `[issue-number]`) |
 
 ## Argument Substitution
 
@@ -139,9 +147,31 @@ ultrathink
 Analyze this complex problem thoroughly before responding.
 ```
 
-## Skill Approval (v2.1.19+)
+## Invocation Control
 
-Skills without additional permissions or hooks no longer require user approval. Only skills requesting extra permissions or defining hooks need approval.
+| Frontmatter | You can invoke | Claude can invoke | Context loading |
+|-------------|----------------|-------------------|-----------------|
+| (default) | Yes | Yes | Description always in context, full skill loads when invoked |
+| `disable-model-invocation: true` | Yes | No | Description not in context |
+| `user-invocable: false` | No | Yes | Description always in context |
+
+## Restrict Skill Access
+
+Control which skills Claude can use via permission rules:
+```
+# Allow specific skills
+Skill(commit)
+Skill(review-pr *)
+
+# Deny specific skills
+Skill(deploy *)
+```
+
+Disable all skills: add `Skill` to deny rules in `/permissions`.
+
+## Skill Approval
+
+Skills without additional permissions or hooks are auto-approved. Only skills requesting extra permissions or defining hooks need user approval.
 
 ## SKILL.md Sections
 
@@ -417,6 +447,7 @@ Test discovery by asking Claude about a topic your skill covers.
 4. **Test triggers**: Ask related questions to verify discovery
 5. **Version your skills**: Track changes with version field
 6. **Document reference files**: Table showing when to read each
+7. **Always add self-update**: Every skill with external resources MUST include a self-update cookbook. See [Self-Update Pattern](#self-update-pattern)
 
 ## Nested Skill Discovery (Monorepos)
 
@@ -428,6 +459,18 @@ project-root/
     └── .claude/skills/      # Auto-discovered when working in packages/app
 ```
 
+## Auto-Loading from Additional Directories (v2.1.32+)
+
+Skills in `.claude/skills/` within directories specified via `--add-dir` are automatically loaded:
+
+```bash
+claude --add-dir ./company-skills --add-dir ./team-skills
+```
+
+Skills in `./company-skills/.claude/skills/` and `./team-skills/.claude/skills/` are discovered and loaded alongside project and personal skills. Live change detection is supported.
+
+**Note**: CLAUDE.md files from `--add-dir` directories are NOT loaded by default. Set `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` to enable.
+
 ## Plugin Skills
 
 Plugin-provided skills use namespace format:
@@ -438,7 +481,7 @@ Example: `my-plugin:formatter`
 
 ## Environment Variables
 
-- `SLASH_COMMAND_TOOL_CHAR_BUDGET` - Character budget for skill descriptions (default: 15000)
+- `SLASH_COMMAND_TOOL_CHAR_BUDGET` - Character budget for skill descriptions (scales to 2% of context window; fallback minimum 16,000 chars)
 
 ## Advanced Patterns
 
@@ -552,6 +595,115 @@ argument-hint: [path-to-plan] [options]
 PATH_TO_PLAN: $1
 OPTIONS: $2 default "" if not provided
 ```
+
+### Self-Update Pattern
+
+**MANDATORY**: Every skill that references external resources (documentation URLs, APIs, libraries, specifications) MUST include a self-update cookbook workflow. This ensures skills stay current as upstream sources evolve.
+
+#### Required Components
+
+1. **External Resources Table** in SKILL.md:
+```markdown
+## External Resources
+
+| Source | URL | Maps To |
+|--------|-----|---------|
+| Official Docs | https://example.com/docs | REFERENCE.md |
+| GitHub Releases | https://github.com/org/repo/releases | All files |
+| API Reference | https://example.com/api | API.md |
+```
+
+2. **Argument routing** in SKILL.md:
+```markdown
+## Argument Routing
+
+**If $ARGUMENTS is "self-update"**: Read and execute [cookbook/self-update.md](cookbook/self-update.md)
+```
+
+3. **`argument-hint`** in frontmatter:
+```yaml
+---
+argument-hint: [self-update]
+---
+```
+
+4. **`cookbook/self-update.md`** workflow file following this template:
+
+```markdown
+# Self-Update Workflow
+
+Fetch latest documentation and resources, review all reference files, and auto-apply updates.
+
+## Variables
+
+SKILL_DIR = <path-to-skill>
+STATE_FILE = $SKILL_DIR/.self-update-state.json
+
+### Documentation URLs
+
+| Source | URL | Maps To |
+|--------|-----|---------|
+| <copy from SKILL.md External Resources table> |
+
+## Workflow
+
+### Step 0: Read State File
+Read `$STATE_FILE` to get last update timestamp.
+- If missing or corrupt, treat as first run
+
+### Step 1: Fetch Documentation (Parallel)
+Launch parallel WebFetch calls for each URL in the resources table.
+Each call extracts structured information relevant to the mapped file.
+
+### Step 2: Launch Parallel Review Agents
+Launch one Task agent (subagent_type: general-purpose, model: haiku) per reference file.
+
+Each agent receives:
+- Fetched documentation as context
+- One assigned reference file to review
+- Instructions to return: outdated_sections[], new_content[], corrections[]
+
+### Step 3: Collect and Apply Updates
+- Consolidate findings, deduplicate
+- Apply corrections first, then content updates, then new sections
+- Verify files parse correctly after edits
+
+### Step 4: Update State File
+Write updated state with timestamp, version, files updated, changes applied.
+
+### Step 5: Generate Report
+Output summary table: files reviewed, files updated, changes applied.
+```
+
+#### Example: cloud-expert skill with self-update
+```
+cloud-expert/
+├── SKILL.md                    # Has External Resources table + argument routing
+├── RCLONE.md
+├── GOOGLE-DRIVE.md
+├── ONEDRIVE.md
+├── cookbook/
+│   └── self-update.md          # Fetches rclone docs, cloud provider docs
+└── .self-update-state.json     # Auto-generated state tracking
+```
+
+**In SKILL.md:**
+```markdown
+## External Resources
+
+| Source | URL | Maps To |
+|--------|-----|---------|
+| Rclone Docs | https://rclone.org/docs/ | RCLONE.md |
+| Rclone Releases | https://github.com/rclone/rclone/releases | All files |
+| OneDrive Config | https://rclone.org/onedrive/ | ONEDRIVE.md |
+| Google Drive Config | https://rclone.org/drive/ | GOOGLE-DRIVE.md |
+
+## Argument Routing
+
+**If $ARGUMENTS is "self-update"**: Read and execute [cookbook/self-update.md](cookbook/self-update.md)
+```
+
+The user invokes self-update with: `/cloud-expert self-update`
 
 ### Config as Single Source of Truth
 Use YAML/JSON for shared configuration:

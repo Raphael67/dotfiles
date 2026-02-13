@@ -176,11 +176,11 @@
     "git.openRepositoryInParentFolders": "always",
     "git.replaceTagsWhenPull": true,
     "java.configuration.runtimes": [
-        {
-            "default": true,
-            "name": "JavaSE-22",
-            "path": "C:/Program Files/OpenJDK/jdk-22.0.2"
-        }
+      {
+        "default": true,
+        "name": "JavaSE-22",
+        "path": "C:/Program Files/OpenJDK/jdk-22.0.2"
+      }
     ],
     "javascript.format.semicolons": "insert",
     "javascript.preferences.importModuleSpecifier": "relative",
@@ -257,8 +257,7 @@
     "yaml.schemas": {
         "/Users/raphael/.vscode/extensions/continue.continue-1.0.19-darwin-arm64/config-yaml-schema.json": [
             ".continue/**/*.yaml"
-        ],
-        "file:///Users/raphael/.vscode/extensions/atlassian.atlascode-4.0.17/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml"
+        ]
     },
     "atlascode.bitbucket.enabled": false,
     "atlascode.jira.startWorkBranchTemplate.customTemplate": "{{{issueKey}}}-{{{summary}}}",

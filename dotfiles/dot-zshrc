@@ -248,6 +248,16 @@ if type lazygit > /dev/null; then
   alias lazygit='env TERM=screen-256color lazygit'
 fi
 
+# ghostty: fix 'xterm-ghostty': unknown terminal type on remote servers
+if [[ "$TERM" == "xterm-ghostty" ]]; then
+  alias ssh='TERM=xterm-256color ssh'
+fi
+
+# rclone: decrypt config via macOS Keychain
+if type rclone &>/dev/null; then
+  export RCLONE_PASSWORD_COMMAND="security find-generic-password -a rclone -s rclone-config -w"
+fi
+
 # github: copilot (only if gh copilot extension is installed)
 if type gh &>/dev/null && gh copilot --version &>/dev/null; then
   _evalcache gh copilot alias -- zsh
@@ -269,8 +279,7 @@ if type starship &>/dev/null; then
   eval "$(starship init zsh)"
 fi
 
-# Aliases
-[ -f "$HOME/.config/zsh/aliases.zsh" ] && source "$HOME/.config/zsh/aliases.zsh"
+# Aliases (already sourced earlier on line 61)
 
 if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
   export PATH=/opt/homebrew/opt/ruby/bin:$PATH

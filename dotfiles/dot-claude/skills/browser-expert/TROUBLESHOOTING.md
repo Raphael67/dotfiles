@@ -1,6 +1,6 @@
-# Web Scraping Troubleshooting Guide
+# Browser Expert Troubleshooting Guide
 
-Common issues and solutions for pw-writer and pw-fast.
+Common issues and solutions across all browser tools.
 
 ## Quick Diagnosis
 
@@ -12,6 +12,9 @@ Common issues and solutions for pw-writer and pw-fast.
 | Content not in snapshot | Not expanded/loaded | Click to expand, then extract |
 | Response too large | Token budget | Use `getCleanHTML` or `expectation` filtering |
 | Page blocked by modal | Cookie consent | Find and click accept button |
+| Extension not detected | Chrome extension issue | Reinstall, restart Chrome |
+| WebSocket connection fails | Firefox MCP extension | Reload temporary add-on |
+| Port conflict | Multiple debug sessions | Kill orphan processes |
 
 ---
 
@@ -24,9 +27,6 @@ Candidates:
 - ref=e42: button.submit "Submit"
 - ref=e43: div.btn "Submit"
 ```
-
-### Cause
-Selector matches multiple elements. Playwright requires exact single match.
 
 ### Solutions
 
@@ -51,8 +51,7 @@ Selector matches multiple elements. Playwright requires exact single match.
 // Then use the specific ref: { "ref": "found_1" }
 ```
 
-**Option 3: Switch to pw-writer**
-pw-writer handles multiple matches gracefully with aria-ref system.
+**Option 3: Switch to pw-writer** — handles multiple matches gracefully with aria-ref.
 
 ---
 
@@ -64,25 +63,22 @@ Error: Element reference e42 is no longer valid
 ```
 
 ### Cause
-DOM was modified between getting the snapshot and using the ref (React re-render, SPA navigation).
+DOM modified between snapshot and action (React re-render, SPA navigation).
 
 ### Solutions
 
-**Option 1: Re-capture snapshot immediately before action**
+**Re-capture snapshot immediately before action:**
 ```javascript
-// pw-writer
 const snapshot = await accessibilitySnapshot({ page, search: /submit/i });
-// Use ref immediately
 await page.locator('aria-ref=e42').click();
 ```
 
-**Option 2: Use stable selectors instead of refs**
+**Use stable selectors instead of refs:**
 ```javascript
-// Instead of ref, use CSS or role
 await page.getByRole('button', { name: 'Submit' }).click();
 ```
 
-**Option 3: Chain snapshot and action in pw-fast batch**
+**Chain snapshot and action in pw-fast batch:**
 ```json
 {
   "steps": [
@@ -99,22 +95,13 @@ await page.getByRole('button', { name: 'Submit' }).click();
 ## External Redirects
 
 ### Symptom
-- Navigation hangs indefinitely
-- Page context closed unexpectedly
-- URL changes to different domain
-
-### Cause
-Site redirects to external domain (common with menu systems, payment flows).
+Navigation hangs, page context closed, URL changes to different domain.
 
 ### Solution
-**Switch to pw-writer** - handles multi-page flows natively:
+**Switch to pw-writer** — handles multi-page flows natively:
 
 ```javascript
-// pw-writer handles external redirects
 await page.goto('https://main-site.com/menu');
-// If it redirects to menu.external-site.com, pw-writer follows
-
-// Access all pages including external
 const pages = context.pages();
 const menuPage = pages.find(p => p.url().includes('menu'));
 ```
@@ -123,12 +110,7 @@ const menuPage = pages.find(p => p.url().includes('menu'));
 
 ## Cookie Consent Dialogs
 
-### Symptom
-Page blocked by modal overlay, elements not clickable.
-
-### Solutions
-
-**pw-fast: Find and click accept button**
+### pw-fast
 ```json
 {
   "steps": [
@@ -142,16 +124,12 @@ Page blocked by modal overlay, elements not clickable.
 }
 ```
 
-**pw-writer: Use accessibility snapshot to find button**
+### pw-writer
 ```javascript
 const snapshot = await accessibilitySnapshot({ page, search: /accept|agree|cookie/i });
-console.log(snapshot);
-// Find the accept button ref and click
 await page.locator('aria-ref=e15').click();
-```
 
-**pw-writer: Hide overlay with CSS**
-```javascript
+// Or hide overlay
 await page.addStyleTag({
   content: '.cookie-banner, .consent-modal { display: none !important; }'
 });
@@ -161,32 +139,19 @@ await page.addStyleTag({
 
 ## Accordion/Tab Content Not Visible
 
-### Symptom
-Expected content missing from snapshot or HTML extraction.
-
 ### Cause
 Content is collapsed/hidden until user interaction.
 
-### Solutions
-
-**Step 1: Find and click to expand**
+### Solution
 ```javascript
-// pw-writer
+// 1. Find and click to expand
 const snapshot = await accessibilitySnapshot({ page, search: /menu|expand|show/i });
-await page.locator('aria-ref=e10').click();  // Click accordion header
+await page.locator('aria-ref=e10').click();
+
+// 2. Wait for content
 await waitForPageLoad({ page, timeout: 2000 });
-```
 
-**Step 2: Wait for content to load**
-```javascript
-// pw-writer
-await page.waitForSelector('.accordion-content:visible');
-// or
-await waitForPageLoad({ page, timeout: 3000 });
-```
-
-**Step 3: Then extract**
-```javascript
+// 3. Extract
 const content = await getCleanHTML({ locator: page.locator('.accordion-content') });
 ```
 
@@ -194,37 +159,19 @@ const content = await getCleanHTML({ locator: page.locator('.accordion-content')
 
 ## Network Timeouts
 
-### Symptom
-- `waitForLoadState` hangs
-- Page never reports "complete"
-- Long-running analytics blocking load
-
 ### Cause
 Analytics, ads, or tracking scripts that never complete.
 
-### Solutions
-
-**pw-writer: Use waitForPageLoad (ignores analytics)**
+### pw-writer
 ```javascript
-// Instead of
-await page.waitForLoadState('networkidle');  // May hang
+// Instead of (may hang):
+await page.waitForLoadState('networkidle');
 
-// Use
-await waitForPageLoad({ page, timeout: 5000 });  // Smart load detection
+// Use (smart detection):
+await waitForPageLoad({ page, timeout: 5000 });
 ```
 
-**pw-fast: Use domcontentloaded instead of networkidle**
-```json
-{
-  "tool": "browser_navigate",
-  "arguments": {
-    "url": "https://example.com"
-    // Don't wait for networkidle
-  }
-}
-```
-
-**Add explicit wait for expected content**
+### pw-fast
 ```json
 {
   "tool": "browser_wait_for",
@@ -236,46 +183,28 @@ await waitForPageLoad({ page, timeout: 5000 });  // Smart load detection
 
 ## Token Budget Exceeded
 
-### Symptom
-- Response truncated
-- Very large response size
-- Slow processing
-
-### Solutions
-
-**pw-writer: Use getCleanHTML instead of accessibilitySnapshot**
+### pw-writer
 ```javascript
-// Instead of (5000+ tokens)
+// Instead of (5000+ tokens):
 const snapshot = await accessibilitySnapshot({ page });
 
-// Use (200-500 tokens)
+// Use (200-500 tokens):
 const html = await getCleanHTML({
   locator: page.locator('.content'),
-  search: /price|item/i  // Filter results
+  search: /price|item/i
 });
 ```
 
-**pw-fast: Use expectation parameter**
+### pw-fast
 ```json
 {
   "expectation": {
     "includeSnapshot": true,
     "snapshotOptions": {
-      "selector": ".main-content",  // Scope to relevant area
-      "maxLength": 1500             // Limit size
+      "selector": ".main-content",
+      "maxLength": 1500
     }
   }
-}
-```
-
-**pw-fast: Disable snapshot for intermediate steps**
-```json
-{
-  "steps": [
-    { "tool": "browser_navigate", "arguments": {...}, "expectation": { "includeSnapshot": false }},
-    { "tool": "browser_click", "arguments": {...}, "expectation": { "includeSnapshot": false }},
-    { "tool": "browser_snapshot", "arguments": {} }  // Only final step
-  ]
 }
 ```
 
@@ -288,66 +217,34 @@ const html = await getCleanHTML({
 Error: Target page, context or browser has been closed
 ```
 
-### Cause
-- External navigation closed the page
-- Browser crashed
-- Connection lost
-
-### Solutions
-
-**pw-writer: Reset connection**
+### pw-writer
 ```javascript
 const { page, context } = await resetPlaywright();
-// Or use the reset MCP tool
 ```
 
-**pw-fast: Navigate to fresh page**
+### pw-fast
 ```json
 {
   "name": "browser_navigate",
   "arguments": { "url": "about:blank" }
 }
-// Then navigate to target
-```
-
-**pw-writer: Handle popups properly**
-```javascript
-// Capture popup before triggering
-const [popup] = await Promise.all([
-  page.waitForEvent('popup'),
-  page.click('a[target=_blank]')
-]);
-state.newPage = popup;
 ```
 
 ---
 
 ## Dialog Not Handled
 
-### Symptom
-- Page hangs after alert/confirm/prompt
-- "Dialog was dismissed" error
-
-### Cause
-Dialog handler not set up before triggering action.
-
-### Solutions
-
-**pw-writer: Set handler BEFORE action**
+### pw-writer
 ```javascript
-// WRONG - will hang
-page.on('dialog', dialog => console.log(dialog.message()));
-await page.click('button');
-
-// RIGHT - resolve the dialog
+// Set handler BEFORE action
 page.on('dialog', async dialog => {
   console.log('Dialog:', dialog.message());
-  await dialog.accept();  // or dialog.dismiss()
+  await dialog.accept();
 });
 await page.click('button');
 ```
 
-**pw-fast: Use browser_handle_dialog**
+### pw-fast
 ```json
 {
   "steps": [
@@ -361,13 +258,7 @@ await page.click('button');
 
 ## Downloads Not Working
 
-### Symptom
-- Download doesn't start
-- Can't access downloaded file
-
-### Solutions
-
-**pw-writer: Capture download event**
+### pw-writer
 ```javascript
 const [download] = await Promise.all([
   page.waitForEvent('download'),
@@ -375,39 +266,26 @@ const [download] = await Promise.all([
 ]);
 const path = await download.path();
 await download.saveAs(`/tmp/${download.suggestedFilename()}`);
-console.log('Downloaded to:', path);
 ```
 
 ---
 
 ## Empty Accessibility Snapshot
 
-### Symptom
-Snapshot returns minimal or empty content.
-
 ### Cause
-- Page still loading
-- Content in iframes
-- Shadow DOM (closed)
+Page still loading, content in iframes, or closed shadow DOM.
 
 ### Solutions
-
-**Wait for content**
 ```javascript
+// Wait for content
 await waitForPageLoad({ page, timeout: 5000 });
 const snapshot = await accessibilitySnapshot({ page });
-```
 
-**Check for iframes**
-```javascript
-// Content might be in iframe
+// Check for iframes
 const frame = page.frameLocator('#content-frame');
 const frameContent = await frame.locator('body').innerHTML();
-```
 
-**Use HTML extraction instead**
-```javascript
-// If snapshot is empty, try HTML
+// Use HTML extraction instead
 const html = await getCleanHTML({ locator: page.locator('body') });
 ```
 
@@ -415,27 +293,17 @@ const html = await getCleanHTML({ locator: page.locator('body') });
 
 ## Rate Limiting / Bot Detection
 
-### Symptom
-- 403/429 errors
-- CAPTCHA challenges
-- Empty responses
+### pw-writer advantage
+Uses user's actual Chrome with cookies/session — pre-logged in, normal browser fingerprint.
 
-### Solutions
-
-**pw-writer advantage**: Uses user's actual Chrome with cookies/session
-- Pre-logged in
-- Has normal browser fingerprint
-- Cookies from previous visits
-
-**Add delays between requests**
+### Add delays
 ```javascript
-await page.waitForTimeout(2000);  // 2 second delay
+await page.waitForTimeout(2000);
 ```
 
-**Use network interception to find APIs**
+### Use network interception to find APIs
 ```javascript
-// Often APIs have less bot protection than frontend
-state.responses = [];
+// APIs often have less bot protection than frontend
 page.on('response', async res => {
   if (res.url().includes('/api/')) {
     state.responses.push({ url: res.url(), body: await res.json() });
@@ -445,12 +313,65 @@ page.on('response', async res => {
 
 ---
 
-## Quick Reference: When to Switch Tools
+## Claude Chrome Issues
+
+| Issue | Solution |
+|-------|----------|
+| Extension not detected | Reinstall Chrome extension, restart Chrome, verify v1.0.36+ |
+| Version mismatch | Update both Chrome extension and Claude Code to latest |
+| Modal dialogs blocking | Dismiss modal manually in Chrome, then retry automation |
+| Tab not responding | Switch to target tab manually, then run `/chrome` again |
+| Connection lost | Run `/chrome` to reconnect |
+| "Not available on free plan" | Requires Pro, Team, or Enterprise plan |
+
+---
+
+## Firefox MCP Issues
+
+| Issue | Solution |
+|-------|----------|
+| Deno not installed | `brew install deno` |
+| WebSocket connection fails | Check extension loaded in about:debugging, restart Firefox |
+| Extension not loaded | about:debugging → This Firefox → Load Temporary Add-on |
+| Permission errors | Run Deno with `--allow-all` flag |
+| Extension lost after restart | Temporary add-ons don't persist — reload after Firefox restart |
+
+---
+
+## Chrome DevTools MCP Issues
+
+| Issue | Solution |
+|-------|----------|
+| Chrome not found | Install Chrome or set `CHROME_PATH` env var |
+| Port conflict | Kill other Chrome debug sessions: `pkill -f "chrome.*remote-debugging"` |
+| Connection timeout | Increase timeout, check firewall |
+| Headless rendering issues | Try `headless: false` for debugging |
+
+---
+
+## bdg CLI Issues
+
+| Issue | Solution |
+|-------|----------|
+| Session won't start | Check Chrome installed, no conflicting debug sessions |
+| Connection refused | `bdg stop` then retry, or `pkill -f "chrome.*remote-debugging"` |
+| Command not found | Verify: `which bdg`, reinstall if needed |
+| Invalid params | Use `bdg cdp <method> --describe` to check schema |
+| Stale session | `bdg stop` and start new session |
+
+---
+
+## When to Switch Tools
 
 | Issue | From | To | Reason |
 |-------|------|-----|--------|
 | Strict mode violations | pw-fast | pw-writer | Better element handling |
 | External redirects | pw-fast | pw-writer | Multi-page support |
-| Auth required | pw-fast | pw-writer | User session |
+| Auth required | pw-fast | pw-writer or Claude Chrome | User session |
 | Token budget | pw-writer snapshot | pw-writer getCleanHTML | 40x reduction |
 | Need speed (simple site) | pw-writer | pw-fast batch | 10x faster |
+| Need authenticated access | pw-fast | Claude Chrome | Shared login state |
+| Performance profiling | Any | Chrome DevTools MCP | Built-in profiling tools |
+| Quick one-off inspection | Any | bdg CLI | No MCP setup needed |
+| Firefox-specific | Any | Firefox MCP | Only Firefox tool |
+| E2E test suite | Scraping tools | Playwright test runner | Proper test framework |

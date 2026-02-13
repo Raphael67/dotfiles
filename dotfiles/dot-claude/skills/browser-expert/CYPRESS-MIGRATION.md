@@ -181,7 +181,6 @@ const response = await page.waitForResponse('**/api/users')
 cy.fixture('users.json').then((users) => {
     // use users
 })
-// Or in intercept
 cy.intercept('GET', '/api/users', { fixture: 'users.json' })
 
 // Playwright

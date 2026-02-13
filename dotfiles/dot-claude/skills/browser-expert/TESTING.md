@@ -1,4 +1,30 @@
-# Playwright API Reference
+# Playwright Testing Reference
+
+## Project Setup
+
+```bash
+# Initialize new project
+npm init playwright@latest
+
+# Install in existing project
+npm install -D @playwright/test
+npx playwright install
+```
+
+## Core Concepts
+
+### Quick Start
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('example test', async ({ page }) => {
+    await page.goto('https://example.com');
+    await expect(page).toHaveTitle(/Example/);
+    await page.getByRole('button', { name: 'Submit' }).click();
+    await expect(page.getByText('Success')).toBeVisible();
+});
+```
 
 ## Locators
 
@@ -362,3 +388,11 @@ await page.mouse.move(100, 200)
 await page.mouse.down()
 await page.mouse.up()
 ```
+
+## Best Practices
+
+1. **Use role-based locators** — Most resilient to DOM changes
+2. **Avoid CSS/XPath** — Brittle, break with refactoring
+3. **Use auto-waiting assertions** — `expect(locator).toBeVisible()` retries
+4. **Isolate tests** — Each test starts fresh, no shared state
+5. **Mock external APIs** — Use `page.route()` for reliability

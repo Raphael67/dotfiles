@@ -169,6 +169,31 @@ Start Claude's response to guide format:
 
 ## Claude 4+ Specifics
 
+### Available Models (Feb 2026)
+
+| Model | ID | Best For |
+|-------|-----|----------|
+| Opus 4.6 | `claude-opus-4-6` | Complex reasoning, large codebases, agentic tasks |
+| Sonnet 4.5 | `claude-sonnet-4-5-20250929` | Balanced speed/capability |
+| Haiku 4.5 | `claude-haiku-4-5-20251001` | Fast, simple tasks |
+
+### Claude Opus 4.6 Capabilities
+
+Opus 4.6 is Anthropic's most advanced model with:
+- **1M token context window** (beta) - first Opus-class model with this capacity
+- **Adaptive thinking** - contextual extended thinking with effort levels: `low`, `medium`, `high` (default), `max`
+- **128k output tokens** support
+- **Context compaction** - automatic summarization of older conversation context
+- **Enhanced coding** - superior performance in large codebases, planning, code review
+- **Agentic excellence** - improved autonomous task execution and tool coordination
+
+### Fast Mode (Opus 4.6)
+
+Opus 4.6 supports fast mode (`/fast` toggle) for accelerated output:
+- Same model, faster responses
+- Ideal for straightforward tasks where speed matters
+- Toggle with `/fast` in Claude Code
+
 ### Literal Instruction Following
 Claude 4 models follow instructions more literally. Be explicit about thoroughness:
 

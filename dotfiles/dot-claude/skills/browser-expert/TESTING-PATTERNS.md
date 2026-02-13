@@ -65,7 +65,6 @@ export { expect } from '@playwright/test';
 ### Usage
 
 ```typescript
-// tests/login.spec.ts
 import { test, expect } from '../fixtures/pages';
 
 test('successful login', async ({ loginPage, dashboardPage }) => {
@@ -75,6 +74,8 @@ test('successful login', async ({ loginPage, dashboardPage }) => {
 });
 ```
 
+---
+
 ## Authentication Patterns
 
 ### Storage State (Session Reuse)
@@ -83,10 +84,10 @@ test('successful login', async ({ loginPage, dashboardPage }) => {
 // playwright.config.ts
 export default defineConfig({
     projects: [
-        // Setup project - runs first, saves auth state
+        // Setup project — runs first, saves auth state
         { name: 'setup', testMatch: /.*\.setup\.ts/ },
 
-        // Main tests - depend on setup
+        // Main tests — depend on setup
         {
             name: 'chromium',
             use: {
@@ -120,7 +121,6 @@ setup('authenticate', async ({ page }) => {
 ### Multiple Users
 
 ```typescript
-// playwright.config.ts
 export default defineConfig({
     projects: [
         { name: 'setup-admin', testMatch: /admin\.setup\.ts/ },
@@ -143,7 +143,6 @@ export default defineConfig({
 ### API Login (Faster)
 
 ```typescript
-// tests/auth.setup.ts
 setup('authenticate via API', async ({ request }) => {
     const response = await request.post('/api/login', {
         data: { email: 'user@example.com', password: 'password' }
@@ -152,11 +151,11 @@ setup('authenticate via API', async ({ request }) => {
     expect(response.ok()).toBeTruthy();
 
     const { token } = await response.json();
-
-    // Save token for tests to use
     await fs.writeFile('.auth/token.txt', token);
 });
 ```
+
+---
 
 ## API Mocking
 
@@ -241,6 +240,8 @@ test('wait for API', async ({ page }) => {
 });
 ```
 
+---
+
 ## Visual Testing
 
 ### Screenshot Comparison
@@ -277,18 +278,14 @@ export default defineConfig({
 npx playwright test --update-snapshots
 ```
 
-### Full Page Screenshot
+### Full Page & Masked Screenshots
 
 ```typescript
 test('full page', async ({ page }) => {
     await page.goto('/long-page');
     await expect(page).toHaveScreenshot('full-page.png', { fullPage: true });
 });
-```
 
-### Mask Dynamic Content
-
-```typescript
 test('masked screenshot', async ({ page }) => {
     await page.goto('/dashboard');
     await expect(page).toHaveScreenshot('dashboard.png', {
@@ -300,6 +297,8 @@ test('masked screenshot', async ({ page }) => {
 });
 ```
 
+---
+
 ## Accessibility Testing
 
 ### Built-in Assertions
@@ -308,13 +307,8 @@ test('masked screenshot', async ({ page }) => {
 test('accessibility attributes', async ({ page }) => {
     await page.goto('/form');
 
-    // Check role
     await expect(page.locator('#submit')).toHaveRole('button');
-
-    // Check accessible name
     await expect(page.locator('#email')).toHaveAccessibleName('Email address');
-
-    // Check accessible description
     await expect(page.locator('#password'))
         .toHaveAccessibleDescription('Must be at least 8 characters');
 });
@@ -324,21 +318,17 @@ test('accessibility attributes', async ({ page }) => {
 
 ```typescript
 // Install: npm install @axe-core/playwright
-
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 test('accessibility scan', async ({ page }) => {
     await page.goto('/');
-
     const results = await new AxeBuilder({ page }).analyze();
-
     expect(results.violations).toEqual([]);
 });
 
 test('scan specific area', async ({ page }) => {
     await page.goto('/');
-
     const results = await new AxeBuilder({ page })
         .include('.main-content')
         .exclude('.third-party-widget')
@@ -348,6 +338,8 @@ test('scan specific area', async ({ page }) => {
     expect(results.violations).toEqual([]);
 });
 ```
+
+---
 
 ## Mobile Testing
 
@@ -367,22 +359,16 @@ export default defineConfig({
 });
 ```
 
-### Custom Viewport
+### Custom Viewport & Touch
 
 ```typescript
 test('custom mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
 });
-```
 
-### Touch Events
-
-```typescript
 test('swipe gesture', async ({ page }) => {
     await page.goto('/carousel');
-
-    // Swipe left
     await page.locator('.carousel').dragTo(page.locator('.carousel'), {
         sourcePosition: { x: 300, y: 100 },
         targetPosition: { x: 50, y: 100 },
@@ -401,15 +387,16 @@ test('location-based', async ({ context }) => {
 });
 ```
 
-## Parallel Execution
+---
+
+## Parallel Execution & Sharding
 
 ### Configuration
 
 ```typescript
-// playwright.config.ts
 export default defineConfig({
-    fullyParallel: true,  // All tests in parallel
-    workers: process.env.CI ? 2 : undefined,  // Limit on CI
+    fullyParallel: true,
+    workers: process.env.CI ? 2 : undefined,
 });
 ```
 
@@ -420,18 +407,19 @@ test.describe.configure({ mode: 'serial' });
 
 test.describe('ordered tests', () => {
     test('step 1', async ({ page }) => {});
-    test('step 2', async ({ page }) => {});  // Runs after step 1
+    test('step 2', async ({ page }) => {});
 });
 ```
 
 ### Sharding (CI)
 
 ```bash
-# Split across machines
 npx playwright test --shard=1/3  # Machine 1
 npx playwright test --shard=2/3  # Machine 2
 npx playwright test --shard=3/3  # Machine 3
 ```
+
+---
 
 ## Network Handling
 
@@ -442,11 +430,9 @@ test('log requests', async ({ page }) => {
     page.on('request', request => {
         console.log('>>', request.method(), request.url());
     });
-
     page.on('response', response => {
         console.log('<<', response.status(), response.url());
     });
-
     await page.goto('/');
 });
 ```
@@ -474,13 +460,14 @@ test('offline behavior', async ({ context }) => {
     await page.goto('/');
 
     await context.setOffline(true);
-
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByText('You are offline')).toBeVisible();
 
     await context.setOffline(false);
 });
 ```
+
+---
 
 ## File Uploads & Downloads
 
@@ -494,10 +481,7 @@ test('file upload', async ({ page }) => {
     await page.locator('input[type="file"]').setInputFiles('path/to/file.pdf');
 
     // Multiple files
-    await page.locator('input[type="file"]').setInputFiles([
-        'file1.pdf',
-        'file2.pdf',
-    ]);
+    await page.locator('input[type="file"]').setInputFiles(['file1.pdf', 'file2.pdf']);
 
     // Clear
     await page.locator('input[type="file"]').setInputFiles([]);
@@ -506,7 +490,6 @@ test('file upload', async ({ page }) => {
 // Drag and drop upload
 test('drag upload', async ({ page }) => {
     await page.goto('/upload');
-
     const dataTransfer = await page.evaluateHandle(() => new DataTransfer());
     await page.dispatchEvent('.dropzone', 'drop', { dataTransfer });
 });
@@ -520,13 +503,12 @@ test('file download', async ({ page }) => {
     await page.getByRole('link', { name: 'Download' }).click();
     const download = await downloadPromise;
 
-    // Save to specific path
     await download.saveAs('./downloads/' + download.suggestedFilename());
-
-    // Or get path
     const path = await download.path();
 });
 ```
+
+---
 
 ## iframes & Shadow DOM
 
@@ -536,11 +518,7 @@ test('file download', async ({ page }) => {
 test('iframe interaction', async ({ page }) => {
     await page.goto('/page-with-iframe');
 
-    // Get frame by various methods
     const frame = page.frameLocator('#my-iframe');
-    // Or: page.frameLocator('iframe[name="content"]')
-
-    // Interact within frame
     await frame.getByRole('button', { name: 'Submit' }).click();
     await expect(frame.getByText('Success')).toBeVisible();
 });
@@ -567,7 +545,9 @@ test('shadow DOM', async ({ page }) => {
 });
 ```
 
-## Debugging Tips
+---
+
+## Debugging
 
 ### Debug Mode
 

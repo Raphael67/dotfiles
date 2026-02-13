@@ -28,3 +28,6 @@ dotfiles/dot-claude/skills/skill-creator
 dotfiles/dot-claude/skills/visual-assets
 dotfiles/dot-claude/skills/xlsx
 dotfiles/dot-config/cagent/.cagent_first_run
+
+# rclone - OAuth tokens and machine-local config
+dotfiles/dot-config/rclone/rclone.conf

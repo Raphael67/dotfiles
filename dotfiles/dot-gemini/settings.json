@@ -64,7 +64,7 @@
       "args": [
         "run",
         "--directory",
-        "/Users/raphael/Library/CloudStorage/keymaging-rag",
+        "/Users/raphael/Projects/keymaging-rag",
         "keymaging-rag",
         "mcp"
       ]

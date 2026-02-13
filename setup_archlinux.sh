@@ -115,9 +115,10 @@ cd "$SCRIPT_DIR" && stow .
 success "Dotfiles stowed"
 
 # Set default shell to zsh
-if [ "$SHELL" != "$(which zsh)" ]; then
+ZSH_PATH=$(grep -m1 '/zsh$' /etc/shells)
+if [ -n "$ZSH_PATH" ] && [ "$SHELL" != "$ZSH_PATH" ]; then
     info "Setting zsh as default shell..."
-    chsh -s "$(which zsh)"
+    chsh -s "$ZSH_PATH"
     success "Default shell set to zsh"
 fi
 

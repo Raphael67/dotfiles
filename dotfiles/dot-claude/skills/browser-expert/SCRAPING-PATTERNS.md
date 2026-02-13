@@ -1,6 +1,6 @@
 # Web Scraping Patterns
 
-Reusable patterns for common scraping tasks with pw-writer and pw-fast.
+Reusable patterns for common scraping tasks with pw-writer, pw-fast, and Tadpole.
 
 ---
 
@@ -43,6 +43,25 @@ console.log(JSON.stringify(data, null, 2));
   ],
   "globalExpectation": { "includeSnapshot": false }
 }
+```
+
+### Tadpole
+
+```kdl
+main {
+  new_page {
+    goto "https://example.com/data"
+    wait_until
+    $$ "table.data tr" {
+      extract "rows[]" {
+        cells { func "(el) => Array.from(el.querySelectorAll('td, th')).map(c => c.textContent.trim())" }
+      }
+    }
+  }
+}
+```
+```bash
+tadpole run table-extract.kdl --auto --headless --output table.json
 ```
 
 ---
@@ -127,6 +146,27 @@ console.log(`Page ${state.pageNum}: Total ${state.allItems.length} items`);
     }}
   ],
   "globalExpectation": { "includeSnapshot": false }
+}
+```
+
+### Tadpole
+
+```kdl
+main {
+  new_page {
+    goto "https://example.com/contact"
+    wait_until
+    $ "input[name='name']" { type "John Doe" }
+    $ "input[name='email']" { type "john@example.com" }
+    $ "textarea[name='message']" { type "Hello, I have a question..." }
+    $ "button[type='submit']" {
+      click delay="=gauss(300, 50)"
+    }
+    wait_until
+    extract "result" {
+      confirmation { $ ".form-result" ; text }
+    }
+  }
 }
 ```
 
@@ -291,6 +331,47 @@ console.log(`Crawled ${state.results.length} pages`);
 console.log(JSON.stringify(state.results, null, 2));
 ```
 
+### Tadpole (Parallel Pages)
+
+```kdl
+main {
+  new_page {
+    goto "https://example.com"
+    wait_until
+    // Extract links first, then crawl in parallel
+    $$ "a.product-link" {
+      extract "links[]" {
+        url { attr "href" }
+      }
+    }
+  }
+  // Tadpole parallel crawl (each page in own tab)
+  parallel {
+    new_page {
+      goto "=links[0].url"
+      wait_until
+      extract "products[]" {
+        title { $ "h1" ; text }
+        price { $ ".price" ; text }
+        description { $ ".description" ; text }
+      }
+    }
+    new_page {
+      goto "=links[1].url"
+      wait_until
+      extract "products[]" {
+        title { $ "h1" ; text }
+        price { $ ".price" ; text }
+        description { $ ".description" ; text }
+      }
+    }
+  }
+}
+```
+```bash
+tadpole run crawl.kdl --auto --headless --output products.json
+```
+
 ---
 
 ## Screenshot Comparison
@@ -420,6 +501,16 @@ console.log(result);
 ---
 
 ## Data Export
+
+### Tadpole (Built-in JSON Output)
+
+```bash
+# Tadpole natively outputs JSON via --output flag
+tadpole run scrape.kdl --auto --headless --output /tmp/scraped-data.json
+
+# Or pipe stdout to jq for processing
+tadpole run scrape.kdl --auto --headless | jq '.products[] | {name, price}'
+```
 
 ### Save to JSON
 

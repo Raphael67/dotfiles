@@ -11,6 +11,29 @@ npm install -D @playwright/test
 npx playwright install
 ```
 
+## TypeScript Configuration
+
+```json
+// tsconfig.json — Enables type safety, path aliases, and modern JS features
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
+        "types": ["@playwright/test"],
+        "esModuleInterop": true,
+        "strict": true,
+        "skipLibCheck": true,
+        "baseUrl": ".",
+        "paths": {
+            "@pages/*": ["src/pageObject/pages/*"],
+            "@tests/*": ["src/tests/*"]
+        }
+    },
+    "include": ["src/**/*.ts", "tests/**/*.ts", "playwright.config.ts"]
+}
+```
+
 ## Core Concepts
 
 ### Quick Start
@@ -338,12 +361,13 @@ export default defineConfig({
 npx playwright test                      # All tests
 npx playwright test tests/login.spec.ts  # Specific file
 npx playwright test -g "login"           # Match title
+npx playwright test --grep "@smoke"      # Run tagged tests
 npx playwright test --project=chromium   # Specific browser
 
 # Debug
 npx playwright test --headed             # See browser
-npx playwright test --debug              # Step through
-npx playwright test --ui                 # Interactive UI
+npx playwright test --debug              # Inspector: step through, inspect DOM
+npx playwright test --ui                 # Interactive UI with visual runner
 
 # Utilities
 npx playwright codegen example.com       # Record test
@@ -389,6 +413,102 @@ await page.mouse.down()
 await page.mouse.up()
 ```
 
+## Debugging
+
+### Interactive Debug Mode (Playwright Inspector)
+
+```bash
+npx playwright test --debug
+```
+
+Launches the **Playwright Inspector** — pauses at each step for interactive control over browser state, DOM elements, and network activity. Step through flaky or failing tests to diagnose timing or selector issues.
+
+### Trace Viewer
+
+Enable tracing in `playwright.config.ts`:
+
+```typescript
+use: {
+    trace: 'retain-on-failure',  // or 'on-first-retry'
+}
+```
+
+When a test fails, open the trace file:
+
+```bash
+npx playwright show-trace trace.zip
+```
+
+Displays a detailed timeline of actions, DOM snapshots, network requests, and screenshots.
+
+### Screenshots & Video
+
+```typescript
+use: {
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+}
+```
+
+Artifacts are saved per-test and attached to reports — diagnose UI regressions without rerunning.
+
+### Console Log Capture
+
+```typescript
+page.on('console', msg => console.log(msg.text()));
+```
+
+Captures browser console warnings and errors that may not cause test failures but affect stability.
+
+### VS Code Integration
+
+The official **Playwright VS Code extension** provides:
+- Tests in the Test Explorer panel, grouped by file and project
+- Run/debug a single test, file, or suite with one click
+- Breakpoints in TypeScript files to inspect application state
+- Live logs, step-by-step execution, and screenshots in the debug console
+
+## Reporting & Analysis
+
+### HTML Report
+
+```typescript
+// playwright.config.ts
+reporter: [['html', { outputFolder: 'playwright-report' }]],
+```
+
+```bash
+npx playwright show-report           # Open HTML report
+```
+
+Includes pass/fail counts, execution time, stack traces, console logs, screenshots, videos, and trace links.
+
+### Allure Reporter
+
+```bash
+npm install -D allure-playwright
+```
+
+```typescript
+// playwright.config.ts
+reporter: [['allure-playwright']],
+```
+
+```bash
+npx allure serve allure-results      # Generate and open Allure report
+```
+
+Integrates in CI/CD pipelines for trend analysis and flaky test detection.
+
+### Retry Logic
+
+```typescript
+// playwright.config.ts
+retries: process.env.CI ? 2 : 0,
+```
+
+Reports track retry attempts, helping identify unstable tests that need fixes.
+
 ## Best Practices
 
 1. **Use role-based locators** — Most resilient to DOM changes
@@ -396,3 +516,6 @@ await page.mouse.up()
 3. **Use auto-waiting assertions** — `expect(locator).toBeVisible()` retries
 4. **Isolate tests** — Each test starts fresh, no shared state
 5. **Mock external APIs** — Use `page.route()` for reliability
+6. **Headed for local dev, headless for CI** — Toggle with `--headed` flag or config
+7. **Enable traces on failure** — `trace: 'retain-on-failure'` for post-mortem debugging
+8. **Tag tests with grep markers** — `test('@smoke: login', ...)` then `--grep "@smoke"`

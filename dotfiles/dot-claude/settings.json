@@ -13,7 +13,6 @@
       "WebSearch",
       "Bash(chmod:*)",
       "Bash(\"/Users/raphael/Library/Mobile Documents/iCloud~md~obsidian/Documents/my_vault/_Assets/claude_usage_log.json\")",
-      "Bash(~/.claude/statusline.sh)",
       "Bash(mkdir -p:*)",
       "Bash(bun run:*)",
       "Bash(bdg:*)",
@@ -117,6 +116,7 @@
     ],
     "defaultMode": "default"
   },
+  "model": "opus",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -188,6 +188,9 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "npx -y @owloops/claude-powerline@latest | sed 's/§/💬/g; s/☉/☀️/g; s/◱/⏱️/g; s/◔/💾/g; s/tokens/T/g'"
-  }
+    "command": "uv run ~/.claude/status_lines/status_line_v6.py",
+    "padding": 0
+  },
+  "effortLevel": "medium",
+  "skipDangerousModePermissionPrompt": true
 }

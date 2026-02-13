@@ -1,6 +1,6 @@
 # Web Scraping MCP Tools Reference
 
-Two Playwright-based MCP tools for web scraping: **pw-writer** (extension-based, complex sites) and **pw-fast** (headless, simple sites).
+Three scraping tools: **pw-writer** (extension-based MCP, complex sites), **pw-fast** (headless MCP, simple sites), and **Tadpole** (declarative KDL DSL, repeatable workflows with anti-detection).
 
 ---
 
@@ -512,3 +512,255 @@ All tools default to minimal output:
 }
 ```
 Exception: `browser_snapshot` always includes snapshot.
+
+---
+
+## Tadpole (KDL DSL)
+
+Declarative browser automation and scraping engine using KDL syntax. Built on Chrome DevTools Protocol with human-like behavior (bezier curves, gaussian delays) and a module system for reusable scrapers.
+
+### Architecture
+
+- **DSL**: KDL (KDL Document Language) defines scraping workflows declaratively
+- **Browser**: Chrome/Chromium via CDP (WebSocket on port 9222)
+- **CLI**: `tadpole run script.kdl` — zero-config, no MCP needed
+- **Output**: Structured JSON from `extract` blocks, written to file or stdout
+
+### Setup
+
+```bash
+npm install -g @tadpolehq/cli
+```
+
+**CLI Usage:**
+```bash
+tadpole run script.kdl --auto --headless              # Auto-launch Chrome headless
+tadpole run script.kdl --auto --output results.json    # Save output to file
+tadpole run script.kdl --input '{"query":"test"}'      # Pass input variables
+tadpole run script.kdl --port 9222                     # Connect to existing Chrome
+tadpole run script.kdl --chrome-bin /path/to/chrome     # Custom Chrome binary
+tadpole run script.kdl --log-level debug                # Debug logging
+```
+
+**Key flags:**
+- `--auto` — Auto-launch Chrome (default profile: `.tadpole/profile`)
+- `--headless` — Headless mode (requires `--auto`)
+- `--output <path>` — Write JSON output to file (default: stdout)
+- `--input <json>` — JSON string of input values for expressions
+- `--host` / `--port` — CDP connection (default: `localhost:9222`)
+- `--window-width` / `--window-height` — Browser dimensions (default: 1920x1080)
+- `--user-data-dir` — Custom Chrome profile directory
+- `--chrome-bin` — Path to Chrome executable
+
+### Core Syntax
+
+**Script structure:**
+```kdl
+main {
+  new_page {
+    goto "https://example.com"
+    // ... actions
+  }
+}
+```
+
+**Element selection:**
+```kdl
+$ "#search-input" {       // Single element (CSS selector)
+  type "search query"
+  click
+}
+
+$$ ".result-card" {       // All matching elements (collection)
+  for_each {
+    click
+    sleep 500
+  }
+}
+```
+
+**Navigation and waiting:**
+```kdl
+goto "https://example.com" wait_until="domcontentloaded" timeout=10000
+wait_until "load" timeout=5000
+sleep 2000
+```
+
+**Interaction:**
+```kdl
+$ "button.submit" {
+  click delay="=gauss(300, 50)"    // Human-like delay
+}
+
+$ "input[type='text']" {
+  type "=query"                     // Dynamic from --input
+}
+
+$ ".menu-item" {
+  hover                             // Bezier curve movement
+}
+```
+
+**Keyboard and mouse (low-level):**
+```kdl
+keyboard.press "Enter"
+keyboard.type "Hello world" delay=100
+keyboard.press "a" ctrl=true                   // Ctrl+A
+mouse.natural_move 500 300 curviness=0.7       // Bezier curve
+mouse.natural_scroll 0 500                     // Ease-out scroll
+```
+
+**Parallel execution:**
+```kdl
+parallel {
+  new_page { goto "https://site1.com" }
+  new_page { goto "https://site2.com" }
+}
+```
+
+### Data Extraction
+
+The `extract` primitive produces structured JSON output.
+
+```kdl
+// Extract single object
+extract "product" {
+  title { $ "h1" ; text }
+  price { $ ".price" ; attr "data-value" }
+  url { attr "href" }
+  custom { func "(el) => el.textContent.trim().toUpperCase()" }
+}
+
+// Extract array ([] suffix appends to array)
+$$ ".product-card" {
+  extract "products[]" {
+    name { $ ".name" ; text }
+    price { $ ".price" ; text }
+    link { $ "a" ; attr "href" }
+  }
+}
+
+// Nested paths (dot notation)
+extract "user.profile" {
+  name { text }
+  email { $ ".email" ; text }
+}
+```
+
+**Evaluators** (used inside extract):
+- `text` — Get `innerText` of element
+- `attr "name"` — Get attribute value
+- `$ "selector"` — Narrow to child element
+- `func "(el) => ..."` — Custom JavaScript
+
+### Module System
+
+**Define modules:**
+```kdl
+module my_scraper {
+  action search {
+    goto "https://example.com/search"
+    $ "input[name='q']" { type "=query" }
+    $ "button[type='submit']" { click }
+    wait_until
+  }
+
+  action extract_results {
+    $$ ".result" {
+      extract "results[]" {
+        title { $ "h3" ; text }
+        url { $ "a" ; attr "href" }
+      }
+    }
+  }
+}
+```
+
+**Import modules:**
+```kdl
+import "local/scraper.kdl"
+import "modules/redfin/mod.kdl" repo="github.com/tadpolehq/community"
+import "modules/search.kdl" repo="github.com/user/repo" ref="v1.0"
+```
+
+**Use modules:**
+```kdl
+main {
+  new_page {
+    my_scraper.search query="apartments"
+    my_scraper.extract_results
+  }
+}
+```
+
+**Slots (dynamic injection):**
+```kdl
+// In module definition
+module card {
+  action process_all {
+    $$ ".card" { slot }
+  }
+}
+
+// When calling — children replace slot
+card.process_all {
+  extract "items[]" { title { text } }
+}
+```
+
+### Human-Like Behavior
+
+Built-in anti-detection through natural interaction patterns:
+
+- **Mouse movement**: Bezier curves with configurable curviness (0-1+)
+- **Click behavior**: Hovers at random point within element (30-70% of dimensions), then clicks
+- **Scrolling**: Ease-out cubic easing (`1 - (1-t)³`) for natural deceleration
+- **Delays**: Gaussian distribution for realistic timing variation
+
+```kdl
+$ "button" {
+  click delay="=gauss(500, 100)"           // 500ms ±100ms gaussian
+}
+sleep "=jitter(2000, 500)"                  // 2s ±500ms random jitter
+sleep "=chance(0.3) ? sec_to_ms(1) : 0"    // 30% chance of 1s pause
+```
+
+### Expression System
+
+Prefix values with `=` for dynamic evaluation:
+
+```kdl
+goto "=base_url + '/search'"                // String concatenation
+sleep "=sec_to_ms(2.5)"                     // 2500ms
+click delay="=gauss(300, 50)"               // Gaussian random
+type "=pick(['red', 'green', 'blue'])"      // Random selection
+sleep "=random() * 1000"                    // 0-1000ms random
+```
+
+**Built-in functions:**
+- `gauss(mean, stdDev)` — Gaussian distribution
+- `jitter(value, amount)` — Random jitter around value
+- `chance(probability)` — Boolean with given probability
+- `pick(array)` — Random element from array
+- `random()` — Random 0-1
+- `sec_to_ms(seconds)` / `min_to_ms(minutes)` — Time conversion
+
+**Input variables** (from `--input` CLI flag):
+```bash
+tadpole run script.kdl --input '{"query":"test","max_pages":5}'
+```
+```kdl
+$ "input" { type "=query" }          // "test"
+sleep "=max_pages * 1000"            // 5000
+```
+
+### Best Practices
+
+- **Use modules** for reusable scraper components — import from Git repos
+- **Add realistic delays** with `gauss()` or `jitter()` to avoid detection
+- **Use `--output`** to save structured JSON; pipe to `jq` for processing
+- **Prefer `extract`** over manual JS — produces clean structured JSON
+- **Use `parallel`** for independent page operations
+- **Pass config via `--input`** — keeps scripts reusable across targets
+- **Use `$$` + `for_each`** for interacting with collections, `$$` + `extract` for data
+- **Community modules** at https://github.com/tadpolehq/community — check before writing from scratch

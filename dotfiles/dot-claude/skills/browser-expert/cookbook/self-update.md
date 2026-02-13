@@ -21,6 +21,8 @@ STATE_FILE = $SKILL_DIR/.self-update-state.json
 | Claude Chrome docs | https://code.claude.com/docs/en/chrome | TOOLS.md |
 | Chrome DevTools MCP | https://github.com/ChromeDevTools/chrome-devtools-mcp | TOOLS.md |
 | Firefox MCP | https://github.com/hyperpolymath/claude-firefox-mcp | TOOLS.md |
+| Tadpole | https://github.com/tadpolehq/tadpole | SCRAPING.md |
+| Tadpole community | https://github.com/tadpolehq/community | SCRAPING.md |
 | bdg CLI | https://github.com/szymdzum/browser-debugger-cli | TOOLS.md |
 
 ## Workflow
@@ -42,7 +44,7 @@ Run `npx playwright --version` to get current installed version.
 
 ### Step 2: Fetch Documentation (Parallel)
 
-Launch **9 parallel WebFetch calls** for all documentation URLs listed above.
+Launch **11 parallel WebFetch calls** for all documentation URLs listed above.
 
 | URL | Prompt |
 |-----|--------|
@@ -54,6 +56,8 @@ Launch **9 parallel WebFetch calls** for all documentation URLs listed above.
 | Claude Chrome docs | Extract setup requirements, capabilities, limitations, troubleshooting. Note version requirements. |
 | Chrome DevTools MCP | Extract README: tool list, categories, setup, configuration options. |
 | Firefox MCP | Extract README: setup, capabilities, architecture, supported applications. |
+| Tadpole | Extract README: KDL syntax, CLI flags, actions, evaluators, module system, expression system. |
+| Tadpole community | Extract available community modules, usage patterns. |
 | bdg CLI | Extract README: commands, domains, usage patterns, configuration. |
 
 ### Step 3: Launch Parallel Subagents
@@ -72,10 +76,10 @@ Each agent receives:
 |-------|------|----------------------|
 | 1 | SKILL.md | All sources (overview, tool comparison) |
 | 2 | TESTING.md | Playwright docs + API + releases |
-| 3 | SCRAPING.md | pw-fast + pw-writer repos |
+| 3 | SCRAPING.md | pw-fast + pw-writer repos + Tadpole + Tadpole community |
 | 4 | TOOLS.md | Claude Chrome + DevTools MCP + Firefox MCP + bdg CLI |
 | 5 | TESTING-PATTERNS.md | Playwright docs + API + releases |
-| 6 | SCRAPING-PATTERNS.md | pw-fast + pw-writer repos |
+| 6 | SCRAPING-PATTERNS.md | pw-fast + pw-writer repos + Tadpole + Tadpole community |
 | 7 | TROUBLESHOOTING.md | All sources (cross-cutting) |
 | 8 | cookbook/self-update.md | All sources (URL validation) |
 </parallel-agents>

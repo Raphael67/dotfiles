@@ -1,11 +1,11 @@
 ---
 name: browser-expert
 description: >
-  Browser automation expert covering Playwright testing, web scraping (pw-writer/pw-fast),
+  Browser automation expert covering Playwright testing, web scraping (pw-writer/pw-fast/tadpole),
   Claude Chrome integration, Firefox MCP, Chrome DevTools MCP, and bdg CLI.
   Use for e2e tests, browser automation, scraping, data extraction, crawling,
   Cypress migration, browser debugging, Chrome DevTools, or when user mentions
-  Playwright, scrape, crawl, automate browser, bdg, chrome, firefox.
+  Playwright, scrape, crawl, automate browser, bdg, chrome, firefox, tadpole, KDL.
 user-invocable: true
 argument-hint: [self-update]
 version: 1.0.0
@@ -18,7 +18,7 @@ version: 1.0.0
 | Topic | File | Use When |
 |-------|------|----------|
 | E2E testing | [TESTING.md](TESTING.md) | Writing Playwright tests, locators, assertions, config |
-| Scraping tools | [SCRAPING.md](SCRAPING.md) | pw-writer or pw-fast MCP tool APIs |
+| Scraping tools | [SCRAPING.md](SCRAPING.md) | pw-writer, pw-fast, or Tadpole tool APIs |
 | Browser tools | [TOOLS.md](TOOLS.md) | Claude Chrome, Firefox MCP, Chrome DevTools MCP, bdg CLI |
 | Test patterns | [TESTING-PATTERNS.md](TESTING-PATTERNS.md) | POM, auth, mocking, visual, a11y, mobile |
 | Scraping patterns | [SCRAPING-PATTERNS.md](SCRAPING-PATTERNS.md) | Tables, pagination, forms, API discovery, export |
@@ -29,7 +29,7 @@ version: 1.0.0
 
 If argument is `self-update`, execute [cookbook/self-update.md](cookbook/self-update.md).
 
-## 7-Tool Decision Tree
+## 8-Tool Decision Tree
 
 ```
 What are you trying to do?
@@ -38,6 +38,8 @@ What are you trying to do?
 │   └── Playwright test runner → TESTING.md
 │
 ├── Scrape/extract data from websites?
+│   ├── Declarative/repeatable workflow? (KDL scripts, anti-detection, modules)
+│   │   └── Tadpole → SCRAPING.md
 │   ├── Complex site? (SPAs, auth, cookie dialogs, redirects)
 │   │   └── pw-writer MCP → SCRAPING.md
 │   └── Simple site with known selectors?
@@ -65,6 +67,7 @@ What are you trying to do?
 | **Claude Chrome** | Built-in | User's Chrome | Shared login | Fast | Authenticated apps, live debug |
 | **Firefox MCP** | MCP (extension) | Firefox | Extension | Medium | Firefox automation |
 | **DevTools MCP** | MCP (npx) | Headless Chrome | None | Fast | Perf profiling, network |
+| **Tadpole** | CLI (KDL DSL) | Headless Chrome | None | Medium | Declarative scraping, anti-detection, reusable modules |
 | **bdg CLI** | CLI | Chrome | None | Fast | Low-level CDP, quick inspect |
 
 ## Quick Starts
@@ -104,6 +107,24 @@ console.log(html);
     "globalExpectation": { "includeSnapshot": false }
   }
 }
+```
+
+### Tadpole (Declarative Scraping)
+```kdl
+main {
+  new_page {
+    goto "https://example.com"
+    $$ ".product" {
+      extract "products[]" {
+        name { $ "h2" ; text }
+        price { $ ".price" ; attr "data-value" }
+      }
+    }
+  }
+}
+```
+```bash
+tadpole run scrape.kdl --auto --headless --output results.json
 ```
 
 ### Claude Chrome
@@ -159,12 +180,14 @@ For all Playwright-based tools (test runner, pw-writer, pw-fast), prefer selecto
 | Claude Chrome docs | https://code.claude.com/docs/en/chrome |
 | Chrome DevTools MCP | https://github.com/ChromeDevTools/chrome-devtools-mcp |
 | Firefox MCP | https://github.com/hyperpolymath/claude-firefox-mcp |
+| Tadpole | https://github.com/tadpolehq/tadpole |
+| Tadpole community modules | https://github.com/tadpolehq/community |
 | bdg CLI | https://github.com/szymdzum/browser-debugger-cli |
 
 ## When to Read Each File
 
 - **Starting a new e2e test suite** → TESTING.md for setup, then TESTING-PATTERNS.md for patterns
-- **Scraping a website** → Check decision tree above, then SCRAPING.md for tool API
+- **Scraping a website** → Check decision tree above, then SCRAPING.md for tool API (pw-writer, pw-fast, or Tadpole)
 - **Complex scraping scenario** → SCRAPING-PATTERNS.md for reusable patterns
 - **Using Claude Chrome or other browser tools** → TOOLS.md
 - **Migrating from Cypress** → CYPRESS-MIGRATION.md

@@ -15,6 +15,10 @@ Common issues and solutions across all browser tools.
 | Extension not detected | Chrome extension issue | Reinstall, restart Chrome |
 | WebSocket connection fails | Firefox MCP extension | Reload temporary add-on |
 | Port conflict | Multiple debug sessions | Kill orphan processes |
+| KDL parse error | Tadpole syntax error | Check KDL syntax, semicolons between chained evaluators |
+| "Chrome not found" (Tadpole) | Chrome binary missing | Use `--chrome-bin` or install Chrome |
+| CDP connection refused (Tadpole) | No Chrome on port 9222 | Use `--auto` or start Chrome with `--remote-debugging-port=9222` |
+| Module import failed | Git repo unreachable | Check `repo=` URL, network, and `ref=` tag |
 
 ---
 
@@ -361,6 +365,21 @@ page.on('response', async res => {
 
 ---
 
+## Tadpole Issues
+
+| Issue | Solution |
+|-------|----------|
+| Chrome not found | Install Chrome, or use `--chrome-bin /path/to/chrome` to specify binary |
+| CDP connection refused | Use `--auto` to auto-launch, or start Chrome with `--remote-debugging-port=9222` |
+| KDL parse error | Check syntax: semicolons separate chained evaluators (`$ "h1" ; text`), braces for blocks |
+| Module import fails | Verify `repo=` URL is reachable, check `ref=` matches a valid branch/tag/commit |
+| Expression error | Prefix dynamic values with `=`, ensure `--input` JSON is valid |
+| Empty extract output | Verify CSS selectors match elements, use `wait_until` before extracting |
+| Headless mode issues | Ensure `--auto` is used with `--headless`, check `--window-width`/`--window-height` |
+| Permission denied on output | Check write permissions for `--output` path |
+
+---
+
 ## When to Switch Tools
 
 | Issue | From | To | Reason |
@@ -374,4 +393,6 @@ page.on('response', async res => {
 | Performance profiling | Any | Chrome DevTools MCP | Built-in profiling tools |
 | Quick one-off inspection | Any | bdg CLI | No MCP setup needed |
 | Firefox-specific | Any | Firefox MCP | Only Firefox tool |
+| Repeatable scraping workflow | pw-writer/pw-fast | Tadpole | Declarative KDL, reusable modules |
+| Bot detection | pw-fast | Tadpole or pw-writer | Anti-detection built-in |
 | E2E test suite | Scraping tools | Playwright test runner | Proper test framework |

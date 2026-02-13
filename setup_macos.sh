@@ -106,6 +106,13 @@ if [[ "$overwrite_dotfiles" == "y" ]]; then
     success "Dotfiles set up successfully."
 fi
 
+# Generate configs from templates
+if [[ -f "$SCRIPT_DIR/dotfiles/dot-config/.jira/.config.yml.template" ]]; then
+    info "Generating Jira CLI config from template..."
+    envsubst < "$SCRIPT_DIR/dotfiles/dot-config/.jira/.config.yml.template" > "$HOME/.config/.jira/.config.yml"
+    success "Jira CLI config generated."
+fi
+
 # Symlink vscode settings
 USER_HOME="${DOTFILES_HOME:-$HOME}"
 rm "${USER_HOME}/Library/Application Support/Code/User/settings.json"

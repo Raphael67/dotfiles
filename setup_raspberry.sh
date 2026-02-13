@@ -306,5 +306,12 @@ else
     info "Skipping dotfiles stow."
 fi
 
+# Generate configs from templates
+if [[ -f "$SCRIPT_DIR/dotfiles/dot-config/.jira/.config.yml.template" ]]; then
+    info "Generating Jira CLI config from template..."
+    envsubst < "$SCRIPT_DIR/dotfiles/dot-config/.jira/.config.yml.template" > "$HOME/.config/.jira/.config.yml"
+    success "Jira CLI config generated."
+fi
+
 printf "\n"
 success "Setup complete! Please restart your shell or run: source ~/.zshrc"

@@ -15,19 +15,16 @@ dotfiles/dot-claude/ccnotify/*.log*
 # Gemini CLI - auto-generated with OAuth tokens and session data
 dotfiles/dot-gemini/
 
-# Local state files
-dotfiles/dot-claude/skills/*/.self-update-state.json
-
-# Symlinked skills (user-specific paths)
-dotfiles/dot-claude/skills/courses
-dotfiles/dot-claude/skills/docx
-dotfiles/dot-claude/skills/pdf
-dotfiles/dot-claude/skills/pptx
-dotfiles/dot-claude/skills/presentation
-dotfiles/dot-claude/skills/skill-creator
-dotfiles/dot-claude/skills/visual-assets
-dotfiles/dot-claude/skills/xlsx
+# Skills - ignore all, then whitelist published ones
+dotfiles/dot-claude/skills/**
+!dotfiles/dot-claude/skills/browser-expert/
+!dotfiles/dot-claude/skills/browser-expert/**
+!dotfiles/dot-claude/skills/claude-expert/
+!dotfiles/dot-claude/skills/claude-expert/**
 dotfiles/dot-config/cagent/.cagent_first_run
+
+# Jira CLI - generated from template + .env
+dotfiles/dot-config/.jira/.config.yml
 
 # rclone - OAuth tokens and machine-local config
 dotfiles/dot-config/rclone/rclone.conf

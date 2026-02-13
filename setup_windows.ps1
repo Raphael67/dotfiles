@@ -106,6 +106,27 @@ if (!$SkipSymlinks) {
 }
 #endregion
 
+#region Config Generation
+$template = Join-Path $ScriptDir "dotfiles\dot-config\.jira\.config.yml.template"
+if (Test-Path $template) {
+    Write-Host "`n--- Generating Jira CLI config ---" -ForegroundColor Cyan
+    $envFile = Join-Path $ScriptDir ".env"
+    if (Test-Path $envFile) {
+        Get-Content $envFile | ForEach-Object {
+            if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
+                [System.Environment]::SetEnvironmentVariable($Matches[1].Trim(), $Matches[2].Trim(), "Process")
+            }
+        }
+    }
+    $content = Get-Content $template -Raw
+    $content = [regex]::Replace($content, '\$\{(\w+)\}', { param($m) [System.Environment]::GetEnvironmentVariable($m.Groups[1].Value) })
+    $dest = Join-Path $env:USERPROFILE ".config\.jira\.config.yml"
+    New-Item -ItemType Directory -Path (Split-Path $dest) -Force | Out-Null
+    Set-Content -Path $dest -Value $content -NoNewline
+    Write-Host "Jira CLI config generated." -ForegroundColor Green
+}
+#endregion
+
 #region Summary
 Write-Host "`n=== Setup Complete ===" -ForegroundColor Green
 Write-Host ""

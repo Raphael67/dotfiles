@@ -3,6 +3,10 @@
 # Get the absolute path of the directory where the script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+if [[ -f "$SCRIPT_DIR/.env" ]]; then
+    source "$SCRIPT_DIR/.env"
+fi
+
 sudo apt update -y
 sudo apt upgrade -y
 
@@ -37,3 +41,9 @@ grep -v '^#' "$SCRIPT_DIR/npm/packages.txt" | grep -v '^$' | while read -r packa
 done
 
 stow .
+
+# Generate configs from templates
+if [[ -f "$SCRIPT_DIR/dotfiles/dot-config/.jira/.config.yml.template" ]]; then
+    echo "Generating Jira CLI config from template..."
+    envsubst < "$SCRIPT_DIR/dotfiles/dot-config/.jira/.config.yml.template" > "$HOME/.config/.jira/.config.yml"
+fi

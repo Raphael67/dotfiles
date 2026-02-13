@@ -7,6 +7,10 @@ set -e
 # Get the absolute path of the directory where the script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+if [[ -f "$SCRIPT_DIR/.env" ]]; then
+    source "$SCRIPT_DIR/.env"
+fi
+
 source "$SCRIPT_DIR/scripts/utils.sh" 2>/dev/null || {
     info() { echo -e "\033[0;34m[INFO]\033[0m $1"; }
     success() { echo -e "\033[0;32m[OK]\033[0m $1"; }
@@ -113,6 +117,13 @@ fi
 info "Stowing dotfiles..."
 cd "$SCRIPT_DIR" && stow .
 success "Dotfiles stowed"
+
+# Generate configs from templates
+if [[ -f "$SCRIPT_DIR/dotfiles/dot-config/.jira/.config.yml.template" ]]; then
+    info "Generating Jira CLI config from template..."
+    envsubst < "$SCRIPT_DIR/dotfiles/dot-config/.jira/.config.yml.template" > "$HOME/.config/.jira/.config.yml"
+    success "Jira CLI config generated."
+fi
 
 # Set default shell to zsh
 ZSH_PATH=$(grep -m1 '/zsh$' /etc/shells)

@@ -51,12 +51,6 @@
                 "serena",
                 "start-mcp-server"
             ]
-        },
-        "keymaging-rag": {
-            "command": "/Users/raphael/Library/CloudStorage/keymaging-rag/.venv/bin/keymaging-rag",
-            "args": [
-                "mcp"
-            ]
         }
     }
 }

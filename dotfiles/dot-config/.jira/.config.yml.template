@@ -1,0 +1,335 @@
+auth_type: basic
+board:
+    id: 13
+    name: Gestion tickets
+    type: kanban
+epic:
+    name: customfield_10002
+    link: customfield_10005
+installation: Cloud
+issue:
+    fields:
+        custom:
+            - name: Project overview key
+              key: customfield_10230
+              schema:
+                datatype: string
+            - name: Project overview status
+              key: customfield_10231
+              schema:
+                datatype: string
+            - name: Catégorie de tâche
+              key: customfield_10232
+              schema:
+                datatype: string
+            - name: Design
+              key: customfield_10233
+              schema:
+                datatype: array
+                items: design.field.name
+            - name: Vulnerability
+              key: customfield_10234
+              schema:
+                datatype: any
+            - name: '[CHART] Time in Status'
+              key: customfield_10225
+              schema:
+                datatype: any
+            - name: Approvals
+              key: customfield_10104
+              schema:
+                datatype: sd-approvals
+            - name: Critères d'acceptation
+              key: customfield_10228
+              schema:
+                datatype: string
+            - name: Règles de gestion
+              key: customfield_10229
+              schema:
+                datatype: string
+            - name: Approvers
+              key: customfield_10340
+              schema:
+                datatype: array
+                items: user
+            - name: Approver groups
+              key: customfield_10341
+              schema:
+                datatype: array
+                items: group
+            - name: Time to resolution
+              key: customfield_10342
+              schema:
+                datatype: sd-servicelevelagreement
+            - name: Category
+              key: customfield_10221
+              schema:
+                datatype: option
+            - name: Time to first response
+              key: customfield_10343
+              schema:
+                datatype: sd-servicelevelagreement
+            - name: Clockwork Timer
+              key: customfield_10223
+              schema:
+                datatype: string
+            - name: Parent Link
+              key: customfield_10102
+              schema:
+                datatype: any
+            - name: '[CHART] Date of First Response'
+              key: customfield_10224
+              schema:
+                datatype: datetime
+            - name: Team
+              key: customfield_10103
+              schema:
+                datatype: team
+            - name: Médecin référent
+              key: customfield_10214
+              schema:
+                datatype: string
+            - name: Open forms
+              key: customfield_10215
+              schema:
+                datatype: number
+            - name: Submitted forms
+              key: customfield_10216
+              schema:
+                datatype: number
+            - name: Locked forms
+              key: customfield_10217
+              schema:
+                datatype: number
+            - name: Total forms
+              key: customfield_10218
+              schema:
+                datatype: number
+            - name: ID du modèle
+              key: customfield_10219
+              schema:
+                datatype: number
+            - name: Satisfaction date
+              key: customfield_10210
+              schema:
+                datatype: datetime
+            - name: Request language
+              key: customfield_10211
+              schema:
+                datatype: sd-request-lang
+            - name: Affected services
+              key: customfield_10212
+              schema:
+                datatype: array
+                items: service-entity-field
+            - name: Story Points (lettres)
+              key: customfield_10213
+              schema:
+                datatype: option
+            - name: Erreur médicale
+              key: customfield_10445
+              schema:
+                datatype: option
+            - name: Request participants
+              key: customfield_10203
+              schema:
+                datatype: array
+                items: user
+            - name: Estimation en story points
+              key: customfield_10204
+              schema:
+                datatype: number
+            - name: Issue color
+              key: customfield_10205
+              schema:
+                datatype: string
+            - name: Satisfaction
+              key: customfield_10206
+              schema:
+                datatype: sd-feedback
+            - name: Satisfaction
+              key: customfield_10207
+              schema:
+                datatype: sd-feedback
+            - name: Target start
+              key: customfield_10208
+              schema:
+                datatype: date
+            - name: Target end
+              key: customfield_10209
+              schema:
+                datatype: date
+            - name: Navigateurs
+              key: customfield_10440
+              schema:
+                datatype: array
+                items: option
+            - name: Reprosteps
+              key: customfield_10441
+              schema:
+                datatype: string
+            - name: Flagged
+              key: customfield_10200
+              schema:
+                datatype: array
+                items: option
+            - name: Résultat observé
+              key: customfield_10442
+              schema:
+                datatype: string
+            - name: Start date
+              key: customfield_10201
+              schema:
+                datatype: date
+            - name: Résultat attendu
+              key: customfield_10443
+              schema:
+                datatype: string
+            - name: Modèles impactés
+              key: customfield_10444
+              schema:
+                datatype: string
+            - name: Request Type
+              key: customfield_10202
+              schema:
+                datatype: sd-customerrequesttype
+            - name: Environnement
+              key: customfield_10439
+              schema:
+                datatype: option
+            - name: Type de demande
+              key: customfield_10274
+              schema:
+                datatype: option
+            - name: Maquette
+              key: customfield_10307
+              schema:
+                datatype: string
+            - name: Domaines prioritaires
+              key: customfield_10373
+              schema:
+                datatype: array
+                items: Domaines prioritaires
+            - name: Développement
+              key: customfield_10000
+              schema:
+                datatype: any
+            - name: Organizations
+              key: customfield_10001
+              schema:
+                datatype: array
+                items: sd-customerorganization
+            - name: Epic Status
+              key: customfield_10003
+              schema:
+                datatype: option
+            - name: Epic Color
+              key: customfield_10004
+              schema:
+                datatype: string
+            - name: Sprint
+              key: customfield_10115
+              schema:
+                datatype: array
+                items: json
+            - name: Environnement de test
+              key: customfield_10237
+              schema:
+                datatype: string
+            - name: Rank
+              key: customfield_10116
+              schema:
+                datatype: any
+            - name: Story Points
+              key: customfield_10117
+              schema:
+                datatype: number
+            - name: Sentiment
+              key: customfield_10238
+              schema:
+                datatype: array
+                items: sd-sentiment
+            - name: Objectifs
+              key: customfield_10239
+              schema:
+                datatype: array
+                items: Objectifs
+    types:
+        - id: "10383"
+          name: Initiative
+          handle: Initiative
+          subtask: false
+        - id: "10000"
+          name: Epic
+          handle: Epic
+          subtask: false
+        - id: "10100"
+          name: Story
+          handle: Story
+          subtask: false
+        - id: "10102"
+          name: Sous-tâche
+          handle: Sub-task
+          subtask: true
+        - id: "10216"
+          name: MEP
+          handle: MEP
+          subtask: false
+        - id: "10217"
+          name: MEP Subtask
+          handle: MEP Subtask
+          subtask: true
+        - id: "10101"
+          name: Tâche
+          handle: Task
+          subtask: false
+        - id: "10103"
+          name: Bug
+          handle: Bug
+          subtask: false
+        - id: "10416"
+          name: Bug Front
+          handle: Bug Front
+          subtask: false
+        - id: "10417"
+          name: Bug Back
+          handle: Bug Back
+          subtask: false
+        - id: "10206"
+          name: Infra
+          handle: Infra
+          subtask: false
+        - id: "10209"
+          name: Analyse
+          handle: Analyse
+          subtask: false
+        - id: "10215"
+          name: Default
+          handle: Default
+          subtask: true
+        - id: "10219"
+          name: Back sub-task
+          handle: Back sub-task
+          subtask: true
+        - id: "10218"
+          name: Front sub-task
+          handle: Front sub-task
+          subtask: true
+        - id: "10351"
+          name: Story Front
+          handle: Story Front
+          subtask: false
+        - id: "10350"
+          name: Story Back
+          handle: Story Back
+          subtask: false
+        - id: "10482"
+          name: Test
+          handle: Test
+          subtask: false
+login: ${JIRA_LOGIN}
+project:
+    key: ${JIRA_PROJECT_KEY}
+    type: classic
+server: ${JIRA_SERVER}
+timezone: Europe/Berlin

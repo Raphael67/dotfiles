@@ -54,17 +54,24 @@ function g { git @args }
 function ga { git add @args }
 function gap { git add --patch @args }
 function gb { git branch @args }
+function gbr { git branch -r @args }
 function gc { git commit -v @args }
+function gcanenv { git commit --amend --no-edit --no-verify @args }
+function gcl { git clone @args }
+function gcmnv { git commit --no-verify -m @args }
 function gco { git checkout @args }
 function gd { git diff @args }
 function gds { git diff --staged @args }
 function gf { git fetch @args }
+function gi { git init @args }
 function gl { git log --all --graph --pretty=format:'%C(magenta)%h %C(white) %an %ar%C(auto) %D%n%s%n' @args }
 function glgg { git log --graph --max-count=5 --decorate --pretty="oneline" @args }
 function gm { git merge @args }
 function gp { git push @args }
 function gpo { git push origin @args }
 function gs { git status --short --branch @args }
+function gtd { git tag --delete @args }
+function gtdr { git tag --delete origin @args }
 function gu { git pull @args }
 function gup { git fetch; git rebase @args }
 function gre { git remote @args }
@@ -99,6 +106,15 @@ if (Get-Command eza -ErrorAction SilentlyContinue) {
     function ll { eza -lg -s Name --group-directories-first --time-style long-iso --icons=auto @args }
     function la { eza -lga -s Name --group-directories-first --time-style long-iso --icons=auto @args }
 }
+# claude
+if (Get-Command claude -ErrorAction SilentlyContinue) {
+    function clyo { claude --dangerously-skip-permissions @args }
+}
+
+# gemini
+if (Get-Command npx -ErrorAction SilentlyContinue) {
+    function gemini { npx https://github.com/google-gemini/gemini-cli @args }
+}
 #endregion
 
 #region Docker
@@ -132,6 +148,7 @@ function cleanup {
     $freed = [math]::Round(($before - $after) / 1MB, 2)
     Write-Host "Freed ${freed}MB" -ForegroundColor Green
 }
+function c { Clear-Host }
 function e { exit }
 #endregion
 

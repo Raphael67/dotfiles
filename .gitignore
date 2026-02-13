@@ -21,7 +21,6 @@ dotfiles/dot-claude/skills/**
 !dotfiles/dot-claude/skills/browser-expert/**
 !dotfiles/dot-claude/skills/claude-expert/
 !dotfiles/dot-claude/skills/claude-expert/**
-dotfiles/dot-claude/skills/**/.self-update-state.json
 dotfiles/dot-config/cagent/.cagent_first_run
 
 # Jira CLI - generated from template + .env

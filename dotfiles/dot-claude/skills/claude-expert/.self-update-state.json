@@ -1,0 +1,125 @@
+{
+  "lastUpdateTimestamp": "2026-02-09T12:00:00Z",
+  "lastVersion": "2.1.37",
+  "updateHistory": [
+    {
+      "timestamp": "2026-02-09T12:00:00Z",
+      "version": "2.1.37",
+      "filesUpdated": [
+        "SKILLS.md",
+        "SUBAGENTS.md",
+        "PROMPTING.md",
+        "HOOKS.md",
+        "MCP.md"
+      ],
+      "changesApplied": 13,
+      "newFeatures": [
+        "Fast mode for Opus 4.6",
+        "TeammateIdle hook event",
+        "TaskCompleted hook event",
+        "Task(agent_type) syntax for restricting spawnable subagents",
+        "delegate permission mode for agent team leads",
+        "mcpServers frontmatter field for subagents",
+        "Memory MEMORY.md auto-maintenance details (200-line limit)",
+        "elicitation_dialog notification matcher",
+        "bypass_permissions_disabled SessionEnd reason",
+        "CLAUDE_PLUGIN_ROOT env var for hooks",
+        "MCP Tool Search model requirements (Sonnet 4+/Opus 4+)",
+        "MCPSearch disallowedTools setting",
+        "MCP dynamic tool updates via list_changed"
+      ]
+    },
+    {
+      "timestamp": "2026-02-05T12:00:00Z",
+      "version": "2.1.32",
+      "filesUpdated": [
+        "SKILLS.md",
+        "COMMANDS.md",
+        "SUBAGENTS.md",
+        "WORKFLOWS.md",
+        "PROMPTING.md",
+        "HOOKS.md",
+        "MCP.md"
+      ],
+      "changesApplied": 14,
+      "newFeatures": [
+        "Skills auto-loading from --add-dir directories",
+        "Skill character budget scales with context window (2%)",
+        "--resume auto-reuses --agent value",
+        "Agent memory field (user/project/local scopes)",
+        "Task tool metrics (tokens, tool uses, duration)",
+        "Pre-configured OAuth for MCP servers",
+        "Claude Opus 4.6 model availability",
+        "Claude Opus 4.6 detailed capabilities (1M context, adaptive thinking, 128k output)",
+        "Anthropic News as documentation source for self-update",
+        "Model-specific sources section in self-update workflow"
+      ]
+    },
+    {
+      "timestamp": "2026-02-03T12:00:00Z",
+      "version": "2.1.29",
+      "filesUpdated": [
+        "SKILLS.md",
+        "COMMANDS.md",
+        "SUBAGENTS.md",
+        "HOOKS.md",
+        "MCP.md"
+      ],
+      "changesApplied": 22,
+      "newFeatures": [
+        "AgentSkills open standard reference",
+        "Skill invocation control table",
+        "Skill permission restrictions (Skill(name))",
+        "Enterprise/plugin skill locations",
+        "Agent hook type (subagent with tools)",
+        "Async hooks (background execution)",
+        "Hook once/statusMessage fields",
+        "Hook matcher patterns for all events",
+        "/hooks interactive menu",
+        "disableAllHooks setting",
+        "/agents interactive command",
+        "--agents CLI flag for session-only agents",
+        "Foreground vs background agent execution",
+        "MCP OAuth authentication",
+        "MCP --header flag",
+        "MCP output limits",
+        "MCP scope name changes (local/user)",
+        "MCP env var expansion in .mcp.json",
+        "Managed MCP serverCommand/serverUrl matchers",
+        "--from-pr flag for PR-linked sessions",
+        "Content-level ask over tool-level allow"
+      ]
+    },
+    {
+      "timestamp": "2026-01-25T10:30:00Z",
+      "version": "2.1.19",
+      "filesUpdated": [
+        "SKILLS.md",
+        "COMMANDS.md",
+        "SUBAGENTS.md",
+        "WORKFLOWS.md",
+        "PROMPTING.md",
+        "HOOKS.md",
+        "MCP.md"
+      ],
+      "changesApplied": 28,
+      "newFeatures": [
+        "Argument shorthand syntax ($0, $1)",
+        "Bracket argument syntax ($ARGUMENTS[0])",
+        "Skills approval changes",
+        "Extended thinking (ultrathink)",
+        "Nested skill discovery",
+        "Permission modes for subagents",
+        "Skills preloading in agents",
+        "Hooks in agent/skill frontmatter",
+        "SubagentStart/SubagentStop events",
+        "SessionStart/SessionEnd hooks",
+        "PermissionRequest hook",
+        "HTTP transport for MCP",
+        "MCP Tool Search",
+        "Managed MCP configuration",
+        "Plugin MCP servers"
+      ]
+    }
+  ]
+}

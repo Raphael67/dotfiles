@@ -58,16 +58,5 @@
     },
     "autoAccept": true
   },
-  "mcpServers": {
-    "keymaging-rag": {
-      "command": "uv",
-      "args": [
-        "run",
-        "--directory",
-        "/Users/raphael/Projects/keymaging-rag",
-        "keymaging-rag",
-        "mcp"
-      ]
-    }
-  }
+  "mcpServers": {}
 }

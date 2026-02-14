@@ -1,7 +1,22 @@
 {
-  "lastUpdateTimestamp": "2026-02-09T12:00:00Z",
-  "lastVersion": "2.1.37",
+  "lastUpdateTimestamp": "2026-02-14T12:00:00Z",
+  "lastVersion": "2.1.42",
   "updateHistory": [
+    {
+      "timestamp": "2026-02-14T12:00:00Z",
+      "version": "2.1.42",
+      "filesUpdated": [
+        "SKILLS.md",
+        "HOOKS.md"
+      ],
+      "changesApplied": 4,
+      "newFeatures": [
+        "Sandbox mode blocks writes to .claude/skills (v2.1.38)",
+        "PreToolUse deprecated top-level decision/reason fields",
+        "PostToolUse updatedMCPToolOutput for MCP tools",
+        "claude auth login/status/logout CLI subcommands (v2.1.41)"
+      ]
+    },
     {
       "timestamp": "2026-02-09T12:00:00Z",
       "version": "2.1.37",

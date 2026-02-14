@@ -409,6 +409,27 @@ with open(config_path) as f:
     config = yaml.safe_load(f)
 ```
 
+### PostToolUse MCP Tool Output Override
+
+For MCP tools only, PostToolUse hooks can replace the tool's output:
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PostToolUse",
+    "updatedMCPToolOutput": "Replacement output for the MCP tool"
+  }
+}
+```
+
+## CLI Auth Commands (v2.1.41+)
+
+New authentication management commands:
+```bash
+claude auth login     # Log in to Claude Code
+claude auth status    # Check authentication status
+claude auth logout    # Log out
+```
+
 ## Best Practices
 
 1. **Keep hooks fast**: Use `timeout` to prevent hangs
@@ -430,6 +451,9 @@ with open(config_path) as f:
 ## Advanced Hook Output
 
 ### PreToolUse Decision Control
+
+> **Note**: Top-level `decision` and `reason` fields are **deprecated** for PreToolUse. Use `hookSpecificOutput.permissionDecision` and `hookSpecificOutput.permissionDecisionReason` instead. The deprecated values `"approve"` and `"block"` map to `"allow"` and `"deny"` respectively. Other events (PostToolUse, Stop, etc.) continue to use top-level `decision`/`reason`.
+
 ```json
 {
   "hookSpecificOutput": {

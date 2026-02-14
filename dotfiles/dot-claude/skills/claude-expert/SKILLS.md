@@ -439,6 +439,10 @@ If your skill isn't being discovered:
 
 Test discovery by asking Claude about a topic your skill covers.
 
+## Sandbox Security (v2.1.38+)
+
+Writes to `.claude/skills` directory are **blocked in sandbox mode**. This prevents skills from self-modifying during sandboxed execution. Skills that need to write files should use a different output directory.
+
 ## Best Practices
 
 1. **Keep SKILL.md concise**: < 500 lines, split into reference files

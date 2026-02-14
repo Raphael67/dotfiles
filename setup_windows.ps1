@@ -127,6 +127,50 @@ if (Test-Path $template) {
 }
 #endregion
 
+#region Claude Code Settings
+$claudeTemplate = Join-Path $ScriptDir "windows\claude\settings.local.json.template"
+if (Test-Path $claudeTemplate) {
+    Write-Host "`n--- Configuring Claude Code ---" -ForegroundColor Cyan
+
+    # Create .claude directory if it doesn't exist
+    $claudeDir = Join-Path $env:USERPROFILE ".claude"
+    if (!(Test-Path $claudeDir)) {
+        New-Item -ItemType Directory -Path $claudeDir -Force | Out-Null
+    }
+
+    # Generate settings.local.json with correct paths
+    $content = Get-Content $claudeTemplate -Raw
+    # Convert backslashes to forward slashes for the path (works better in JSON/uv)
+    $dotfilesPath = $ScriptDir -replace '\\', '/'
+    $content = $content -replace '\$\{DOTFILES_PATH\}', $dotfilesPath
+
+    $dest = Join-Path $claudeDir "settings.local.json"
+
+    # Merge with existing settings.local.json if present
+    if (Test-Path $dest) {
+        try {
+            $existing = Get-Content $dest -Raw | ConvertFrom-Json -AsHashtable
+            $new = $content | ConvertFrom-Json -AsHashtable
+
+            # Merge permissions (append new allows to existing)
+            if ($existing.permissions -and $existing.permissions.allow) {
+                $mergedAllows = @($existing.permissions.allow) + @($new.permissions.allow) | Select-Object -Unique
+                $new.permissions.allow = $mergedAllows
+            }
+
+            # New statusLine overwrites existing
+            $content = $new | ConvertTo-Json -Depth 10
+        } catch {
+            Write-Host "  Warning: Could not merge with existing settings, overwriting." -ForegroundColor Yellow
+        }
+    }
+
+    Set-Content -Path $dest -Value $content
+    Write-Host "  Claude Code settings.local.json configured." -ForegroundColor Green
+    Write-Host "  Status line will use: uv run $dotfilesPath/dotfiles/dot-claude/status_lines/status_line_v6.py" -ForegroundColor DarkGray
+}
+#endregion
+
 #region Summary
 Write-Host "`n=== Setup Complete ===" -ForegroundColor Green
 Write-Host ""

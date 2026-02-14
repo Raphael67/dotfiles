@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash($PSVersionTable)",
+      "Bash(Format-List)",
+      "Bash(Select-Object -First 50)",
+      "Bash([System.Environment]::OSVersion)",
+      "Bash(Get-ComputerInfo)",
+      "Bash(Select-Object CsName, WindowsProductName, WindowsVersion, OsArchitecture, CsProcessors, CsTotalPhysicalMemory)",
+      "Bash(powershell.exe -Command \"$PSVersionTable | Format-List\")",
+      "Bash(powershell.exe -Command \"Get-ComputerInfo | Select-Object CsName, WindowsProductName, WindowsVersion, OsArchitecture, CsProcessors, CsTotalPhysicalMemory\")",
+      "Bash(powershell.exe -Command \"choco list --local-only\")",
+      "Bash(powershell.exe:*)",
+      "Bash(wsl:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(pwsh:*)",
+      "Bash(pwsh.exe -NoProfile -Command 'Write-Host $PSVersionTable.PSVersion')",
+      "WebSearch"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "uv run ${DOTFILES_PATH}/dotfiles/dot-claude/status_lines/status_line_v6.py",
+    "padding": 0
+  }
+}

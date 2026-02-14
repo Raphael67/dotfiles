@@ -1,5 +1,6 @@
 # Development tools
 7zip
+uv
 deno
 bun
 dotnet4.7.1
@@ -35,7 +36,6 @@ fd
 
 # Applications
 bambustudio
-firefox
 googlechrome
 obsidian
 openvpn

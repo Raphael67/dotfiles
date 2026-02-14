@@ -152,14 +152,14 @@ function c { Clear-Host }
 function e { exit }
 #endregion
 
-#region Zoxide (smart cd replacement, same as zsh config)
-if (Get-Command zoxide -ErrorAction SilentlyContinue) {
-    Invoke-Expression (& { (zoxide init powershell --cmd cd | Out-String) })
+#region Starship Prompt (must load before zoxide so zoxide can wrap it)
+if (Get-Command starship -ErrorAction SilentlyContinue) {
+    Invoke-Expression (&starship init powershell)
 }
 #endregion
 
-#region Starship Prompt (must be last)
-if (Get-Command starship -ErrorAction SilentlyContinue) {
-    Invoke-Expression (&starship init powershell)
+#region Zoxide (smart cd replacement, must be after starship to hook into prompt)
+if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+    Invoke-Expression (& { (zoxide init powershell --cmd cd | Out-String) })
 }
 #endregion

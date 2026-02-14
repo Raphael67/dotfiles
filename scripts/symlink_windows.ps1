@@ -55,6 +55,32 @@ $links = @(
         Source = "dotfiles\dot-config\git\hooks\pre-commit"
         Target = "$HOME\.config\git\hooks\pre-commit"
         Description = "Git global pre-commit hook (gitleaks)"
+    },
+    # Claude Code directories (settings.local.json handled separately)
+    @{
+        Source = "dotfiles\dot-claude\status_lines"
+        Target = "$HOME\.claude\status_lines"
+        Description = "Claude Code status line scripts"
+    },
+    @{
+        Source = "dotfiles\dot-claude\hooks"
+        Target = "$HOME\.claude\hooks"
+        Description = "Claude Code hooks"
+    },
+    @{
+        Source = "dotfiles\dot-claude\skills"
+        Target = "$HOME\.claude\skills"
+        Description = "Claude Code skills"
+    },
+    @{
+        Source = "dotfiles\dot-claude\commands"
+        Target = "$HOME\.claude\commands"
+        Description = "Claude Code custom commands"
+    },
+    @{
+        Source = "dotfiles\dot-claude\ccnotify"
+        Target = "$HOME\.claude\ccnotify"
+        Description = "Claude Code notification scripts"
     }
 )
 

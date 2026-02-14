@@ -726,6 +726,122 @@ Move from single to multi-agent when:
 - Routine use of large context with degrading performance
 - 15-20+ tools creating selection difficulty
 - Naturally parallelizable subtasks
+## The Meta-Agent Pattern
+
+The meta-agent is a specialized agent that generates other agents. It's the "agent that builds agents."
+
+### Why Meta-Agent Matters
+- **Rapid creation** — Build specialized agents in minutes
+- **Consistent structure** — Ensures proper formatting and best practices
+- **Live documentation** — Pulls latest Claude Code docs to stay current
+- **Intelligent tool selection** — Automatically determines minimal tool requirements
+
+### Example Meta-Agent
+
+```yaml
+---
+name: meta-agent
+description: Generates new Claude Code sub-agent configuration files from descriptions. Use proactively when the user asks to create a new sub agent.
+tools: Write, WebFetch, Read, Grep, Glob
+---
+
+# Purpose
+You generate complete, properly formatted Claude Code sub-agent markdown files.
+
+## Instructions
+1. Ask clarifying questions about the agent's purpose
+2. Determine minimal tool requirements
+3. Generate agent file with YAML frontmatter + markdown instructions
+4. Save to .claude/agents/ directory
+
+## Agent File Template
+Generate files following this structure:
+- YAML frontmatter: name, description, tools, model
+- Purpose section
+- Instructions section
+- Report/Response format section
+```
+
+## Team-Based Validation Pattern
+
+The builder/validator pattern uses two specialized agents for self-checking work:
+
+### Team Agents
+
+| Agent | Tools | Purpose |
+|-------|-------|---------|
+| **Builder** | All tools | Implement features, write code |
+| **Validator** | Read-only (no Write/Edit) | Verify builder's work meets criteria |
+
+### Builder Agent Example
+
+```yaml
+---
+name: builder
+description: Execute ONE implementation task. Use when work needs to be done.
+permissionMode: acceptEdits
+hooks:
+  PostToolUse:
+    - matcher: "Edit|Write"
+      hooks:
+        - type: command
+          command: "uv run validators/ruff_validator.py"
+        - type: command
+          command: "uv run validators/ty_validator.py"
+---
+
+# Builder Agent
+Implement the assigned task completely. Self-validate with embedded hooks.
+```
+
+### Validator Agent Example
+
+```yaml
+---
+name: validator
+description: Read-only validation agent. Use after builder finishes to verify work.
+allowed-tools: Read, Grep, Glob, Bash
+---
+
+# Validator Agent
+Check if the task was completed successfully. Do NOT modify any files.
+```
+
+### Task System Orchestration
+
+The `/plan_w_team` pattern uses Claude Code's task system:
+
+```markdown
+## Workflow
+1. Create tasks with TaskCreate (assign owners: builder/validator)
+2. Set dependencies with TaskUpdate (validator blocked by builder)
+3. Launch builder agents in parallel
+4. Validators auto-unblock when builders complete
+5. Collect results and generate report
+```
+
+| Task Tool | Purpose |
+|-----------|---------|
+| `TaskCreate` | Create tasks with owners and descriptions |
+| `TaskUpdate` | Update status, add blockers |
+| `TaskList` | View all tasks and state |
+| `TaskGet` | Retrieve full task details |
+
+### Self-Validating Commands
+
+Commands can embed hooks in frontmatter for automatic output validation:
+
+```yaml
+---
+description: Plan with team orchestration
+hooks:
+  stop:
+    - command: "uv run validators/validate_new_file.py specs/*.md"
+    - command: "uv run validators/validate_file_contains.py"
+---
+```
+
+If validation fails, the agent receives feedback and continues until output meets criteria.
 
 ## When to Create Custom Agents
 

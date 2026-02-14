@@ -23,6 +23,169 @@ Hooks are scripts or prompts that execute in response to Claude Code events. The
 | `PermissionRequest` | Permission dialog shown | Dynamic permission decisions |
 | `Notification` | Claude sends notification | Desktop notifications |
 
+## Setup Hook (claude --init)
+
+The Setup hook fires when Claude enters a repository. It has two trigger modes:
+
+| Trigger | When | Use Case |
+|---------|------|----------|
+| `init` | First time entering a repo (`claude --init`) | Install dependencies, set env vars, gather project info |
+| `maintenance` | Periodically in existing repos | Log cleanup, git gc, health checks |
+
+### CLI Flags
+
+| Flag | Behavior |
+|------|----------|
+| `claude --init` | Enter repo and run Setup hook with `trigger: "init"` |
+| `claude --init-only` | Run Setup hook and exit (no conversation) |
+| `claude --maintenance` | Run Setup hook with `trigger: "maintenance"` |
+
+### Setup Hook Input
+
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "/path/to/transcript.jsonl",
+  "cwd": "/path/to/project",
+  "permission_mode": "default",
+  "hook_event_name": "Setup",
+  "trigger": "init"
+}
+```
+
+### Setup Hook Output (additionalContext)
+
+Setup hooks can inject context into the session via `additionalContext`:
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "Setup",
+    "additionalContext": "Project: Node.js app\nGit branch: main\nDeps: node v20, uv 0.5"
+  }
+}
+```
+
+### Environment Persistence (CLAUDE_ENV_FILE)
+
+During Setup hooks, `CLAUDE_ENV_FILE` is available to persist environment variables across the session:
+
+```python
+env_file = os.environ.get('CLAUDE_ENV_FILE')
+if env_file:
+    with open(env_file, 'a') as f:
+        f.write(f'export PROJECT_ROOT="{cwd}"\n')
+```
+
+### Complete Setup Hook Example
+
+```python
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["python-dotenv"]
+# ///
+import json, sys, os, subprocess
+from pathlib import Path
+
+def main():
+    input_data = json.loads(sys.stdin.read())
+    trigger = input_data.get('trigger', 'init')
+    cwd = input_data.get('cwd', os.getcwd())
+
+    context_parts = [f"Setup: {trigger}", f"CWD: {cwd}"]
+
+    if trigger == 'init':
+        # Persist project root
+        env_file = os.environ.get('CLAUDE_ENV_FILE')
+        if env_file:
+            with open(env_file, 'a') as f:
+                f.write(f'export PROJECT_ROOT="{cwd}"\n')
+
+        # Detect project type
+        for name, desc in [('package.json', 'Node.js'), ('pyproject.toml', 'Python')]:
+            if Path(cwd, name).exists():
+                context_parts.append(f"Detected: {desc}")
+
+        # Install deps if needed
+        if Path(cwd, 'package.json').exists():
+            subprocess.run(['npm', 'ci'], capture_output=True, timeout=300)
+
+    elif trigger == 'maintenance':
+        # Check log sizes, run git gc, etc.
+        logs_dir = Path(cwd, 'logs')
+        if logs_dir.exists():
+            size_mb = sum(f.stat().st_size for f in logs_dir.rglob('*') if f.is_file()) / (1024*1024)
+            context_parts.append(f"Logs: {size_mb:.1f}MB")
+
+    output = {
+        "hookSpecificOutput": {
+            "hookEventName": "Setup",
+            "additionalContext": "\n".join(context_parts)
+        }
+    }
+    print(json.dumps(output))
+    sys.exit(0)
+
+if __name__ == '__main__':
+    main()
+```
+
+## SessionStart Hook Details
+
+SessionStart fires when a session begins or resumes. It supports context injection.
+
+### SessionStart Input
+
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "/path/to/transcript.jsonl",
+  "cwd": "/path/to/project",
+  "hook_event_name": "SessionStart",
+  "source": "startup"
+}
+```
+
+### CLAUDE_ENV_FILE (SessionStart)
+
+Like Setup, SessionStart provides `CLAUDE_ENV_FILE` for persisting environment variables:
+
+```python
+env_file = os.environ.get('CLAUDE_ENV_FILE')
+if env_file:
+    with open(env_file, 'a') as f:
+        f.write('export MY_VAR="value"\n')
+```
+
+### SessionStart Context Injection
+
+Load development context at session start:
+
+```python
+def load_context(source):
+    parts = [f"Session source: {source}"]
+
+    # Git info
+    branch = subprocess.run(['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+                           capture_output=True, text=True).stdout.strip()
+    parts.append(f"Git branch: {branch}")
+
+    # Load context files
+    for path in [".claude/CONTEXT.md", "TODO.md"]:
+        if Path(path).exists():
+            parts.append(Path(path).read_text()[:1000])
+
+    return "\n".join(parts)
+
+output = {
+    "hookSpecificOutput": {
+        "hookEventName": "SessionStart",
+        "additionalContext": load_context(source)
+    }
+}
+print(json.dumps(output))
+```
+
 ## Configuration Location
 
 | Location | Scope |
@@ -159,6 +322,57 @@ Command hooks with `"async": true` run in background. Cannot block or return dec
 |------|--------|
 | `0` | Allow (or check JSON output) |
 | `2` | Block (stderr fed back to Claude) |
+
+## Hook-Specific Flow Control
+
+Each hook type has different blocking capabilities:
+
+| Hook | Can Block? | Exit 2 Effect | JSON Decision Control |
+|------|-----------|---------------|----------------------|
+| UserPromptSubmit | Yes | Blocks prompt, shows error to user | `approve`/`block` prompt |
+| PreToolUse | Yes | Blocks tool, feeds stderr to Claude | `allow`/`deny`/`ask` |
+| PostToolUse | Feedback only | Shows error to Claude (tool already ran) | `block` (prompts Claude) |
+| Stop | Yes | Blocks stoppage, forces continuation | `block` (forces Claude to continue) |
+| SubagentStop | Yes | Blocks subagent stoppage | `block` |
+| Notification | No | stderr shown to user only | N/A |
+| PreCompact | No | stderr shown to user only | N/A |
+| SessionStart | No | stderr shown to user only | Context injection via `additionalContext` |
+| SessionEnd | No | stderr shown to user only | N/A |
+| Setup | No | stderr shown to user only | Context injection via `additionalContext` |
+| PermissionRequest | Yes | N/A | `allow`/`deny` with optional `updatedInput` |
+
+### Common JSON Output Fields (All Hooks)
+
+```json
+{
+  "continue": true,
+  "stopReason": "message when continue=false",
+  "suppressOutput": false
+}
+```
+
+### Flow Control Priority
+
+1. `"continue": false` — Takes precedence over all other controls
+2. `"decision": "block"` — Hook-specific blocking
+3. Exit Code 2 — Simple blocking via stderr
+4. Other exit codes — Non-blocking errors
+
+### Stop Hook: Forcing Continuation
+
+The Stop hook can force Claude to keep working:
+
+```python
+if not all_tests_passed():
+    output = {
+        "decision": "block",
+        "reason": "Tests failing. Fix them before completing."
+    }
+    print(json.dumps(output))
+    sys.exit(0)
+```
+
+**Caution**: Check `stop_hook_active` to prevent infinite loops.
 
 ## JSON Output for Ask Decision
 
@@ -429,6 +643,26 @@ claude auth login     # Log in to Claude Code
 claude auth status    # Check authentication status
 claude auth logout    # Log out
 ```
+## UV Single-File Scripts Architecture
+
+Hooks work well as UV single-file scripts with embedded dependencies:
+
+```python
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["pyyaml", "python-dotenv"]
+# ///
+
+import json, sys
+# ... hook logic
+```
+
+Benefits:
+- **Isolation** — Hook deps stay separate from project deps
+- **Portability** — Each script declares its own requirements inline
+- **No venv management** — UV handles everything automatically
+- **Self-contained** — Each hook is independently understandable
 
 ## Best Practices
 
@@ -438,6 +672,8 @@ claude auth logout    # Log out
 4. **Use patterns file**: Separate configuration from code
 5. **Test thoroughly**: Verify both block and allow cases
 6. **Chain hooks**: Multiple hooks run in parallel, all must pass
+7. **Use `$CLAUDE_PROJECT_DIR`**: Prefix hook paths in settings.json for reliable resolution
+8. **Use UV single-file scripts**: Embed dependencies inline for portable hooks
 
 ## Environment Variables
 
@@ -445,7 +681,7 @@ claude auth logout    # Log out
 |----------|-------------|
 | `CLAUDE_PROJECT_DIR` | Absolute path to project root |
 | `CLAUDE_CODE_REMOTE` | `true` if running in remote/web environment |
-| `CLAUDE_ENV_FILE` | Path to persist env vars (SessionStart only) |
+| `CLAUDE_ENV_FILE` | Path to persist env vars (Setup and SessionStart) |
 | `CLAUDE_PLUGIN_ROOT` | Plugin script directory path (for plugin hooks) |
 
 ## Advanced Hook Output

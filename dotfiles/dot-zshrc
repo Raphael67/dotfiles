@@ -314,14 +314,6 @@ if type rclone &>/dev/null; then
   export RCLONE_PASSWORD_COMMAND="security find-generic-password -a rclone -s rclone-config -w"
 fi
 
-# github: copilot (only if gh copilot extension is installed)
-if type gh &>/dev/null && gh copilot --version &>/dev/null; then
-  _evalcache gh copilot alias -- zsh
-  alias '??'='ghcs -t shell'
-  alias '?git'='ghcs -t git'
-  alias '?gh'='ghcs -t gh'
-  alias '?h'='ghce'
-fi
 
 # Ensure unique PATH entries using zsh's unique array feature
 typeset -U path PATH

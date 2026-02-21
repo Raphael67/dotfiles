@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Arch Linux setup script (WSL or bare metal)
-# Parallels setup_ubuntu.sh and setup_macos.sh
+# Parallels setup_macos.sh
 
 set -e
 

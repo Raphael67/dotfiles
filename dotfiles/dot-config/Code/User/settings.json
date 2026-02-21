@@ -252,7 +252,6 @@
     "zenMode.fullScreen": false,
     "zenMode.hideLineNumbers": false,
     "redhat.telemetry.enabled": true,
-    "github.copilot.nextEditSuggestions.enabled": false,
     "docker.extension.enableComposeLanguageServer": false,
     "yaml.schemas": {
         "/Users/raphael/.vscode/extensions/continue.continue-1.0.19-darwin-arm64/config-yaml-schema.json": [
@@ -264,7 +263,6 @@
     "gitlab.duoCodeSuggestions.enabled": false,
     "gitlab.duoChat.enabled": false,
     "python.analysis.typeCheckingMode": "strict",
-    "github.copilot.selectedCompletionModel": "",
     "[dockercompose]": {
         "editor.insertSpaces": true,
         "editor.tabSize": 2,
@@ -297,6 +295,5 @@
     "atlascode.bitbucket.statusbar.showProduct": false,
     "atlascode.bitbucket.statusbar.showUser": false,
     "gitlens.ai.model": "gitkraken",
-    "gitlens.ai.gitkraken.model": "gemini:gemini-2.0-flash",
     "remote.autoForwardPortsSource": "hybrid"
 }

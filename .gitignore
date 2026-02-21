@@ -1,8 +1,6 @@
 *~
 dotfiles/dot-config/tmux/plugins
 .DS_Store
-dotfiles/dot-config/github-copilot
-dotfiles/dot-config/raycast/extensions
 dotfiles/dot-config/go
 .env
 logs
@@ -12,8 +10,6 @@ dotfiles/dot-config/menus/
 dotfiles/dot-claude/ccnotify/*.db
 dotfiles/dot-claude/ccnotify/*.log*
 
-# Gemini CLI - auto-generated with OAuth tokens and session data
-dotfiles/dot-gemini/
 
 # Skills - ignore all, then whitelist published ones
 dotfiles/dot-claude/skills/**

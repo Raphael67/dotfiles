@@ -1,7 +1,7 @@
 ---
 name: claude-expert
 description: Expert in Claude prompting, skill creation, hooks management, MCP configuration, and sub-agents. Use when writing prompts, creating Claude Code skills, configuring hooks, setting up MCP servers, creating custom sub-agents, or asking about Claude Code architecture.
-user-invocable: true
+user-invokable: true
 argument-hint: [self-update]
 ---
 
@@ -19,7 +19,9 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 | Commands | [COMMANDS.md](COMMANDS.md) | Creating /commands for quick invocation |
 | Hooks | [HOOKS.md](HOOKS.md) | Setting up PreToolUse, validation, notifications |
 | MCP | [MCP.md](MCP.md) | Adding MCP servers, tools, resources |
-| Sub-agents | [SUBAGENTS.md](SUBAGENTS.md) | Creating custom agents, Task tool config |
+| Sub-agents & Teams | [SUBAGENTS.md](SUBAGENTS.md) | Custom agents, Task tool, agent teams, orchestration |
+| Status Lines | [STATUS-LINES.md](STATUS-LINES.md) | Custom terminal status displays, context bars |
+| Output Styles | [OUTPUT-STYLES.md](OUTPUT-STYLES.md) | Response formatting, GenUI, custom styles |
 
 ## Argument Routing
 
@@ -43,19 +45,22 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - **MANDATORY**: Every skill with external resources must include a self-update cookbook (see SKILLS.md Self-Update Pattern)
 
 ### Hooks
-- PreToolUse hooks validate before execution
+- 13 hook events covering the full lifecycle (Setup, SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, etc.)
+- Setup hook (`claude --init`) for repo initialization and dependency installation
 - Can `block`, `allow`, or `ask` for confirmation
-- Exit codes: 0=allow, 2=block, JSON output for ask
+- Exit codes: 0=allow, 2=block, JSON output for decisions
+- `CLAUDE_ENV_FILE` for persisting env vars (Setup/SessionStart)
 
 ### MCP
 - Servers defined in `~/.claude/.mcp.json`
 - Provide external tools and resources
 - Use stdio, SSE, or HTTP transport
 
-### Sub-agents
-- Defined in `.claude/agents/` or `~/.claude/agents/`
-- YAML frontmatter + markdown instructions
-- Can specify model, tools, allowed-tools
+### Sub-agents & Agent Teams
+- **Sub-agents**: Task tool, isolated context, report back to parent
+- **Agent teams** (experimental): multiple independent sessions, shared task list, direct messaging
+- Default to single agents; use multi-agent only for context protection, parallelization, or specialization
+- Custom agents in `.claude/agents/` or `~/.claude/agents/`
 
 ### Workflows
 - Variables at top for constants
@@ -96,6 +101,9 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - Setting up security validation
 - Adding notifications or logging
 - Configuring PreToolUse patterns
+- Setting up `claude --init` (Setup hook)
+- Configuring SessionStart context injection
+- Understanding hook-specific flow control and blocking
 
 **Read MCP.md when:**
 - Adding external tool servers
@@ -108,3 +116,20 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - Understanding Task tool options
 - Setting up parallel agent execution
 - Managing multi-agent safety
+- Using agent teams (multi-session orchestration)
+- Deciding between subagents vs agent teams
+- Understanding multi-agent orchestration principles
+- Building team-based validation (builder/validator pattern)
+- Understanding the meta-agent pattern
+
+**Read STATUS-LINES.md when:**
+- Creating custom terminal status displays
+- Showing context window usage, cost, tokens
+- Integrating session data into status lines
+- Adding agent naming or custom metadata
+
+**Read OUTPUT-STYLES.md when:**
+- Creating custom response formatting
+- Setting up GenUI (HTML generation) style
+- Understanding output style configuration
+- Building domain-specific output formats

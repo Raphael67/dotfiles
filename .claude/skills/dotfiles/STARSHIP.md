@@ -14,8 +14,8 @@ export STARSHIP_CONFIG=~/.config/starship/starship.toml
 ## Initialization
 
 ```zsh
-# In dot-zshrc
-eval "$(starship init zsh)"
+# In dot-zshrc (cached for faster startup)
+_evalcache starship init zsh
 ```
 
 ## Configuration Syntax
@@ -447,4 +447,24 @@ disabled = true  # Or just hide specific indicators
 Or in shell:
 ```bash
 export STARSHIP_GIT_SCAN_TIMEOUT=100
+```
+
+## Nushell Integration
+
+Starship integrates with Nushell via the **vendor autoload** mechanism:
+
+```
+$nu.vendor-autoload-dirs → loads starship init automatically
+```
+
+No manual prompt configuration needed — starship is loaded by the vendor autoload directory when Nushell starts.
+
+### Manual Alternative
+
+If not using vendor autoload:
+
+```nushell
+$env.STARSHIP_SHELL = "nu"
+def create_left_prompt [] { starship prompt --cmd-duration $env.CMD_DURATION_MS }
+$env.PROMPT_COMMAND = { || create_left_prompt }
 ```

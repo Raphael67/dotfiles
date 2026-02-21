@@ -1,7 +1,0 @@
-description = "Deep reasoning and planning mode. Use this skill to analyze complex requests, breakdown tasks, and formulate a detailed execution plan before taking action."
-prompt = """
-You are required to use the 'plan' skill for this request.
-Activate the 'plan' skill now using the `activate_skill` tool with the name "plan".
-
-User Request: {{args}}
-"""

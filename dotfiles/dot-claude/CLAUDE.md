@@ -53,6 +53,10 @@
 - **Commit Immediately**: Push specifications and documentation when complete
 - **Quality Focus**: Ensure completeness, clarity, and alignment with requirements
 
+## File Safety
+
+- **Backup before modification**: ALWAYS create a backup copy of `.xlsx`, `.docx`, and `.pdf` files BEFORE any modification. Copy the original to `<filename>.backup.<YYYYMMDD-HHMMSS>.<ext>` (e.g., `report.backup.20260218-143052.xlsx`) in the same directory. Do this even for minor edits — these formats are binary and changes are hard to reverse.
+
 ## Security & Best Practices
 
 - Never commit secrets or API keys

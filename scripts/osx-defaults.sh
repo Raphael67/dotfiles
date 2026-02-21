@@ -119,6 +119,23 @@ apply_osx_system_defaults() {
 
     # Show indicator lights for open applications in the Dock
     defaults write com.apple.dock show-process-indicators -bool true
+
+    # Fast initial key repeat
+    defaults write NSGlobalDomain InitialKeyRepeat -int 10
+
+    # Finder: search current folder by default
+    defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+
+    # Disable smart quotes and dashes (breaks code pasting)
+    defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+    defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+
+    # Disable automatic capitalization
+    defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
+
+    # Disable auto-correct
+    defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+
     killall Dock
 }
 if [ "$(basename "$0")" = "$(basename "${BASH_SOURCE[0]}")" ]; then

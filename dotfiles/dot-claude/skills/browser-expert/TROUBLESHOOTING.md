@@ -19,6 +19,8 @@ Common issues and solutions across all browser tools.
 | "Chrome not found" (Tadpole) | Chrome binary missing | Use `--chrome-bin` or install Chrome |
 | CDP connection refused (Tadpole) | No Chrome on port 9222 | Use `--auto` or start Chrome with `--remote-debugging-port=9222` |
 | Module import failed | Git repo unreachable | Check `repo=` URL, network, and `ref=` tag |
+| Playwright CLI session stale | Orphan session | `playwright-cli close -s=name` or `close-all` |
+| `playwright-cli` not found | Not installed globally | `npm install -g @anthropic-ai/playwright-cli@latest` |
 
 ---
 

@@ -1,11 +1,11 @@
 ---
 name: browser-expert
 description: >
-  Browser automation expert covering Playwright testing, web scraping (pw-writer/pw-fast/tadpole),
+  Browser automation expert covering Playwright testing, Playwright CLI, web scraping (pw-writer/pw-fast/tadpole),
   Claude Chrome integration, Firefox MCP, Chrome DevTools MCP, and bdg CLI.
   Use for e2e tests, browser automation, scraping, data extraction, crawling,
-  Cypress migration, browser debugging, Chrome DevTools, or when user mentions
-  Playwright, scrape, crawl, automate browser, bdg, chrome, firefox, tadpole, KDL.
+  browser debugging, Chrome DevTools, agentic browser orchestration, or when user mentions
+  Playwright, Playwright CLI, scrape, crawl, automate browser, bdg, chrome, firefox, tadpole, KDL.
 user-invocable: true
 argument-hint: [self-update]
 version: 1.0.0
@@ -19,10 +19,9 @@ version: 1.0.0
 |-------|------|----------|
 | E2E testing | [TESTING.md](TESTING.md) | Writing Playwright tests, locators, assertions, config |
 | Scraping tools | [SCRAPING.md](SCRAPING.md) | pw-writer, pw-fast, or Tadpole tool APIs |
-| Browser tools | [TOOLS.md](TOOLS.md) | Claude Chrome, Firefox MCP, Chrome DevTools MCP, bdg CLI |
+| Browser tools | [TOOLS.md](TOOLS.md) | Claude Chrome, Firefox MCP, Chrome DevTools MCP, Playwright CLI, bdg CLI |
 | Test patterns | [TESTING-PATTERNS.md](TESTING-PATTERNS.md) | POM, auth, mocking, visual, a11y, mobile |
-| Scraping patterns | [SCRAPING-PATTERNS.md](SCRAPING-PATTERNS.md) | Tables, pagination, forms, API discovery, export |
-| Cypress migration | [CYPRESS-MIGRATION.md](CYPRESS-MIGRATION.md) | Converting Cypress tests to Playwright |
+| Scraping patterns | [SCRAPING-PATTERNS.md](SCRAPING-PATTERNS.md) | Tables, pagination, forms, API discovery, agentic orchestration |
 | Troubleshooting | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Errors, tool switching, debugging |
 
 ## Argument Routing
@@ -44,6 +43,9 @@ What are you trying to do?
 │   │   └── pw-writer MCP → SCRAPING.md
 │   └── Simple site with known selectors?
 │       └── pw-fast MCP → SCRAPING.md
+│
+├── Token-efficient CLI browser control for agents? (no MCP overhead)
+│   └── Playwright CLI → TOOLS.md
 │
 ├── Debug/inspect a web app interactively?
 │   ├── Need authenticated access to web app?
@@ -68,6 +70,7 @@ What are you trying to do?
 | **Firefox MCP** | MCP (extension) | Firefox | Extension | Medium | Firefox automation |
 | **DevTools MCP** | MCP (npx) | Headless Chrome | None | Fast | Perf profiling, network |
 | **Tadpole** | CLI (KDL DSL) | Headless Chrome | None | Medium | Declarative scraping, anti-detection, reusable modules |
+| **Playwright CLI** | CLI | Chromium | Storage state | Fast | Token-efficient agent automation, CI pipelines |
 | **bdg CLI** | CLI | Chrome | None | Fast | Low-level CDP, quick inspect |
 
 ## Quick Starts
@@ -127,6 +130,15 @@ main {
 tadpole run scrape.kdl --auto --headless --output results.json
 ```
 
+### Playwright CLI
+```bash
+npm install -g @anthropic-ai/playwright-cli@latest && playwright-cli install
+playwright-cli goto "https://example.com"   # Navigate
+playwright-cli snapshot                      # Get page state
+playwright-cli click --text "Submit"         # Interact
+playwright-cli close                         # End session
+```
+
 ### Claude Chrome
 ```bash
 claude --chrome           # Launch with Chrome integration
@@ -182,6 +194,8 @@ For all Playwright-based tools (test runner, pw-writer, pw-fast), prefer selecto
 | Firefox MCP | https://github.com/hyperpolymath/claude-firefox-mcp |
 | Tadpole | https://github.com/tadpolehq/tadpole |
 | Tadpole community modules | https://github.com/tadpolehq/community |
+| Playwright CLI | https://www.npmjs.com/package/@anthropic-ai/playwright-cli |
+| Bowser (agentic patterns reference) | https://github.com/disler/bowser |
 | bdg CLI | https://github.com/szymdzum/browser-debugger-cli |
 
 ## When to Read Each File
@@ -190,6 +204,7 @@ For all Playwright-based tools (test runner, pw-writer, pw-fast), prefer selecto
 - **Scraping a website** → Check decision tree above, then SCRAPING.md for tool API (pw-writer, pw-fast, or Tadpole)
 - **Complex scraping scenario** → SCRAPING-PATTERNS.md for reusable patterns
 - **Using Claude Chrome or other browser tools** → TOOLS.md
-- **Migrating from Cypress** → CYPRESS-MIGRATION.md
+- **Token-efficient browser automation** → TOOLS.md (Playwright CLI section)
+- **Agentic browser orchestration patterns** → SCRAPING-PATTERNS.md
 - **Something not working** → TROUBLESHOOTING.md
 - **Updating this skill's docs** → `/browser-expert self-update`

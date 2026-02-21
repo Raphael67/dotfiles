@@ -51,9 +51,6 @@ require("lazy").setup({
   require("plugins.vim-tmux-navigator"),
   require("plugins.claude"),
   {
-    "github/copilot.vim",
-  },
-  {
     "catppuccin/nvim",
     name = "catppuccin",
     priority = 1000,
@@ -64,7 +61,6 @@ require("lazy").setup({
           harpoon = true,
           mason = true,
           neotree = true,
-          copilot_vim = true,
           which_key = true,
           cmp = true,
           gitsigns = true,

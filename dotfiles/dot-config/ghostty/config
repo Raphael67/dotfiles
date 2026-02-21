@@ -33,3 +33,7 @@ macos-option-as-alt = false
 # - From tmux: prefix + N (Ctrl+x N)
 # - From shell: notmux (alias)
 # - From anywhere: global shortcut via macOS Shortcuts app
+
+# Alternative shell: Nushell
+# Uncomment to use nushell instead of default shell
+# command = /opt/homebrew/bin/nu

@@ -1,7 +1,8 @@
 ---
 name: dotfiles
-description: Expert in managing dotfiles using GNU Stow. Use when working with shell configs (zsh, oh-my-zsh, bash), editors (neovim, nvim, vscode), terminal tools (tmux, ghostty), prompts (starship), CLI replacements (eza, bat, fzf, zoxide, lazygit), keyboard (karabiner), secrets (bitwarden-cli), or any configuration in ~/.config. Covers stow symlink management, lazy loading patterns, Catppuccin theming, security best practices, and this specific dotfiles repository structure.
-user-invocable: false
+description: Expert in managing dotfiles using GNU Stow. Use when working with shell configs (zsh, oh-my-zsh, bash), editors (neovim, nvim, vscode), terminal tools (tmux, ghostty), prompts (starship), CLI replacements (eza, bat, fzf, zoxide, lazygit), keyboard (karabiner), secrets (bitwarden-cli), nushell integration, XDG Base Directory compliance, or any configuration in ~/.config. Covers stow symlink management, lazy loading patterns, Catppuccin theming, security best practices, and this specific dotfiles repository structure.
+user-invocable: true
+argument-hint: [self-update]
 ---
 
 # Dotfiles Management Skill
@@ -19,6 +20,7 @@ Expert guidance for managing this cross-platform dotfiles repository using GNU S
 | Ghostty | [GHOSTTY.md](GHOSTTY.md) | Terminal config, shell integration, keybindings |
 | GNU Stow | [STOW.md](STOW.md) | Understanding symlinks, stow commands |
 | CLI Tools | [TOOLS.md](TOOLS.md) | Configuring bat, eza, fzf, zoxide, lazygit, bitwarden |
+| Nushell | [TOOLS.md](TOOLS.md) | Nushell config, structured data, vendor autoload |
 | Problems | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Fixing common issues |
 
 ## Critical Repository Pattern
@@ -33,6 +35,10 @@ The `.stowrc` file configures:
 
 Example: `dot-zshrc` becomes `~/.zshrc`
 </critical>
+
+## Argument Routing
+
+If argument is `self-update`, execute [cookbook/self-update.md](cookbook/self-update.md).
 
 ## Directory Structure
 
@@ -102,10 +108,12 @@ brew bundle --file=homebrew/Brewfile  # Install all packages
 | Neovim | `lua/plugins/` | `catppuccin-macchiato` |
 | Tmux | `tmux.catppuccin.conf` | `macchiato` |
 | Starship | `starship.toml` | `catppuccin_macchiato` palette |
-| Ghostty | `config` | `theme = catppuccin-mocha` |
-| fzf | `dot-zshrc` | Catppuccin colors in FZF_DEFAULT_OPTS |
-| bat | `bat/config` | OneHalfDark |
-| lazygit | `lazygit/config.yml` | Catppuccin |
+| Ghostty | `config` | `theme = Catppuccin Macchiato` |
+| fzf | `dot-zshrc` | Catppuccin Macchiato palette in FZF_DEFAULT_OPTS |
+| bat | `bat/config` | `Catppuccin Macchiato` |
+| lazygit | `lazygit/config.yml` | Catppuccin Macchiato |
+| btop | `btop/btop.conf` | `catppuccin_macchiato` |
+| k9s | `k9s/skins/` | Catppuccin Macchiato skin |
 
 **Key Colors (Macchiato):**
 - Base: `#24273a`
@@ -139,7 +147,18 @@ fi
 Expensive command outputs are cached using the `evalcache` oh-my-zsh plugin:
 ```zsh
 _evalcache zoxide init zsh --cmd cd
+_evalcache starship init zsh
 _evalcache gh copilot alias -- zsh
+```
+
+### NVM Lazy Loading
+
+Same pattern as jenv/pyenv, with wrapper functions for `node`, `npm`, `npx`. Saves ~300ms on startup.
+
+### Starship evalcache
+
+```zsh
+_evalcache starship init zsh
 ```
 
 ### Benchmarking
@@ -149,6 +168,36 @@ zsh-time      # Quick timing: time zsh -i -c exit
 zsh-debug     # Detailed profiling with zprof
 ```
 </performance>
+
+## XDG Base Directory Compliance
+
+<xdg>
+### XDG Environment Variables
+
+Set in `dot-zshrc`:
+
+| Variable | Value | Purpose |
+|----------|-------|---------|
+| `XDG_CONFIG_HOME` | `$HOME/.config` | Application configs |
+| `XDG_DATA_HOME` | `$HOME/.local/share` | Application data |
+| `XDG_STATE_HOME` | `$HOME/.local/state` | Application state/logs |
+| `XDG_CACHE_HOME` | `$HOME/.cache` | Non-essential cache |
+
+### Tools Relocated to XDG
+
+| Tool | Old Path | New Path |
+|------|----------|----------|
+| zsh history | `~/.zsh_history` | `$XDG_STATE_HOME/zsh/history` |
+| Oh-My-Zsh | `~/.oh-my-zsh` | `$XDG_DATA_HOME/oh-my-zsh` |
+| NVM | `~/.nvm` | `$XDG_DATA_HOME/nvm` |
+| zsh-evalcache | `~/.zsh-evalcache` | `$XDG_CACHE_HOME/zsh-evalcache` |
+
+### Verification
+
+```bash
+xdg-ninja    # Audit home directory for XDG compliance
+```
+</xdg>
 
 ## Security Best Practices
 

@@ -256,6 +256,70 @@ claude mcp add chrome-devtools --scope user npx chrome-devtools-mcp@latest
 
 ---
 
+## Playwright CLI (`@anthropic-ai/playwright-cli`)
+
+### Overview
+
+Token-efficient CLI for browser automation, optimized for AI agents. Complements MCP tools — use the CLI for context-constrained agents and scripted sequences, MCP for exploratory and long-running autonomous workflows.
+
+### Setup
+
+```bash
+npm install -g @anthropic-ai/playwright-cli@latest
+playwright-cli install              # Install browser binaries
+```
+
+### Core Commands
+
+| Category | Commands |
+|----------|----------|
+| **Navigation** | `goto`, `go-back`, `go-forward`, `reload` |
+| **Interaction** | `click`, `type`, `fill`, `drag`, `select`, `upload`, `check`, `press` |
+| **Inspection** | `snapshot`, `screenshot` |
+| **Session** | `-s=name`, `--persistent`, `close`, `close-all`, `list` |
+| **Storage** | cookies, localStorage, sessionStorage (`list`, `get`, `set`, `delete`) |
+| **Network** | Mock requests |
+| **Monitoring** | `playwright-cli show` (visual dashboard) |
+| **Recording** | Video/trace capture |
+
+### Session Management
+
+```bash
+# Named sessions — isolate browser contexts by task
+playwright-cli goto "https://example.com" -s=checkout-flow
+playwright-cli click --text "Add to cart" -s=checkout-flow
+
+# Persistent sessions — preserve cookies/storage across commands
+playwright-cli goto "https://example.com" -s=my-session --persistent
+
+# Environment variable for default session
+export PLAYWRIGHT_CLI_SESSION=my-session
+
+# Session lifecycle
+playwright-cli list                  # List active sessions
+playwright-cli close -s=checkout-flow  # Close specific session
+playwright-cli close-all            # Close all sessions
+```
+
+### CLI vs MCP
+
+| | CLI | MCP (pw-fast/pw-writer) |
+|---|---|---|
+| **Token cost** | Minimal — only command output | Higher — tool call overhead per action |
+| **Context injection** | Explicit per command | Rich introspection, snapshots |
+| **Best for** | Scripted sequences, CI pipelines | Exploratory work, complex SPAs |
+| **Session model** | Named sessions, persistent | Per-connection |
+
+### Best For
+
+- **Token-constrained agents** — minimal context overhead per action
+- **CI pipelines** — scriptable, deterministic sequences
+- **Scripted automation** — chain commands in bash
+- **Multi-agent workflows** — each agent gets an isolated named session
+- When MCP tool-call overhead is undesirable
+
+---
+
 ## bdg CLI (Browser Debugger)
 
 ### Overview

@@ -174,7 +174,8 @@ Start Claude's response to guide format:
 | Model | ID | Best For |
 |-------|-----|----------|
 | Opus 4.6 | `claude-opus-4-6` | Complex reasoning, large codebases, agentic tasks |
-| Sonnet 4.5 | `claude-sonnet-4-5-20250929` | Balanced speed/capability |
+| Sonnet 4.6 | `claude-sonnet-4-6` | Frontier performance for coding, agents, and professional work at scale |
+| Sonnet 4.5 | `claude-sonnet-4-5-20250929` | Previous generation balanced model |
 | Haiku 4.5 | `claude-haiku-4-5-20251001` | Fast, simple tasks |
 
 ### Claude Opus 4.6 Capabilities

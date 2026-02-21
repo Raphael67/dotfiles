@@ -176,11 +176,11 @@
     "git.openRepositoryInParentFolders": "always",
     "git.replaceTagsWhenPull": true,
     "java.configuration.runtimes": [
-      {
-        "default": true,
-        "name": "JavaSE-22",
-        "path": "C:/Program Files/OpenJDK/jdk-22.0.2"
-      }
+        {
+            "default": true,
+            "name": "JavaSE-22",
+            "path": "C:/Program Files/OpenJDK/jdk-22.0.2"
+        }
     ],
     "javascript.format.semicolons": "insert",
     "javascript.preferences.importModuleSpecifier": "relative",
@@ -252,7 +252,6 @@
     "zenMode.fullScreen": false,
     "zenMode.hideLineNumbers": false,
     "redhat.telemetry.enabled": true,
-    "github.copilot.nextEditSuggestions.enabled": false,
     "docker.extension.enableComposeLanguageServer": false,
     "yaml.schemas": {
         "/Users/raphael/.vscode/extensions/continue.continue-1.0.19-darwin-arm64/config-yaml-schema.json": [
@@ -264,7 +263,6 @@
     "gitlab.duoCodeSuggestions.enabled": false,
     "gitlab.duoChat.enabled": false,
     "python.analysis.typeCheckingMode": "strict",
-    "github.copilot.selectedCompletionModel": "",
     "[dockercompose]": {
         "editor.insertSpaces": true,
         "editor.tabSize": 2,
@@ -295,5 +293,7 @@
     "atlascode.bitbucket.statusbar.enabled": false,
     "atlascode.bitbucket.statusbar.showLogin": false,
     "atlascode.bitbucket.statusbar.showProduct": false,
-    "atlascode.bitbucket.statusbar.showUser": false
+    "atlascode.bitbucket.statusbar.showUser": false,
+    "gitlens.ai.model": "gitkraken",
+    "remote.autoForwardPortsSource": "hybrid"
 }

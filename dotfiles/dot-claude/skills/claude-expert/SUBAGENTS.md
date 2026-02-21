@@ -564,6 +564,18 @@ CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=85
 - `Ctrl+B` - Background running task
 - `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1` - Disable background tasks
 
+## Stop/SubagentStop Hook Input Fields (v2.1.47+)
+
+Stop and SubagentStop hooks now include additional fields:
+
+| Field | Description |
+|-------|-------------|
+| `stop_hook_active` | `true` when continuing due to a previous stop hook |
+| `last_assistant_message` | Text content of the agent's final response |
+| `agent_transcript_path` | (SubagentStop only) Path to subagent transcript file |
+| `agent_id` | (SubagentStop only) Unique subagent identifier |
+| `agent_type` | (SubagentStop only) Agent type name (used for matcher) |
+
 ## Subagent Hook Events
 
 In `settings.json`:
@@ -606,6 +618,230 @@ Also usable in permissions deny list:
   }
 }
 ```
+
+## Agent Teams (Experimental)
+
+Agent teams coordinate multiple independent Claude Code sessions. One session is the **team lead**, others are **teammates** with their own context windows.
+
+### Enable
+
+Already enabled in `settings.json`:
+```json
+{ "env": { "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1" } }
+```
+
+### Subagents vs Agent Teams
+
+| | Subagents | Agent Teams |
+|---|---|---|
+| **Context** | Own window, results return to caller | Fully independent |
+| **Communication** | Report back to parent only | Teammates message each other directly |
+| **Coordination** | Parent manages all work | Shared task list, self-coordination |
+| **Best for** | Focused tasks where only result matters | Complex work requiring discussion |
+| **Token cost** | Lower | Higher (each teammate = separate instance) |
+
+**Use subagents** for quick focused workers that report back.
+**Use agent teams** when teammates need to share findings, challenge each other, coordinate.
+
+### When Agent Teams Excel
+
+1. **Research & review**: parallel investigation of different aspects
+2. **New modules/features**: each teammate owns a separate piece
+3. **Debugging competing hypotheses**: test different theories in parallel
+4. **Cross-layer coordination**: frontend/backend/tests each owned by a teammate
+
+### Starting a Team
+
+Tell Claude in natural language:
+```
+Create an agent team to review PR #142. Spawn three reviewers:
+- One focused on security implications
+- One checking performance impact
+- One validating test coverage
+```
+
+### Display Modes
+
+| Mode | Setting | Description |
+|------|---------|-------------|
+| `auto` (default) | Split if in tmux, else in-process | Auto-detect |
+| `in-process` | All in main terminal | Shift+Down to cycle teammates |
+| `tmux` | Each teammate in own pane | Requires tmux or iTerm2 |
+
+```json
+{ "teammateMode": "in-process" }
+```
+
+Or per-session: `claude --teammate-mode in-process`
+
+### Key Operations
+
+- **Specify models**: `"Use Sonnet for each teammate"`
+- **Require plan approval**: `"Require plan approval before they make changes"`
+- **Talk directly**: Shift+Down cycles teammates (in-process mode)
+- **Shut down**: `"Ask the researcher teammate to shut down"`
+- **Clean up**: `"Clean up the team"` (always from lead, after all teammates stopped)
+
+### Quality Gates with Hooks
+
+- `TeammateIdle`: runs when teammate about to go idle. Exit 2 to send feedback and keep working.
+- `TaskCompleted`: runs when task being marked complete. Exit 2 to prevent completion.
+
+### Limitations
+
+- No session resumption with in-process teammates
+- One team per session, no nested teams
+- Lead is fixed for lifetime
+- Split panes not supported in VS Code terminal, Windows Terminal, or Ghostty
+- Permissions set at spawn (all teammates inherit lead's mode)
+
+## When to Use Multi-Agent Orchestration
+
+### Anthropic's Guidelines (from blog)
+
+**Default to single agents.** Multi-agent adds 3-10x token overhead.
+
+Three scenarios where multi-agent excels:
+
+1. **Context protection**: when info from one subtask pollutes context for subsequent tasks
+2. **Parallelization**: explore larger search space (research, investigation)
+3. **Specialization**: 20+ tools degrade performance, focused toolsets outperform generalists
+
+### Decomposition Principle
+
+Group work by **what context it requires**, not by what kind of work it is.
+
+- **Good boundaries**: independent research paths, components with clean interfaces
+- **Bad boundaries**: sequential phases, tightly coupled components
+
+### Verification Subagent Pattern
+
+A dedicated agent whose sole job is testing/validating the main agent's work. Most consistently effective multi-agent pattern because verification requires minimal context transfer.
+
+Key: instruct verifier to "Run the full test suite" — prevent early victory declarations.
+
+### Escalation Signals
+
+Move from single to multi-agent when:
+- Routine use of large context with degrading performance
+- 15-20+ tools creating selection difficulty
+- Naturally parallelizable subtasks
+## The Meta-Agent Pattern
+
+The meta-agent is a specialized agent that generates other agents. It's the "agent that builds agents."
+
+### Why Meta-Agent Matters
+- **Rapid creation** — Build specialized agents in minutes
+- **Consistent structure** — Ensures proper formatting and best practices
+- **Live documentation** — Pulls latest Claude Code docs to stay current
+- **Intelligent tool selection** — Automatically determines minimal tool requirements
+
+### Example Meta-Agent
+
+```yaml
+---
+name: meta-agent
+description: Generates new Claude Code sub-agent configuration files from descriptions. Use proactively when the user asks to create a new sub agent.
+tools: Write, WebFetch, Read, Grep, Glob
+---
+
+# Purpose
+You generate complete, properly formatted Claude Code sub-agent markdown files.
+
+## Instructions
+1. Ask clarifying questions about the agent's purpose
+2. Determine minimal tool requirements
+3. Generate agent file with YAML frontmatter + markdown instructions
+4. Save to .claude/agents/ directory
+
+## Agent File Template
+Generate files following this structure:
+- YAML frontmatter: name, description, tools, model
+- Purpose section
+- Instructions section
+- Report/Response format section
+```
+
+## Team-Based Validation Pattern
+
+The builder/validator pattern uses two specialized agents for self-checking work:
+
+### Team Agents
+
+| Agent | Tools | Purpose |
+|-------|-------|---------|
+| **Builder** | All tools | Implement features, write code |
+| **Validator** | Read-only (no Write/Edit) | Verify builder's work meets criteria |
+
+### Builder Agent Example
+
+```yaml
+---
+name: builder
+description: Execute ONE implementation task. Use when work needs to be done.
+permissionMode: acceptEdits
+hooks:
+  PostToolUse:
+    - matcher: "Edit|Write"
+      hooks:
+        - type: command
+          command: "uv run validators/ruff_validator.py"
+        - type: command
+          command: "uv run validators/ty_validator.py"
+---
+
+# Builder Agent
+Implement the assigned task completely. Self-validate with embedded hooks.
+```
+
+### Validator Agent Example
+
+```yaml
+---
+name: validator
+description: Read-only validation agent. Use after builder finishes to verify work.
+allowed-tools: Read, Grep, Glob, Bash
+---
+
+# Validator Agent
+Check if the task was completed successfully. Do NOT modify any files.
+```
+
+### Task System Orchestration
+
+The `/plan_w_team` pattern uses Claude Code's task system:
+
+```markdown
+## Workflow
+1. Create tasks with TaskCreate (assign owners: builder/validator)
+2. Set dependencies with TaskUpdate (validator blocked by builder)
+3. Launch builder agents in parallel
+4. Validators auto-unblock when builders complete
+5. Collect results and generate report
+```
+
+| Task Tool | Purpose |
+|-----------|---------|
+| `TaskCreate` | Create tasks with owners and descriptions |
+| `TaskUpdate` | Update status, add blockers |
+| `TaskList` | View all tasks and state |
+| `TaskGet` | Retrieve full task details |
+
+### Self-Validating Commands
+
+Commands can embed hooks in frontmatter for automatic output validation:
+
+```yaml
+---
+description: Plan with team orchestration
+hooks:
+  stop:
+    - command: "uv run validators/validate_new_file.py specs/*.md"
+    - command: "uv run validators/validate_file_contains.py"
+---
+```
+
+If validation fails, the agent receives feedback and continues until output meets criteria.
 
 ## When to Create Custom Agents
 

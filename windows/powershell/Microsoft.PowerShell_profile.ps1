@@ -111,12 +111,6 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
     function clyo { claude --dangerously-skip-permissions @args }
 }
 
-# gemini
-if (Get-Command npx -ErrorAction SilentlyContinue) {
-    function gemini { npx https://github.com/google-gemini/gemini-cli @args }
-}
-#endregion
-
 #region Docker
 if (Get-Command docker -ErrorAction SilentlyContinue) {
     function d { docker @args }

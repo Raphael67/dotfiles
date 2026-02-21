@@ -366,7 +366,7 @@ cat ~/.config/karabiner/karabiner.json | jq .
 | Neovim | `lua/plugins/` | `colorscheme("catppuccin")` |
 | Tmux | `tmux.catppuccin.conf` | `@catppuccin_flavor 'macchiato'` |
 | Starship | `starship.toml` | `palette = "catppuccin_macchiato"` |
-| Ghostty | `config` | `theme = catppuccin-mocha` |
+| Ghostty | `config` | `theme = Catppuccin Macchiato` |
 | fzf | `dot-zshrc` | `FZF_DEFAULT_OPTS` colors |
 
 ### Nerd Font Icons Missing
@@ -383,6 +383,91 @@ brew install --cask font-jetbrains-mono-nerd-font
 **Check terminal is using the font:**
 - Ghostty: `font-family = JetBrains Mono`
 - iTerm2: Preferences > Profiles > Text > Font
+
+---
+
+## XDG Migration Issues
+
+### History File Not Found
+
+After migrating to XDG paths, zsh history may appear empty:
+
+```bash
+# Check if old history exists
+ls -la ~/.zsh_history
+
+# Copy to new XDG location
+mkdir -p "$XDG_STATE_HOME/zsh"
+cp ~/.zsh_history "$XDG_STATE_HOME/zsh/history"
+```
+
+### Oh-My-Zsh Not Loading
+
+If `ZSH` was changed to XDG path:
+
+```bash
+# Verify oh-my-zsh is at the new location
+ls "$XDG_DATA_HOME/oh-my-zsh/oh-my-zsh.sh"
+
+# If missing, move it
+mv ~/.oh-my-zsh "$XDG_DATA_HOME/oh-my-zsh"
+```
+
+### NVM Not Found
+
+After relocating NVM to XDG:
+
+```bash
+# Ensure NVM_DIR points to new location
+echo $NVM_DIR
+# Should be: ~/.local/share/nvm
+
+# If still at old path, move it
+mv ~/.nvm "$XDG_DATA_HOME/nvm"
+```
+
+### Audit with xdg-ninja
+
+```bash
+# Install
+brew install xdg-ninja
+
+# Run audit — shows files in $HOME that should use XDG
+xdg-ninja
+```
+
+---
+
+## Bootstrap / setup_macos.sh Issues
+
+### Idempotency
+
+The setup script should be safe to run multiple times:
+
+```bash
+# Dry-run stow to check for conflicts
+stow -n .
+
+# Run setup
+./setup.sh
+```
+
+### Plugin Clone Guards
+
+Custom zsh plugins use clone guards to avoid re-cloning:
+
+```bash
+# Pattern used in setup
+ZSH_CUSTOM="${ZSH_CUSTOM:-$ZSH/custom}"
+[[ -d "$ZSH_CUSTOM/plugins/plugin-name" ]] || \
+  git clone https://github.com/user/plugin "$ZSH_CUSTOM/plugins/plugin-name"
+```
+
+If a plugin directory exists but is empty/corrupt:
+```bash
+rm -rf "$ZSH_CUSTOM/plugins/plugin-name"
+# Re-run setup
+```
 
 ---
 

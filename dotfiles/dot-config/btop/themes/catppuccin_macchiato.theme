@@ -1,0 +1,88 @@
+# Catppuccin Macchiato theme for btop
+
+# Main background
+theme[main_bg]="#24273a"
+
+# Main text color
+theme[main_fg]="#cad3f5"
+
+# Title color for boxes
+theme[title]="#cad3f5"
+
+# Highlight color for keyboard shortcuts
+theme[hi_fg]="#c6a0f6"
+
+# Background color of selected items
+theme[selected_bg]="#494d64"
+
+# Foreground color of selected items
+theme[selected_fg]="#cad3f5"
+
+# Color of inactive/disabled text
+theme[inactive_fg]="#6e738d"
+
+# Color of text appearing on top of graphs
+theme[graph_text]="#a5adcb"
+
+# Misc
+theme[proc_misc]="#c6a0f6"
+
+# CPU box outline color
+theme[cpu_box]="#c6a0f6"
+
+# Memory box outline color
+theme[mem_box]="#a6da95"
+
+# Net box outline
+theme[net_box]="#c6a0f6"
+
+# Proc box outline
+theme[proc_box]="#c6a0f6"
+
+# Box divider line and target spot
+theme[div_line]="#6e738d"
+
+# Temperature graph colors
+theme[temp_start]="#8bd5ca"
+theme[temp_mid]="#eed49f"
+theme[temp_end]="#ed8796"
+
+# CPU graph colors
+theme[cpu_start]="#8bd5ca"
+theme[cpu_mid]="#eed49f"
+theme[cpu_end]="#ed8796"
+
+# Mem/Disk free meter
+theme[free_start]="#a6da95"
+theme[free_mid]="#a6da95"
+theme[free_end]="#a6da95"
+
+# Mem/Disk cached meter
+theme[cached_start]="#8aadf4"
+theme[cached_mid]="#8aadf4"
+theme[cached_end]="#8aadf4"
+
+# Mem/Disk available meter
+theme[available_start]="#c6a0f6"
+theme[available_mid]="#c6a0f6"
+theme[available_end]="#c6a0f6"
+
+# Mem/Disk used meter
+theme[used_start]="#f5a97f"
+theme[used_mid]="#eed49f"
+theme[used_end]="#ed8796"
+
+# Download graph colors
+theme[download_start]="#8bd5ca"
+theme[download_mid]="#7dc4e4"
+theme[download_end]="#8aadf4"
+
+# Upload graph colors
+theme[upload_start]="#a6da95"
+theme[upload_mid]="#eed49f"
+theme[upload_end]="#f5a97f"
+
+# Process box color gradient for threads, mem and cpu usage
+theme[process_start]="#c6a0f6"
+theme[process_mid]="#c6a0f6"
+theme[process_end]="#c6a0f6"

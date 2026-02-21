@@ -534,3 +534,74 @@ const csv = [headers, ...rows].join('\n');
 fs.writeFileSync('/tmp/scraped-data.csv', csv);
 console.log(`Saved ${state.allItems.length} rows to /tmp/scraped-data.csv`);
 ```
+
+---
+
+## Agentic Browser Orchestration
+
+Patterns for multi-agent browser workflows using Playwright CLI named sessions.
+
+### Named Sessions for Stateful Workflows
+
+Use `-s=task-context` naming to isolate browser contexts by task:
+
+```bash
+# Each workflow gets its own session
+playwright-cli goto "https://mystore.com" -s=mystore-checkout
+playwright-cli click --text "Add to cart" -s=mystore-checkout
+playwright-cli fill --label "Email" --value "user@example.com" -s=mystore-checkout
+
+# Persistent sessions preserve cookies/storage across commands
+playwright-cli goto "https://mystore.com" -s=mystore-checkout --persistent
+
+# Clean up when done
+playwright-cli close -s=mystore-checkout
+```
+
+### YAML-Driven QA Stories
+
+Define user stories as YAML for repeatable validation:
+
+```yaml
+# stories/checkout.yaml
+name: Checkout Flow
+steps:
+  - goto: "https://mystore.com/products"
+  - click: "Add to Cart"
+  - click: "Proceed to Checkout"
+  - fill:
+      label: "Email"
+      value: "test@example.com"
+  - click: "Place Order"
+  - assert: "Order confirmed"
+```
+
+**Story formats:**
+- **Simple sentences**: `"User adds item to cart and checks out"`
+- **Step-by-step**: Sequential actions as YAML list
+- **BDD (Given/When/Then)**: `Given user is on product page / When they click Add to Cart / Then cart count increases`
+
+Auto-discover stories from a directory and run them in batch.
+
+### Multi-Agent Parallel Browser Testing
+
+Spawn subagents with isolated named sessions — each agent owns one browser, no interference:
+
+```
+Orchestrator agent:
+  1. Discover stories from stories/ directory
+  2. For each story, spawn a subagent:
+     - Assign unique session: -s=story-{name}
+     - Agent executes story steps via playwright-cli
+     - Agent captures screenshots: screenshots/{story-name}/{step}.png
+     - Agent returns structured pass/fail report
+  3. Collect and aggregate results
+```
+
+**Key patterns:**
+- **Session isolation**: Each agent uses `-s=unique-name` — no shared browser state
+- **Screenshot management**: Organize by `screenshots/<story-name>/<step>.png`
+- **Structured reporting**: Each agent returns `{ story, status, steps: [{ action, result, screenshot }] }`
+- **Parallel execution**: All agents run simultaneously via Task tool with independent sessions
+
+**Source reference:** [Bowser](https://github.com/disler/bowser)

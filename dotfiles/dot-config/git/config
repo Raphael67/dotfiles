@@ -43,6 +43,8 @@ whitespace = error  # Error on trailing whitespace
 preloadindex = true # Improve performance by preloading the index
 editor = code --wait
 hooksPath = ~/.config/git/hooks
+untrackedCache = true    # faster git status
+trustctime = false       # safer rebase on macOS
 
 [advice]
 addEmptyPathspec = false

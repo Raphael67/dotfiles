@@ -101,3 +101,23 @@ alias fixmouse="printf '\e[?1000l\e[?1002l\e[?1003l\e[?1006l'"
 
 alias clyo="claude --dangerously-skip-permissions"
 alias gemini="npx https://github.com/google-gemini/gemini-cli"
+
+# Shell profiling
+zsh-startuptime() {
+    local total=0
+    for i in $(seq 1 10); do
+        local t=$({ time zsh -i -c exit; } 2>&1 | grep real | awk '{print $2}' | sed 's/[^0-9.]//g')
+        total=$(echo "$total + $t" | bc)
+    done
+    echo "average: $(echo "scale=3; $total / 10" | bc)s (10 runs)"
+}
+
+zsh-startuptime-verbose() {
+    zsh -i -c "zprof" 2>/dev/null
+}
+
+nvim-startuptime() {
+    nvim --headless --startuptime /tmp/nvim-startuptime.log -c 'qall' && \
+        tail -1 /tmp/nvim-startuptime.log && \
+        rm /tmp/nvim-startuptime.log
+}

@@ -63,11 +63,19 @@ if [[ "$install_apps" == "y" ]]; then
         info "Warning: uv not found, skipping Python tools"
     fi
 
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-    git clone https://github.com/mroth/evalcache ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/evalcache
+    # oh-my-zsh
+    if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    fi
+
+    # oh-my-zsh plugins
+    local zsh_custom="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+    [[ ! -d "$zsh_custom/plugins/zsh-autosuggestions" ]] && \
+        git clone https://github.com/zsh-users/zsh-autosuggestions "$zsh_custom/plugins/zsh-autosuggestions"
+    [[ ! -d "$zsh_custom/plugins/zsh-syntax-highlighting" ]] && \
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$zsh_custom/plugins/zsh-syntax-highlighting"
+    [[ ! -d "$zsh_custom/plugins/evalcache" ]] && \
+        git clone https://github.com/mroth/evalcache "$zsh_custom/plugins/evalcache"
 
     USER_HOME="${DOTFILES_HOME:-$HOME}"
     BREW_PREFIX="${HOMEBREW_PREFIX:-/opt/homebrew}"
@@ -75,8 +83,9 @@ if [[ "$install_apps" == "y" ]]; then
     echo "eval \"\$(${BREW_PREFIX}/bin/brew shellenv)\"" >>"${USER_HOME}/.zprofile"
     eval "$(${BREW_PREFIX}/bin/brew shellenv)"
 
-    rm -rf ~/.config/tmux/plugins/tpm
-    git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+    if [[ ! -d "$HOME/.config/tmux/plugins/tpm" ]]; then
+        git clone https://github.com/tmux-plugins/tpm "$HOME/.config/tmux/plugins/tpm"
+    fi
     export STARSHIP_CONFIG=~/.config/starship.toml
 fi
 

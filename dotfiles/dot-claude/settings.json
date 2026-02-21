@@ -101,7 +101,12 @@
       "mcp__atlassian__getConfluencePageInlineComments",
       "mcp__atlassian__getConfluenceSpaces",
       "mcp__atlassian__getPagesInConfluenceSpace",
-      "mcp__atlassian__searchConfluenceUsingCql"
+      "mcp__atlassian__searchConfluenceUsingCql",
+      "ToolSearch",
+      "TaskList",
+      "TaskGet",
+      "ListMcpResourcesTool",
+      "ReadMcpResourceTool"
     ],
     "deny": [
       "Bash(rm -rf /*:*)",
@@ -116,7 +121,6 @@
     ],
     "defaultMode": "default"
   },
-  "model": "opus",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -191,6 +195,7 @@
     "command": "uv run ~/.claude/status_lines/status_line_v6.py",
     "padding": 0
   },
-  "effortLevel": "medium",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "effortLevel": "low",
+  "model": "sonnet"
 }

@@ -57,8 +57,8 @@ font-variation = wght 400
 ## Theme and Colors
 
 ```ini
-# Use built-in theme
-theme = catppuccin-mocha
+# Use built-in theme (Ghostty 1.2.0+ uses Title Case)
+theme = Catppuccin Macchiato
 
 # Or customize directly
 background = 24273a
@@ -79,11 +79,22 @@ palette = 2=#a6da95
 # ... etc
 ```
 
-**Available Catppuccin themes:**
-- `catppuccin-mocha` (darkest)
-- `catppuccin-macchiato`
-- `catppuccin-frappe`
-- `catppuccin-latte` (light)
+**Available Catppuccin themes (Ghostty 1.2.0+, Title Case):**
+- `Catppuccin Mocha` (darkest)
+- `Catppuccin Macchiato`
+- `Catppuccin Frappe`
+- `Catppuccin Latte` (light)
+
+> **Note:** Ghostty 1.2.0+ switched from kebab-case (`catppuccin-mocha`) to Title Case (`Catppuccin Macchiato`). Update configs accordingly.
+
+### Auto Light/Dark Switching
+
+Ghostty can switch themes based on system appearance:
+
+```ini
+# Automatic theme switching
+theme = light:Catppuccin Latte,dark:Catppuccin Macchiato
+```
 
 ## Window Settings
 
@@ -160,6 +171,18 @@ if [ -n "${GHOSTTY_RESOURCES_DIR}" ]; then
     builtin source "${GHOSTTY_RESOURCES_DIR}/shell-integration/bash/ghostty.bash"
 fi
 ```
+
+### Nushell Integration
+
+```ini
+# In Ghostty config — use Nushell as shell
+command = /opt/homebrew/bin/nu
+
+# Shell integration works automatically with Nushell
+shell-integration = detect
+```
+
+Nushell has built-in Ghostty shell integration — no manual sourcing needed.
 
 ### Features Enabled
 
@@ -364,7 +387,7 @@ font-feature = calt
 font-feature = liga
 
 # Theme
-theme = catppuccin-mocha
+theme = Catppuccin Macchiato
 
 # Window
 window-padding-x = 8

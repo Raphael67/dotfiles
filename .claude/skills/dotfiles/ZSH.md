@@ -28,6 +28,23 @@ Zsh loads files in this order:
 - `.zprofile` - Login-specific setup (rarely needed)
 - `.zshrc` - Interactive config (aliases, prompt, completion)
 
+## XDG Environment Variables
+
+Set early in `dot-zshrc` to ensure all tools respect XDG paths:
+
+```zsh
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+export XDG_CACHE_HOME="$HOME/.cache"
+```
+
+Tools that use these:
+- **Oh-My-Zsh**: `export ZSH="$XDG_DATA_HOME/oh-my-zsh"`
+- **NVM**: `export NVM_DIR="$XDG_DATA_HOME/nvm"`
+- **Zsh history**: `HISTFILE="$XDG_STATE_HOME/zsh/history"`
+- **evalcache**: `ZSH_EVALCACHE_DIR="$XDG_CACHE_HOME/zsh-evalcache"`
+
 ## Oh-My-Zsh Configuration
 
 ### Current Setup
@@ -89,6 +106,19 @@ if [[ -d "$HOME/.pyenv" ]]; then
 fi
 ```
 
+# nvm (Node.js) — ~300ms savings
+if [[ -d "$NVM_DIR" ]]; then
+  nvm() {
+    unset -f nvm node npm npx
+    [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+    nvm "$@"
+  }
+  for cmd in node npm npx; do
+    eval "${cmd}() { unset -f nvm node npm npx; nvm use default --silent; command ${cmd} \"\$@\" }"
+  done
+fi
+```
+
 ### How It Works
 
 1. Function with same name as command is defined
@@ -110,6 +140,7 @@ _evalcache zoxide init zsh --cmd cd
 
 **Currently cached:**
 - `zoxide init zsh --cmd cd`
+- `starship init zsh`
 - `gh copilot alias -- zsh`
 - `jenv init -` (via lazy loading)
 - `pyenv init -` (via lazy loading)
@@ -237,7 +268,7 @@ unsetopt LIST_BEEP    # No beeps on tab completion
 ### Starship Prompt
 ```zsh
 export STARSHIP_CONFIG=~/.config/starship/starship.toml
-eval "$(starship init zsh)"
+_evalcache starship init zsh
 ```
 
 ### Zoxide (cd replacement)
@@ -364,6 +395,29 @@ zprof
 ```bash
 zsh -xv 2>&1 | tee ~/zsh-debug.log
 ```
+
+### Startup Profiling Functions
+
+```zsh
+# Detailed startup timing breakdown
+zsh-startuptime() {
+  for i in $(seq 1 5); do
+    /usr/bin/time zsh -i -c exit 2>&1
+  done
+}
+
+# Neovim startup profiling
+nvim-startuptime() {
+  nvim --startuptime /tmp/nvim-startuptime.log -c 'quit'
+  sort -k2 -n /tmp/nvim-startuptime.log | tail -20
+}
+```
+
+### Startup Cleanup Notes
+
+- Duplicate `compinit` calls removed (Oh-My-Zsh handles it)
+- OpenJDK PATH export consolidated into jenv lazy loader
+- `NVM_DIR` set via XDG, no longer defaults to `~/.nvm`
 
 ## Common Customizations
 

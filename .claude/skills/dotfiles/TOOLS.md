@@ -40,11 +40,16 @@ bat --list-languages            # Show supported languages
 ### Themes
 
 ```bash
-# Set theme
-export BAT_THEME="OneHalfDark"
+# Set theme (Catppuccin Macchiato)
+export BAT_THEME="Catppuccin Macchiato"
 
 # Or in config file
---theme="OneHalfDark"
+--theme="Catppuccin Macchiato"
+```
+
+**Install Catppuccin theme:**
+```bash
+bat cache --build   # Rebuild cache after adding theme files
 ```
 
 ---
@@ -90,7 +95,7 @@ eza -lah --git                  # Full details with git
 ### Configuration
 
 ```bash
-# In dot-zshrc (Catppuccin colors)
+# In dot-zshrc (Catppuccin Macchiato palette)
 export FZF_DEFAULT_OPTS=" \
   --color=bg+:#363a4f,bg:#24273a,spinner:#f4dbd6,hl:#ed8796 \
   --color=fg:#cad3f5,header:#ed8796,info:#c6a0f6,pointer:#f4dbd6 \
@@ -207,6 +212,26 @@ alias lg='lazygit'
 gui:
   theme:
     lightTheme: false
+    # Catppuccin Macchiato colors
+    activeBorderColor:
+      - "#8aadf4"  # blue
+      - bold
+    inactiveBorderColor:
+      - "#a5adcb"  # subtext0
+    optionsTextColor:
+      - "#8aadf4"  # blue
+    selectedLineBgColor:
+      - "#363a4f"  # surface0
+    cherryPickedCommitBgColor:
+      - "#494d64"  # surface1
+    cherryPickedCommitFgColor:
+      - "#8aadf4"  # blue
+    unstagedChangesColor:
+      - "#ed8796"  # red
+    defaultFgColor:
+      - "#cad3f5"  # text
+    searchingActiveBorderColor:
+      - "#eed49f"  # yellow
 git:
   paging:
     colorArg: always
@@ -263,8 +288,8 @@ Karabiner can do much more:
 ### Configuration
 
 ```
-dotfiles/dot-config/nushell/config.nu -> ~/.config/nushell/config.nu
-dotfiles/dot-config/nushell/env.nu -> ~/.config/nushell/env.nu
+dotfiles/dot-config/nushell/config.nu -> $XDG_CONFIG_HOME/nushell/config.nu
+dotfiles/dot-config/nushell/env.nu -> $XDG_CONFIG_HOME/nushell/env.nu
 ```
 
 ### Key Differences from Bash/Zsh
@@ -306,8 +331,13 @@ http get https://api.example.com | get data
 
 ### Starship Integration
 
+Starship and zoxide are loaded via **vendor autoload** (`$nu.vendor-autoload-dirs`):
+
 ```nushell
-# In config.nu
+# Vendor autoload handles starship and zoxide automatically
+# No manual config needed — just ensure they're installed
+
+# Manual alternative (if not using vendor autoload):
 $env.STARSHIP_SHELL = "nu"
 def create_left_prompt [] { starship prompt }
 $env.PROMPT_COMMAND = { create_left_prompt }
@@ -463,6 +493,12 @@ fi
 dotfiles/dot-config/btop/btop.conf -> ~/.config/btop/btop.conf
 ```
 
+### Theme
+
+Catppuccin Macchiato theme (`color_theme = "catppuccin_macchiato"`).
+
+Theme file: `~/.config/btop/themes/catppuccin_macchiato.theme`
+
 ### Launch
 
 ```bash
@@ -478,6 +514,27 @@ btop
 | `n` | Toggle network graph |
 | `p` | Toggle process list |
 | `q` | Quit |
+
+---
+
+## k9s (Kubernetes TUI)
+
+### Configuration
+
+```
+dotfiles/dot-config/k9s/skins/ -> ~/.config/k9s/skins/
+```
+
+### Theme
+
+Catppuccin Macchiato skin applied via k9s config:
+
+```yaml
+# In k9s config
+skin: catppuccin_macchiato
+```
+
+Skin file provides Catppuccin Macchiato colors for all k9s UI elements.
 
 ---
 

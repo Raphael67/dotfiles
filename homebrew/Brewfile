@@ -1,3 +1,5 @@
+tap "theboredteam/boring-notch"
+
 # Cross-platform make
 brew "cmake"
 # Command-line fuzzy finder written in Go
@@ -31,6 +33,12 @@ brew "eza"
 brew "zoxide"
 # Simple terminal UI for git commands
 brew "lazygit"
+# Enable alt-tab window switching
+cask "alt-tab"
+# Notch customization utility
+cask "boring-notch"
+# Unfreeze stuck macOS apps
+cask "thaw"
 # App to build and share containerized applications and microservices
 cask "docker-desktop"
 # Developer targeted fonts with a high number of glyphs

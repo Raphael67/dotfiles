@@ -176,11 +176,11 @@
     "git.openRepositoryInParentFolders": "always",
     "git.replaceTagsWhenPull": true,
     "java.configuration.runtimes": [
-      {
-        "default": true,
-        "name": "JavaSE-22",
-        "path": "C:/Program Files/OpenJDK/jdk-22.0.2"
-      }
+        {
+            "default": true,
+            "name": "JavaSE-22",
+            "path": "C:/Program Files/OpenJDK/jdk-22.0.2"
+        }
     ],
     "javascript.format.semicolons": "insert",
     "javascript.preferences.importModuleSpecifier": "relative",
@@ -295,5 +295,8 @@
     "atlascode.bitbucket.statusbar.enabled": false,
     "atlascode.bitbucket.statusbar.showLogin": false,
     "atlascode.bitbucket.statusbar.showProduct": false,
-    "atlascode.bitbucket.statusbar.showUser": false
+    "atlascode.bitbucket.statusbar.showUser": false,
+    "gitlens.ai.model": "gitkraken",
+    "gitlens.ai.gitkraken.model": "gemini:gemini-2.0-flash",
+    "remote.autoForwardPortsSource": "hybrid"
 }

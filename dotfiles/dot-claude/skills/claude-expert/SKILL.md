@@ -19,7 +19,7 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 | Commands | [COMMANDS.md](COMMANDS.md) | Creating /commands for quick invocation |
 | Hooks | [HOOKS.md](HOOKS.md) | Setting up PreToolUse, validation, notifications |
 | MCP | [MCP.md](MCP.md) | Adding MCP servers, tools, resources |
-| Sub-agents | [SUBAGENTS.md](SUBAGENTS.md) | Creating custom agents, Task tool config |
+| Sub-agents & Teams | [SUBAGENTS.md](SUBAGENTS.md) | Custom agents, Task tool, agent teams, orchestration |
 
 ## Argument Routing
 
@@ -52,10 +52,11 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - Provide external tools and resources
 - Use stdio, SSE, or HTTP transport
 
-### Sub-agents
-- Defined in `.claude/agents/` or `~/.claude/agents/`
-- YAML frontmatter + markdown instructions
-- Can specify model, tools, allowed-tools
+### Sub-agents & Agent Teams
+- **Sub-agents**: Task tool, isolated context, report back to parent
+- **Agent teams** (experimental): multiple independent sessions, shared task list, direct messaging
+- Default to single agents; use multi-agent only for context protection, parallelization, or specialization
+- Custom agents in `.claude/agents/` or `~/.claude/agents/`
 
 ### Workflows
 - Variables at top for constants
@@ -108,3 +109,6 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - Understanding Task tool options
 - Setting up parallel agent execution
 - Managing multi-agent safety
+- Using agent teams (multi-session orchestration)
+- Deciding between subagents vs agent teams
+- Understanding multi-agent orchestration principles

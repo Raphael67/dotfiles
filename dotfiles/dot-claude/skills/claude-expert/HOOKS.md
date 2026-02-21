@@ -12,12 +12,12 @@ Hooks are scripts or prompts that execute in response to Claude Code events. The
 | `PostToolUse` | After tool execution | Logging, notifications |
 | `PostToolUseFailure` | After tool fails | Error handling |
 | `UserPromptSubmit` | When user sends a message | Logging, preprocessing |
-| `Stop` | When Claude finishes responding | Notifications, cleanup |
+| `Stop` | When Claude finishes responding | Notifications, cleanup. Input includes `last_assistant_message` |
 | `SubagentStart` | When subagent spawns | Monitoring initialization |
-| `SubagentStop` | When subagent finishes | Logging results |
+| `SubagentStop` | When subagent finishes | Logging results. Input includes `last_assistant_message`, `agent_transcript_path` |
 | `TeammateIdle` | Agent team teammate about to go idle | Quality gates, prevent idle |
 | `TaskCompleted` | Task being marked as completed | Enforce completion criteria |
-| `SessionStart` | Session begins/resumes | Environment setup |
+| `SessionStart` | Session begins/resumes | Environment setup (execution deferred at startup for performance) |
 | `SessionEnd` | Session terminates | Cleanup, logging |
 | `PreCompact` | Before context compaction | Pre-compaction actions |
 | `PermissionRequest` | Permission dialog shown | Dynamic permission decisions |

@@ -1,7 +1,23 @@
 {
-  "lastUpdateTimestamp": "2026-02-14T12:00:00Z",
-  "lastVersion": "2.1.42",
+  "lastUpdateTimestamp": "2026-02-19T12:00:00Z",
+  "lastVersion": "2.1.47",
   "updateHistory": [
+    {
+      "timestamp": "2026-02-19T12:00:00Z",
+      "version": "2.1.47",
+      "filesUpdated": [
+        "PROMPTING.md",
+        "HOOKS.md",
+        "SUBAGENTS.md"
+      ],
+      "changesApplied": 4,
+      "newFeatures": [
+        "Claude Sonnet 4.6 model (v2.1.45)",
+        "last_assistant_message field in Stop/SubagentStop hooks (v2.1.47)",
+        "agent_transcript_path field in SubagentStop hooks (v2.1.47)",
+        "Deferred SessionStart hook execution for performance (v2.1.47)"
+      ]
+    },
     {
       "timestamp": "2026-02-14T12:00:00Z",
       "version": "2.1.42",

@@ -57,15 +57,38 @@ if [ ! -d "$ZSH_CUSTOM/plugins/evalcache" ]; then
 fi
 success "ZSH plugins installed"
 
-# Install Rust toolchain
+# Install Rust toolchain (XDG-compliant paths)
+export CARGO_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/cargo"
+export RUSTUP_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/rustup"
+
+# Migrate from default paths to XDG if needed
+if [ -d "$HOME/.cargo" ] && [ ! -d "$CARGO_HOME" ]; then
+    info "Migrating ~/.cargo to $CARGO_HOME..."
+    mv "$HOME/.cargo" "$CARGO_HOME"
+fi
+if [ -d "$HOME/.rustup" ] && [ ! -d "$RUSTUP_HOME" ]; then
+    info "Migrating ~/.rustup to $RUSTUP_HOME..."
+    mv "$HOME/.rustup" "$RUSTUP_HOME"
+fi
+
+# Ensure cargo bin is on PATH for this script
+export PATH="$CARGO_HOME/bin:$PATH"
+
 if ! command -v rustup &>/dev/null; then
     info "Installing Rust toolchain..."
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    source "$HOME/.cargo/env"
+    source "$CARGO_HOME/env"
     success "Rust installed"
 else
-    rustup update
-    success "Rust already installed, updated"
+    if rustup toolchain list 2>/dev/null | grep -q '^[^n]'; then
+        rustup update
+        success "Rust already installed, updated"
+    else
+        info "Rustup found but no toolchain installed, installing stable..."
+        rustup toolchain install stable
+        rustup default stable
+        success "Rust stable toolchain installed"
+    fi
 fi
 
 # Install nvm + Node.js LTS
@@ -82,6 +105,10 @@ if [ ! -d "$HOME/.nvm" ] && [ ! -d "$HOME/.config/nvm" ]; then
     nvm use --lts
     success "nvm + Node.js LTS installed"
 else
+    export NVM_DIR="$HOME/.nvm"
+    [ -d "$HOME/.config/nvm" ] && export NVM_DIR="$HOME/.config/nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    nvm use --lts --silent 2>/dev/null
     success "nvm already installed"
 fi
 
@@ -112,6 +139,10 @@ if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
 else
     success "TPM already installed"
 fi
+
+# Ensure XDG directories exist
+mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/zsh"
+mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/less"
 
 # Stow dotfiles
 info "Stowing dotfiles..."

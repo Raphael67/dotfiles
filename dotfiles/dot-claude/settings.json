@@ -4,7 +4,8 @@
     "DISABLE_ZOXIDE": "1",
     "ENABLE_TOOL_SEARCH": "true",
     "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "0",
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_DISABLE_TELEMETRY": "1"
   },
   "permissions": {
     "allow": [
@@ -14,11 +15,9 @@
       "WebFetch",
       "WebSearch",
       "Bash(chmod:*)",
-      "Bash(\"/Users/raphael/Library/Mobile Documents/iCloud~md~obsidian/Documents/my_vault/_Assets/claude_usage_log.json\")",
       "Bash(mkdir -p:*)",
       "Bash(bun run:*)",
       "Bash(bdg:*)",
-      "Bash(claude mcp add:*)",
       "Bash(cat:*)",
       "Bash(head:*)",
       "Bash(tail:*)",
@@ -130,43 +129,6 @@
           {
             "type": "command",
             "command": "~/.claude/ccnotify/ccnotify.py Notification"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "uv run ~/.claude/hooks/damage-control/bash-tool-damage-control.py",
-            "timeout": 5
-          },
-          {
-            "type": "prompt",
-            "prompt": "You are a security reviewer evaluating a bash command for destructive potential. Analyze this command: $ARGUMENTS\n\nBLOCK if the command would:\n- Delete, remove, or destroy files/directories recursively or in bulk\n- Overwrite or corrupt critical system files, configs, or data\n- Cause irreversible data loss\n- Execute destructive operations via find, xargs, or loops\n- Wipe, format, or damage filesystems\n\nALLOW if the command is:\n- Read-only (cat, ls, grep, find without -delete/-exec rm)\n- Safe write operations to non-critical paths\n- Standard development commands (git status, npm install, stow, etc.)\n- Stow commands for dotfile management (stow, stow -R, stow -D, stow --adopt)\n- Precise SQL DELETE with a specific ID in WHERE clause\n\nRespond with JSON: {\"decision\": \"approve\" or \"block\", \"reason\": \"[HOOK:security-reviewer] brief explanation\"}",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "uv run ~/.claude/hooks/damage-control/edit-tool-damage-control.py",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "uv run ~/.claude/hooks/damage-control/write-tool-damage-control.py",
-            "timeout": 5
           }
         ]
       }

@@ -52,6 +52,14 @@ export ZSH="${XDG_DATA_HOME:-$HOME/.local/share}/oh-my-zsh"
 # Fallback: use legacy path if XDG path doesn't exist yet
 [[ ! -d "$ZSH" && -d "$HOME/.oh-my-zsh" ]] && export ZSH="$HOME/.oh-my-zsh"
 
+
+# Performance: cache Windows USERPROFILE for Claude Code on WSL2
+# Prevents repeated slow powershell.exe calls (~2.5s each, 7+ times per session)
+# See: https://github.com/anthropics/claude-code/issues/27367
+if [[ -z "$USERPROFILE" && -d /mnt/c ]]; then
+  export USERPROFILE="C:\\Users\\rapha"
+fi
+
 # Plugin config
 
 # tmux integration (manual start - use `tmux attach -t main || tmux new -s main`)

@@ -17,6 +17,7 @@ ripgrep
 zoxide
 fd
 diff-so-fancy
+glab
 stow
 wget
 fastfetch

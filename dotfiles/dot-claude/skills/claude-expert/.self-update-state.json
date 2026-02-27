@@ -1,7 +1,29 @@
 {
-  "lastUpdateTimestamp": "2026-02-19T12:00:00Z",
-  "lastVersion": "2.1.47",
+  "lastUpdateTimestamp": "2026-02-27T12:00:00Z",
+  "lastVersion": "2.1.62",
   "updateHistory": [
+    {
+      "timestamp": "2026-02-27T12:00:00Z",
+      "version": "2.1.62",
+      "filesUpdated": [
+        "SKILL.md",
+        "MEMORY.md",
+        "HOOKS.md",
+        "SUBAGENTS.md",
+        "cookbook/self-update.md"
+      ],
+      "changesApplied": 8,
+      "newFeatures": [
+        "NEW: MEMORY.md reference file (auto memory, CLAUDE.md hierarchy, rules, agent memory, imports)",
+        "Auto-memory feature (v2.1.59) - Claude saves context automatically",
+        "/memory command and autoMemoryEnabled setting",
+        "CLAUDE_CODE_DISABLE_AUTO_MEMORY env var override",
+        "CLAUDE.md @import syntax for recursive file imports",
+        ".claude/rules/ path-specific conditional rules with glob frontmatter",
+        "Plugin hook system with ${CLAUDE_PLUGIN_ROOT} portable paths",
+        "Orchestration patterns from Anthropic cookbook (query classification, lead agent, confidence filtering, evaluator-optimizer, Ralph pattern)"
+      ]
+    },
     {
       "timestamp": "2026-02-19T12:00:00Z",
       "version": "2.1.47",

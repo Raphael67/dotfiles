@@ -843,6 +843,65 @@ hooks:
 
 If validation fails, the agent receives feedback and continues until output meets criteria.
 
+## Orchestration Patterns (from Anthropic Cookbook)
+
+### Query Classification Before Dispatch
+
+Classify queries before dispatching to subagents:
+
+| Type | Strategy | Subagent Count |
+|------|----------|----------------|
+| **Depth-first** | Multiple angles on one topic | 2-5 agents |
+| **Breadth-first** | Decompose into independent subtopics | 3-10 agents |
+| **Straightforward** | Single focused investigation | 1 agent |
+
+**Hard cap**: Never create more than 20 subagents.
+
+### Lead Agent Pattern
+
+The lead/orchestrator agent should:
+- **Coordinate and synthesize ONLY** — never conduct primary research itself
+- Always run at least 1 subagent, even for simple queries
+- Use parallel tool calls for creating multiple subagents
+- Stop further research when diminishing returns
+- Never delegate final report writing to a subagent
+
+### Subagent Instructions Template
+
+Include in every subagent prompt:
+1. **Objectives** — clear goals
+2. **Output format** — exact structure expected
+3. **Background context** — what the lead already knows
+4. **Key questions** — specific things to investigate
+5. **Suggested sources** — where to look
+6. **Scope boundaries** — what NOT to investigate
+
+### Confidence-Based Filtering
+
+For review/validation agents, use confidence scoring:
+```markdown
+Score each finding 0-100 confidence.
+Only report findings with confidence >= 80.
+```
+
+### Evaluator-Optimizer Loop
+
+```
+generate → evaluate → refine → evaluate → ... (until quality threshold met)
+```
+
+Two agents alternate:
+- **Generator**: produces output
+- **Evaluator**: scores output, provides feedback
+- Loop until evaluator approves or max iterations reached
+
+### Iterative Self-Loop (Ralph Pattern)
+
+Use a Stop hook to intercept Claude's exit and feed the same prompt back:
+- Previous file changes persist between iterations
+- Detect completion via exact string match in output
+- **Always set `--max-iterations` as safety net**
+
 ## When to Create Custom Agents
 
 Create a custom agent when you have:

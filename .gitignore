@@ -25,5 +25,11 @@ dotfiles/dot-config/.jira/.config.yml
 # rclone - OAuth tokens and machine-local config
 dotfiles/dot-config/rclone/rclone.conf
 
-# Docker buildx - runtime state
+# Docker - runtime state
 dotfiles/dot-config/docker/buildx/
+dotfiles/dot-config/docker/.token_seed
+dotfiles/dot-config/docker/.token_seed.lock
+
+# Python bytecode
+__pycache__/
+*.pyc

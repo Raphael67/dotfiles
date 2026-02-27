@@ -132,6 +132,8 @@ brew "rustup"
 brew "superstarryeyes/tap/hys"
 # Extremely fast Python package installer and resolver, written in Rust
 brew "uv"
+# Command runner / task runner (justfile)
+brew "just"
 # Simple terminal image viewer written in Rust
 brew "viu"
 # Pager/text based browser

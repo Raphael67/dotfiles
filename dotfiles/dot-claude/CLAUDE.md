@@ -17,6 +17,7 @@
 | Browser debugging | bdg CLI |
 | Library docs lookup | context7 MCP |
 | Run tests | Project-specific (check CLAUDE.md) |
+| Fetch secrets/passwords | `bw-fetch` (Touch ID per request) |
 
 ## Code Style Preferences
 
@@ -57,10 +58,33 @@
 
 - **Backup before modification**: ALWAYS create a backup copy of `.xlsx`, `.docx`, and `.pdf` files BEFORE any modification. Copy the original to `<filename>.backup.<YYYYMMDD-HHMMSS>.<ext>` (e.g., `report.backup.20260218-143052.xlsx`) in the same directory. Do this even for minor edits — these formats are binary and changes are hard to reverse.
 
+## Secrets & Credentials
+
+When you need an API key, password, token, or any secret:
+1. **Never hardcode** — always fetch at runtime via `bw-fetch`
+2. **Search first** if you don't know the exact item name: `bw-fetch search "<query>"`
+3. **Fetch by ID** if multiple items share a name: `bw-fetch password "<item-id>"`
+4. **Fetch by name** if unique: `bw-fetch password "<item-name>"`
+
+Each `bw-fetch` call triggers Touch ID — the user must approve with their fingerprint.
+
+```bash
+bw-fetch search "aws"                          # Find items → Touch ID
+bw-fetch password "AWS IAM"                    # Get password → Touch ID
+bw-fetch totp "AWS IAM"                        # Get TOTP code → Touch ID
+bw-fetch item "698ba95d-..."                   # Full item JSON by ID → Touch ID
+```
+
+**Rules:**
+- Never store fetched secrets in files, env vars, or shell history
+- Pipe secrets directly where needed (e.g., `bw-fetch password "X" | some-command`)
+- Never log or echo secrets — use `--raw` output silently
+- If a secret is needed in a `.env` file, ask the user to confirm before writing it
+
 ## Security & Best Practices
 
 - Never commit secrets or API keys
-- Use environment variables for sensitive data
+- Use `bw-fetch` to retrieve credentials at runtime (see above)
 - Always review changes before committing
 - Prefer explicit imports over wildcards
 

@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# bw-fetch — Touch ID-gated Bitwarden credential fetch
+# Each invocation requires sudo (Touch ID) to read the session key.
+# Usage: bw-fetch <field> <item-name>
+#   field: password | username | totp | uri | notes | item
+#   item-name: Bitwarden item name or ID
+#
+# Examples:
+#   bw-fetch password "GitHub"
+#   bw-fetch totp "AWS Root"
+#   bw-fetch item "Stripe API"    # returns full JSON
+
+set -euo pipefail
+
+SESSION_FILE="/var/root/.bitwarden.session"
+
+field="${1:?Usage: bw-fetch <field> <item-name>}"
+item="${2:?Usage: bw-fetch <field> <item-name>}"
+
+# Force fresh sudo prompt (invalidate cached credentials)
+sudo -k
+
+# Read session via sudo → triggers Touch ID
+session=$(sudo cat "$SESSION_FILE" 2>/dev/null) || {
+    echo "ERROR: Could not read session. Is vault unlocked?" >&2
+    echo "Run: bw unlock --raw | sudo tee $SESSION_FILE > /dev/null" >&2
+    exit 1
+}
+
+# Sync silently before read
+bw sync --session "$session" --quiet 2>/dev/null || true
+
+# Fetch the requested field
+case "$field" in
+    item)
+        bw get item "$item" --session "$session" --raw
+        ;;
+    password|username|totp|uri|notes)
+        bw get "$field" "$item" --session "$session" --raw
+        ;;
+    search)
+        bw list items --search "$item" --session "$session" | jq -r '.[] | "\(.id)\t\(.name)\t\(.login.username // "-")"'
+        ;;
+    *)
+        echo "ERROR: Unknown field '$field'. Use: password|username|totp|uri|notes|item|search" >&2
+        exit 1
+        ;;
+esac

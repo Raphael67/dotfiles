@@ -1,6 +1,6 @@
 ---
 name: claude-expert
-description: Expert in Claude prompting, skill creation, hooks management, MCP configuration, and sub-agents. Use when writing prompts, creating Claude Code skills, configuring hooks, setting up MCP servers, creating custom sub-agents, or asking about Claude Code architecture.
+description: Expert in Claude prompting, skill creation, hooks management, MCP configuration, sub-agents, and memory management. Use when writing prompts, creating Claude Code skills, configuring hooks, setting up MCP servers, creating custom sub-agents, managing memory (auto memory, CLAUDE.md, rules), or asking about Claude Code architecture.
 user-invokable: true
 argument-hint: [self-update]
 ---
@@ -20,6 +20,7 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 | Hooks | [HOOKS.md](HOOKS.md) | Setting up PreToolUse, validation, notifications |
 | MCP | [MCP.md](MCP.md) | Adding MCP servers, tools, resources |
 | Sub-agents & Teams | [SUBAGENTS.md](SUBAGENTS.md) | Custom agents, Task tool, agent teams, orchestration |
+| Memory | [MEMORY.md](MEMORY.md) | Auto memory, CLAUDE.md hierarchy, rules, agent memory |
 | Status Lines | [STATUS-LINES.md](STATUS-LINES.md) | Custom terminal status displays, context bars |
 | Output Styles | [OUTPUT-STYLES.md](OUTPUT-STYLES.md) | Response formatting, GenUI, custom styles |
 
@@ -55,6 +56,14 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - Servers defined in `~/.claude/.mcp.json`
 - Provide external tools and resources
 - Use stdio, SSE, or HTTP transport
+
+### Memory
+- **Auto memory**: Claude automatically saves learnings to `~/.claude/projects/<project>/memory/`
+- **MEMORY.md**: First 200 lines loaded at startup; topic files loaded on-demand
+- **CLAUDE.md hierarchy**: managed policy > project > user > local (more specific wins)
+- **Rules**: `.claude/rules/*.md` with optional path-scoped frontmatter
+- **Agent memory**: `memory: user|project|local` in agent frontmatter
+- Toggle with `/memory` command or `autoMemoryEnabled` setting
 
 ### Sub-agents & Agent Teams
 - **Sub-agents**: Task tool, isolated context, report back to parent
@@ -109,6 +118,14 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - Adding external tool servers
 - Configuring MCP resources
 - Troubleshooting MCP connections
+
+**Read MEMORY.md when:**
+- Setting up auto memory or CLAUDE.md files
+- Configuring memory hierarchy (managed, project, user, local)
+- Creating path-specific rules in `.claude/rules/`
+- Enabling agent memory for custom agents
+- Understanding CLAUDE.md import syntax
+- Disabling or configuring auto memory settings
 
 **Read SUBAGENTS.md when:**
 - Creating custom agents

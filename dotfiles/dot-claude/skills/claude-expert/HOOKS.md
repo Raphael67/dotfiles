@@ -664,6 +664,75 @@ Benefits:
 - **No venv management** — UV handles everything automatically
 - **Self-contained** — Each hook is independently understandable
 
+## Plugin Hook System
+
+Plugins bundle hooks, commands, agents, skills, and MCP servers together. Plugin hooks use `${CLAUDE_PLUGIN_ROOT}` for portable paths.
+
+### Plugin Structure
+```
+plugin-name/
+├── .claude-plugin/
+│   └── plugin.json          # Plugin metadata
+├── commands/                # Slash commands (.md files)
+├── agents/                  # Subagent definitions (.md files)
+├── skills/                  # Skills (.md files with SKILL.md)
+├── hooks/
+│   └── hooks.json           # Event handlers
+├── .mcp.json                # MCP server config (optional)
+└── README.md
+```
+
+### Plugin hooks.json Format
+```json
+{
+  "description": "Plugin description",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pretooluse.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Prompt Hooks (LLM-Driven)
+
+For nuanced, context-aware validation. Supported on: `Stop`, `SubagentStop`, `UserPromptSubmit`, `PreToolUse`.
+
+```json
+{
+  "type": "prompt",
+  "prompt": "Evaluate if this action is safe. $ARGUMENTS"
+}
+```
+
+**Key difference**: SessionStart hooks ADD to the default system prompt. Subagent system prompts REPLACE it.
+
+### Security Hook Pattern (Session-Scoped Deduplication)
+
+Track warnings per session to avoid repeating:
+```python
+state_file = f"~/.claude/security_warnings_state_{session_id}.json"
+# Show each warning only once per session per file
+# Clean up state files older than 30 days (10% random chance per run)
+```
+
+### Enterprise Settings for Hook Control
+
+```json
+{
+  "allowManagedHooksOnly": true,
+  "allowManagedPermissionRulesOnly": true
+}
+```
+
 ## Best Practices
 
 1. **Keep hooks fast**: Use `timeout` to prevent hangs

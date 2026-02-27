@@ -19,6 +19,7 @@ CHANGELOG_URL = https://github.com/anthropics/claude-code/releases
 | Hooks Docs | https://code.claude.com/docs/en/hooks | HOOKS.md |
 | MCP Docs | https://code.claude.com/docs/en/mcp | MCP.md |
 | Agent SDK | https://code.claude.com/docs/en/sub-agents | SUBAGENTS.md |
+| Memory Docs | https://code.claude.com/docs/en/memory | MEMORY.md |
 | Anthropic News | https://www.anthropic.com/news | PROMPTING.md (model updates) |
 
 ### Model-Specific Sources
@@ -59,7 +60,7 @@ Launch 5 parallel WebFetch calls:
 
 ### Step 3: Launch Parallel Subagents
 
-Launch **7 parallel Task agents** (subagent_type: general-purpose, model: haiku) to review each reference file.
+Launch **8 parallel Task agents** (subagent_type: general-purpose, model: haiku) to review each reference file.
 
 Each agent receives:
 - Combined changelog + relevant documentation as context
@@ -76,6 +77,7 @@ Each agent receives:
 | 5 | PROMPTING.md | Review against changelog for prompting changes. Return: outdated_sections[], new_content[], corrections[]. |
 | 6 | HOOKS.md | Review against hooks docs. Return: outdated_sections[], new_content[], corrections[]. |
 | 7 | MCP.md | Review against MCP docs. Return: outdated_sections[], new_content[], corrections[]. |
+| 8 | MEMORY.md | Review against memory docs. Return: outdated_sections[], new_content[], corrections[]. |
 </parallel-agents>
 
 **Agent Prompt Template:**
@@ -130,7 +132,7 @@ SUMMARY: "One-line summary of findings"
 
 ### Step 4: Collect and Consolidate Results
 
-Wait for all 7 agents to complete. Consolidate findings:
+Wait for all 8 agents to complete. Consolidate findings:
 
 - Group changes by file
 - Deduplicate overlapping suggestions
@@ -207,7 +209,7 @@ Output a human-readable summary:
 
 ### Summary
 
-- **Files reviewed:** 7
+- **Files reviewed:** 8
 - **Files updated:** X
 - **Changes applied:** Y
 - **New features documented:** Z
@@ -234,7 +236,7 @@ Already up to date!
 
 **Current Version:** {VERSION}
 **Last Updated:** {TIMESTAMP}
-**Files Tracked:** 7
+**Files Tracked:** 8
 ```
 
 Skip steps 3-6, exit early.

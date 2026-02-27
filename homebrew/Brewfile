@@ -114,8 +114,6 @@ brew "glab"
 brew "jira-cli"
 # Kubernetes CLI To Manage Your Clusters In Style!
 brew "k9s"
-# Mac App Store command-line interface
-brew "mas"
 # Run multiple commands in parallel
 brew "mprocs"
 # Manage multiple Node.js versions

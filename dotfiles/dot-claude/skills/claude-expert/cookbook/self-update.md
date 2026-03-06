@@ -20,6 +20,12 @@ CHANGELOG_URL = https://github.com/anthropics/claude-code/releases
 | MCP Docs | https://code.claude.com/docs/en/mcp | MCP.md |
 | Agent SDK | https://code.claude.com/docs/en/sub-agents | SUBAGENTS.md |
 | Memory Docs | https://code.claude.com/docs/en/memory | MEMORY.md |
+| Plugins Docs | https://code.claude.com/docs/en/plugins | SKILLS.md |
+| Plugins Ref | https://code.claude.com/docs/en/plugins-reference | SKILLS.md |
+| Agent Skills Spec | https://agentskills.io/specification | SKILLS.md |
+| Anthropic Skills Repo | https://github.com/anthropics/skills | SKILLS.md |
+| Anthropic Plugins Repo | https://github.com/anthropics/claude-plugins-official | SKILLS.md |
+| Agent Skills Home | https://agentskills.io/home | SKILLS.md |
 | Anthropic News | https://www.anthropic.com/news | PROMPTING.md (model updates) |
 
 ### Model-Specific Sources

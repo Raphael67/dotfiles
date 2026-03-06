@@ -101,6 +101,23 @@ MCP_CLIENT_SECRET=your-secret claude mcp add --transport http my-server \
 
 The `--client-secret` flag prompts for masked input. Use `MCP_CLIENT_SECRET` env var for CI/automation.
 
+### Custom Auth Server Metadata URL (v2.1.69+)
+
+For servers using non-standard OAuth discovery:
+```json
+{
+  "mcpServers": {
+    "my-server": {
+      "type": "http",
+      "url": "https://api.example.com/mcp",
+      "oauth": {
+        "authServerMetadataUrl": "https://auth.example.com/.well-known/oauth-authorization-server"
+      }
+    }
+  }
+}
+```
+
 ### stdio (Local Servers)
 Server communicates via stdin/stdout:
 

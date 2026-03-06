@@ -1,7 +1,33 @@
 {
-  "lastUpdateTimestamp": "2026-02-27T12:00:00Z",
-  "lastVersion": "2.1.62",
+  "lastUpdateTimestamp": "2026-03-06T12:00:00Z",
+  "lastVersion": "2.1.70",
   "updateHistory": [
+    {
+      "timestamp": "2026-03-06T12:00:00Z",
+      "version": "2.1.70",
+      "filesUpdated": [
+        "SKILLS.md",
+        "HOOKS.md",
+        "PROMPTING.md",
+        "MCP.md",
+        "cookbook/self-update.md"
+      ],
+      "changesApplied": 12,
+      "newFeatures": [
+        "Bundled skills: /simplify, /batch, /debug, /claude-api (v2.1.63, v2.1.69)",
+        "${CLAUDE_SKILL_DIR} variable for skill self-referencing (v2.1.69)",
+        "HTTP hooks - POST JSON to URL (v2.1.63)",
+        "InstructionsLoaded, WorktreeCreate, WorktreeRemove hook events (v2.1.69)",
+        "agent_id and agent_type in hook event input (v2.1.69)",
+        "Opus 4.0/4.1 removed, medium effort default for Opus 4.6 (v2.1.68)",
+        "ultrathink re-introduced as per-turn effort override (v2.1.68)",
+        "Agent Skills open standard spec (agentskills.io) fields: license, compatibility, metadata",
+        "Plugin system: .claude-plugin, marketplaces, LSP servers, plugin.json schema",
+        "Visual output pattern: skills bundling scripts that generate interactive HTML",
+        "oauth.authServerMetadataUrl for MCP servers (v2.1.69)",
+        "Self-update cookbook updated with Anthropic skills repo sources"
+      ]
+    },
     {
       "timestamp": "2026-02-27T12:00:00Z",
       "version": "2.1.62",
@@ -14,7 +40,7 @@
       ],
       "changesApplied": 8,
       "newFeatures": [
-        "NEW: MEMORY.md reference file (auto memory, CLAUDE.md hierarchy, rules, agent memory, imports)",
+        "NEW: MEMORY.md reference file (auto memory, CLAUDE.md hierarchy, rules, agent memory)",
         "Auto-memory feature (v2.1.59) - Claude saves context automatically",
         "/memory command and autoMemoryEnabled setting",
         "CLAUDE_CODE_DISABLE_AUTO_MEMORY env var override",
@@ -80,98 +106,6 @@
         "MCP Tool Search model requirements (Sonnet 4+/Opus 4+)",
         "MCPSearch disallowedTools setting",
         "MCP dynamic tool updates via list_changed"
-      ]
-    },
-    {
-      "timestamp": "2026-02-05T12:00:00Z",
-      "version": "2.1.32",
-      "filesUpdated": [
-        "SKILLS.md",
-        "COMMANDS.md",
-        "SUBAGENTS.md",
-        "WORKFLOWS.md",
-        "PROMPTING.md",
-        "HOOKS.md",
-        "MCP.md"
-      ],
-      "changesApplied": 14,
-      "newFeatures": [
-        "Skills auto-loading from --add-dir directories",
-        "Skill character budget scales with context window (2%)",
-        "--resume auto-reuses --agent value",
-        "Agent memory field (user/project/local scopes)",
-        "Task tool metrics (tokens, tool uses, duration)",
-        "Pre-configured OAuth for MCP servers",
-        "Claude Opus 4.6 model availability",
-        "Claude Opus 4.6 detailed capabilities (1M context, adaptive thinking, 128k output)",
-        "Anthropic News as documentation source for self-update",
-        "Model-specific sources section in self-update workflow"
-      ]
-    },
-    {
-      "timestamp": "2026-02-03T12:00:00Z",
-      "version": "2.1.29",
-      "filesUpdated": [
-        "SKILLS.md",
-        "COMMANDS.md",
-        "SUBAGENTS.md",
-        "HOOKS.md",
-        "MCP.md"
-      ],
-      "changesApplied": 22,
-      "newFeatures": [
-        "AgentSkills open standard reference",
-        "Skill invocation control table",
-        "Skill permission restrictions (Skill(name))",
-        "Enterprise/plugin skill locations",
-        "Agent hook type (subagent with tools)",
-        "Async hooks (background execution)",
-        "Hook once/statusMessage fields",
-        "Hook matcher patterns for all events",
-        "/hooks interactive menu",
-        "disableAllHooks setting",
-        "/agents interactive command",
-        "--agents CLI flag for session-only agents",
-        "Foreground vs background agent execution",
-        "MCP OAuth authentication",
-        "MCP --header flag",
-        "MCP output limits",
-        "MCP scope name changes (local/user)",
-        "MCP env var expansion in .mcp.json",
-        "Managed MCP serverCommand/serverUrl matchers",
-        "--from-pr flag for PR-linked sessions",
-        "Content-level ask over tool-level allow"
-      ]
-    },
-    {
-      "timestamp": "2026-01-25T10:30:00Z",
-      "version": "2.1.19",
-      "filesUpdated": [
-        "SKILLS.md",
-        "COMMANDS.md",
-        "SUBAGENTS.md",
-        "WORKFLOWS.md",
-        "PROMPTING.md",
-        "HOOKS.md",
-        "MCP.md"
-      ],
-      "changesApplied": 28,
-      "newFeatures": [
-        "Argument shorthand syntax ($0, $1)",
-        "Bracket argument syntax ($ARGUMENTS[0])",
-        "Skills approval changes",
-        "Extended thinking (ultrathink)",
-        "Nested skill discovery",
-        "Permission modes for subagents",
-        "Skills preloading in agents",
-        "Hooks in agent/skill frontmatter",
-        "SubagentStart/SubagentStop events",
-        "SessionStart/SessionEnd hooks",
-        "PermissionRequest hook",
-        "HTTP transport for MCP",
-        "MCP Tool Search",
-        "Managed MCP configuration",
-        "Plugin MCP servers"
       ]
     }
   ]

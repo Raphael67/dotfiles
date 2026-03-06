@@ -169,24 +169,37 @@ Start Claude's response to guide format:
 
 ## Claude 4+ Specifics
 
-### Available Models (Feb 2026)
+### Available Models (Mar 2026)
 
 | Model | ID | Best For |
 |-------|-----|----------|
 | Opus 4.6 | `claude-opus-4-6` | Complex reasoning, large codebases, agentic tasks |
 | Sonnet 4.6 | `claude-sonnet-4-6` | Frontier performance for coding, agents, and professional work at scale |
-| Sonnet 4.5 | `claude-sonnet-4-5-20250929` | Previous generation balanced model |
 | Haiku 4.5 | `claude-haiku-4-5-20251001` | Fast, simple tasks |
+
+> **Note**: Opus 4.0 and 4.1 have been removed from Claude Code (v2.1.68). Users are automatically migrated to Opus 4.6.
 
 ### Claude Opus 4.6 Capabilities
 
 Opus 4.6 is Anthropic's most advanced model with:
 - **1M token context window** (beta) - first Opus-class model with this capacity
-- **Adaptive thinking** - contextual extended thinking with effort levels: `low`, `medium`, `high` (default), `max`
+- **Adaptive thinking** - effort levels: `low`, `medium` (default for Max/Team), `high`, `max`
 - **128k output tokens** support
 - **Context compaction** - automatic summarization of older conversation context
 - **Enhanced coding** - superior performance in large codebases, planning, code review
 - **Agentic excellence** - improved autonomous task execution and tool coordination
+
+### Effort Levels & "ultrathink" (v2.1.68+)
+
+Opus 4.6 defaults to **medium effort** for Max and Team subscribers. Use "ultrathink" keyword to enable **high effort** for the next turn:
+
+```
+ultrathink
+
+Analyze this complex architectural problem thoroughly.
+```
+
+This is re-introduced as a per-turn effort override.
 
 ### Fast Mode (Opus 4.6)
 

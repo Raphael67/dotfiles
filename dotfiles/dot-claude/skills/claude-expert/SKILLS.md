@@ -96,6 +96,17 @@ Instructions and content...
 | `hooks` | No | Lifecycle hooks scoped to skill. See Hooks reference |
 | `argument-hint` | No | Hint shown during autocomplete (e.g., `[issue-number]`) |
 
+## Bundled Skills
+
+Claude Code ships with built-in skills available in every session:
+
+| Skill | Description |
+|-------|-------------|
+| `/simplify` | Reviews recently changed files for code reuse, quality, and efficiency. Spawns 3 parallel review agents |
+| `/batch <instruction>` | Orchestrates large-scale parallel changes across a codebase. Decomposes into 5-30 units, each in an isolated git worktree |
+| `/debug [description]` | Troubleshoots current Claude Code session by reading debug logs |
+| `/claude-api` | Loads Claude API reference for your project's language. Auto-activates on `anthropic`/`@anthropic-ai/sdk`/`claude_agent_sdk` imports |
+
 ## Argument Substitution
 
 Skills support variable substitution patterns:
@@ -118,8 +129,9 @@ OUTPUT_PATH: $ARGUMENTS[1]
 ALL_ARGS: $ARGUMENTS
 ```
 
-### Session Variables
+### Session & Skill Variables
 - `${CLAUDE_SESSION_ID}` - Current session ID for logging/tracking
+- `${CLAUDE_SKILL_DIR}` - Absolute path to the skill's directory (v2.1.69+). Use for referencing bundled scripts/files regardless of CWD
 
 ### Dynamic Context Injection
 Use shell command output in skills:
@@ -482,6 +494,78 @@ Plugin-provided skills use namespace format:
 plugin-name:skill-name
 ```
 Example: `my-plugin:formatter`
+
+## Agent Skills Open Standard
+
+Claude Code skills follow the [Agent Skills](https://agentskills.io) open standard. The spec defines additional optional frontmatter fields:
+
+| Field | Description |
+|-------|-------------|
+| `license` | License name or reference to bundled LICENSE file |
+| `compatibility` | Max 500 chars. Environment requirements (product, packages, network) |
+| `metadata` | Arbitrary key-value map for custom properties (e.g., `author`, `version`) |
+
+## Visual Output Pattern
+
+Skills can bundle scripts that generate interactive HTML:
+
+```yaml
+---
+name: codebase-visualizer
+description: Generate interactive tree visualization of the codebase
+allowed-tools: Bash(python *)
+---
+
+Run the visualization script:
+```bash
+python ${CLAUDE_SKILL_DIR}/scripts/visualize.py .
+```
+```
+
+The script generates a self-contained HTML file and opens it in the browser. Works for dependency graphs, test coverage reports, API docs, schema visualizations, etc.
+
+## Plugin System
+
+Skills can be distributed via plugins. Plugins bundle skills, agents, hooks, MCP servers, and LSP servers:
+
+```
+my-plugin/
+├── .claude-plugin/
+│   └── plugin.json          # Required: {"name": "my-plugin", "version": "1.0.0"}
+├── skills/                  # Skills (SKILL.md in subdirs)
+├── agents/                  # Agent definitions
+├── hooks/hooks.json         # Hook configurations
+├── .mcp.json                # MCP server configs
+├── .lsp.json                # LSP server configs (code intelligence)
+├── settings.json            # Default settings (currently only `agent` key)
+└── README.md
+```
+
+### Key Plugin Concepts
+
+- Plugin skills are namespaced: `/plugin-name:skill-name`
+- Install: `/plugin install plugin-name@marketplace` or `claude plugin install`
+- Test locally: `claude --plugin-dir ./my-plugin`
+- `${CLAUDE_PLUGIN_ROOT}` env var for portable paths in hooks/scripts
+- Plugin cache at `~/.claude/plugins/cache`
+- Reload after changes: `/reload-plugins`
+
+### LSP Servers in Plugins
+
+Plugins can provide Language Server Protocol support for code intelligence:
+
+```json
+// .lsp.json
+{
+  "go": {
+    "command": "gopls",
+    "args": ["serve"],
+    "extensionToLanguage": { ".go": "go" }
+  }
+}
+```
+
+Available pre-built LSP plugins: `pyright-lsp`, `typescript-lsp`, `rust-lsp`.
 
 ## Environment Variables
 

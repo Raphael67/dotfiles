@@ -20,6 +20,9 @@ Hooks are scripts or prompts that execute in response to Claude Code events. The
 | `SessionStart` | Session begins/resumes | Environment setup (execution deferred at startup for performance) |
 | `SessionEnd` | Session terminates | Cleanup, logging |
 | `PreCompact` | Before context compaction | Pre-compaction actions |
+| `InstructionsLoaded` | After CLAUDE.md/rules/skills loaded | Post-instruction setup (v2.1.69+) |
+| `WorktreeCreate` | Git worktree created | Worktree setup (v2.1.69+) |
+| `WorktreeRemove` | Git worktree removed | Worktree cleanup (v2.1.69+) |
 | `PermissionRequest` | Permission dialog shown | Dynamic permission decisions |
 | `Notification` | Claude sends notification | Desktop notifications |
 
@@ -250,7 +253,7 @@ Hooks are configured under the `hooks` key:
 
 | Field | Description |
 |-------|-------------|
-| `type` | `command`, `prompt`, or `agent` |
+| `type` | `command`, `prompt`, `agent`, or `http` |
 | `timeout` | Seconds. Defaults: 600 (command), 30 (prompt), 60 (agent) |
 | `statusMessage` | Custom spinner message while hook runs |
 | `once` | If `true`, runs only once per session (skills only) |
@@ -303,6 +306,20 @@ Spawns a subagent with tool access (Read, Grep, Glob) for up to 50 turns:
   "timeout": 120
 }
 ```
+
+### HTTP Hook (v2.1.63+)
+
+POST JSON to a URL instead of running a shell command:
+
+```json
+{
+  "type": "http",
+  "url": "https://hooks.example.com/validate",
+  "timeout": 10
+}
+```
+
+The hook input JSON is POSTed as the request body. The response JSON is interpreted the same as command hook JSON output.
 
 ### Async Hooks
 Command hooks with `"async": true` run in background. Cannot block or return decisions. Output delivered on next conversation turn.
@@ -399,6 +416,8 @@ All hooks receive common fields via stdin JSON, plus event-specific fields:
   "cwd": "/path/to/project",
   "permission_mode": "default",
   "hook_event_name": "PreToolUse",
+  "agent_id": "abc123",
+  "agent_type": "general-purpose",
   "tool_name": "Bash",
   "tool_input": {
     "command": "rm -rf /tmp/test"

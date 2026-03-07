@@ -1,6 +1,6 @@
 ---
 name: claude-expert
-description: Expert in Claude prompting, skill creation, hooks management, MCP configuration, sub-agents, and memory management. Use when writing prompts, creating Claude Code skills, configuring hooks, setting up MCP servers, creating custom sub-agents, managing memory (auto memory, CLAUDE.md, rules), or asking about Claude Code architecture.
+description: Expert in Claude prompting, skill creation, hooks management, MCP configuration, sub-agents, memory management, and Claude Desktop app features. Use when writing prompts, creating Claude Code skills, configuring hooks, setting up MCP servers, creating custom sub-agents, managing memory (auto memory, CLAUDE.md, rules), asking about Claude Code architecture, or discussing Claude Desktop features (scheduled tasks, cowork, etc.).
 user-invokable: true
 argument-hint: [self-update]
 ---
@@ -23,6 +23,7 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 | Memory | [MEMORY.md](MEMORY.md) | Auto memory, CLAUDE.md hierarchy, rules, agent memory |
 | Status Lines | [STATUS-LINES.md](STATUS-LINES.md) | Custom terminal status displays, context bars |
 | Output Styles | [OUTPUT-STYLES.md](OUTPUT-STYLES.md) | Response formatting, GenUI, custom styles |
+| Desktop | [DESKTOP.md](DESKTOP.md) | Claude Desktop app features, scheduled tasks, cowork |
 
 ## Argument Routing
 
@@ -144,6 +145,12 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - Showing context window usage, cost, tokens
 - Integrating session data into status lines
 - Adding agent naming or custom metadata
+
+**Read DESKTOP.md when:**
+- User asks about Claude Desktop app features
+- Discussing scheduled tasks, cowork mode, or Desktop-specific capabilities
+- Comparing Claude Desktop vs Claude Code features
+- Troubleshooting the Desktop app
 
 **Read OUTPUT-STYLES.md when:**
 - Creating custom response formatting

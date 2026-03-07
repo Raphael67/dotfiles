@@ -81,6 +81,57 @@ bw-fetch item "698ba95d-..."                   # Full item JSON by ID → Touch 
 - Never log or echo secrets — use `--raw` output silently
 - If a secret is needed in a `.env` file, ask the user to confirm before writing it
 
+## File Recovery (Emergency)
+
+Two recovery methods are available when files are lost or corrupted by Claude Code.
+
+### Method 1: claude-file-recovery (recommended)
+
+Reconstructs files by replaying Write/Edit/Read operations from session transcripts.
+
+```bash
+# Interactive TUI — browse, search, diff, and extract files
+claude-file-recovery tui
+
+# List all recoverable files (filter with glob/regex/fuzzy)
+claude-file-recovery list-files
+claude-file-recovery list-files -f "*.tsx"
+claude-file-recovery list-files -f "router" -m fuzzy
+
+# Recover files at a specific point in time
+claude-file-recovery list-files --before "2026-03-01 15:00"
+
+# Extract files to disk
+claude-file-recovery extract-files -f "src/components/*" -o /tmp/recovered
+```
+
+### Method 2: file-history-snapshot (raw backups)
+
+Claude Code saves pre-edit file snapshots in `~/.claude/file-history/<session-id>/`. Each backup is a plain copy of the file before modification.
+
+```bash
+# 1. Find the session ID from the transcript that modified your file
+grep -r "your-filename" ~/.claude/projects/*/sessions-index.json
+
+# 2. List backups for that session
+ls ~/.claude/file-history/<session-id>/
+
+# 3. Map backup filenames to original paths — look in the transcript
+cat ~/.claude/projects/<project>/<session-id>.jsonl | \
+  python3 -c "
+import json, sys
+for line in sys.stdin:
+    obj = json.loads(line)
+    if obj.get('type') == 'file-history-snapshot':
+        for path, info in obj['snapshot']['trackedFileBackups'].items():
+            print(f\"{info['backupFileName']} -> {path} ({info['backupTime']})\")"
+
+# 4. Copy the backup to restore it
+cp ~/.claude/file-history/<session-id>/<hash>@v1 /path/to/restore
+```
+
+**Key difference**: `claude-file-recovery` replays tool operations from transcripts (Write/Edit/Read). `file-history-snapshot` stores actual file copies taken before each edit. Use snapshots when the tool call replay doesn't capture the file (e.g., Bash-based edits).
+
 ## Security & Best Practices
 
 - Never commit secrets or API keys

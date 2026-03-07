@@ -17,6 +17,8 @@ dotfiles/dot-claude/skills/**
 !dotfiles/dot-claude/skills/browser-expert/**
 !dotfiles/dot-claude/skills/claude-expert/
 !dotfiles/dot-claude/skills/claude-expert/**
+!dotfiles/dot-claude/skills/self-healing/
+!dotfiles/dot-claude/skills/self-healing/**
 dotfiles/dot-config/cagent/.cagent_first_run
 
 # Jira CLI - generated from template + .env
@@ -24,6 +26,9 @@ dotfiles/dot-config/.jira/.config.yml
 
 # rclone - OAuth tokens and machine-local config
 dotfiles/dot-config/rclone/rclone.conf
+
+# glab CLI - recovery data may contain professional info
+dotfiles/dot-config/glab-cli/recover/
 
 # Docker - runtime state
 dotfiles/dot-config/docker/buildx/

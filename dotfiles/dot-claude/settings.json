@@ -1,154 +1,20 @@
 {
-  "effortLevel" : "low",
-  "env" : {
-    "CLAUDE_CODE_DISABLE_AUTO_MEMORY" : "0",
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS" : "1",
-    "CLAUDECODE" : "1",
-    "DISABLE_ZOXIDE" : "1",
-    "ENABLE_TOOL_SEARCH" : "true"
+  "env": {
+    "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "0",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDECODE": "1",
+    "DISABLE_ZOXIDE": "1",
+    "ENABLE_TOOL_SEARCH": "true"
   },
-  "hooks" : {
-    "Notification" : [
-      {
-        "hooks" : [
-          {
-            "command" : "~\/.claude\/ccnotify\/ccnotify.py Notification",
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "PreToolUse" : [
-      {
-        "hooks" : [
-          {
-            "command" : "uv run ~\/.claude\/hooks\/damage-control\/bash-tool-damage-control.py",
-            "timeout" : 5,
-            "type" : "command"
-          },
-          {
-            "prompt" : "You are a security reviewer evaluating a bash command for destructive potential. Analyze this command: $ARGUMENTS\n\nBLOCK if the command would:\n- Delete, remove, or destroy files\/directories recursively or in bulk\n- Overwrite or corrupt critical system files, configs, or data\n- Cause irreversible data loss\n- Execute destructive operations via find, xargs, or loops\n- Wipe, format, or damage filesystems\n\nALLOW if the command is:\n- Read-only (cat, ls, grep, find without -delete\/-exec rm)\n- Safe write operations to non-critical paths\n- Standard development commands (git status, npm install, stow, etc.)\n- Stow commands for dotfile management (stow, stow -R, stow -D, stow --adopt)\n- Precise SQL DELETE with a specific ID in WHERE clause\n\nRespond with JSON: {\"decision\": \"approve\" or \"block\", \"reason\": \"[HOOK:security-reviewer] brief explanation\"}",
-            "timeout" : 10,
-            "type" : "prompt"
-          }
-        ],
-        "matcher" : "Bash"
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "uv run ~\/.claude\/hooks\/damage-control\/edit-tool-damage-control.py",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : "Edit"
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "uv run ~\/.claude\/hooks\/damage-control\/write-tool-damage-control.py",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : "Write"
-      }
-    ],
-    "SessionEnd" : [
-      {
-        "hooks" : [
-          {
-            "command" : "__claudebar_hook() { PORT=$(cat \"$HOME\/.claude\/claudebar-hook-port\" 2>\/dev\/null || echo 19847); cat | curl -s -X POST \"http:\/\/localhost:${PORT}\/hook\" -H 'Content-Type: application\/json' -d @- > \/dev\/null 2>&1 & }; __claudebar_hook",
-            "type" : "command"
-          }
-        ],
-        "matcher" : ".*"
-      }
-    ],
-    "SessionStart" : [
-      {
-        "hooks" : [
-          {
-            "command" : "__claudebar_hook() { PORT=$(cat \"$HOME\/.claude\/claudebar-hook-port\" 2>\/dev\/null || echo 19847); cat | curl -s -X POST \"http:\/\/localhost:${PORT}\/hook\" -H 'Content-Type: application\/json' -d @- > \/dev\/null 2>&1 & }; __claudebar_hook",
-            "type" : "command"
-          }
-        ],
-        "matcher" : ".*"
-      }
-    ],
-    "Stop" : [
-      {
-        "hooks" : [
-          {
-            "command" : "~\/.claude\/ccnotify\/ccnotify.py Stop",
-            "type" : "command"
-          }
-        ]
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "__claudebar_hook() { PORT=$(cat \"$HOME\/.claude\/claudebar-hook-port\" 2>\/dev\/null || echo 19847); cat | curl -s -X POST \"http:\/\/localhost:${PORT}\/hook\" -H 'Content-Type: application\/json' -d @- > \/dev\/null 2>&1 & }; __claudebar_hook",
-            "type" : "command"
-          }
-        ],
-        "matcher" : ".*"
-      }
-    ],
-    "SubagentStart" : [
-      {
-        "hooks" : [
-          {
-            "command" : "__claudebar_hook() { PORT=$(cat \"$HOME\/.claude\/claudebar-hook-port\" 2>\/dev\/null || echo 19847); cat | curl -s -X POST \"http:\/\/localhost:${PORT}\/hook\" -H 'Content-Type: application\/json' -d @- > \/dev\/null 2>&1 & }; __claudebar_hook",
-            "type" : "command"
-          }
-        ],
-        "matcher" : ".*"
-      }
-    ],
-    "SubagentStop" : [
-      {
-        "hooks" : [
-          {
-            "command" : "__claudebar_hook() { PORT=$(cat \"$HOME\/.claude\/claudebar-hook-port\" 2>\/dev\/null || echo 19847); cat | curl -s -X POST \"http:\/\/localhost:${PORT}\/hook\" -H 'Content-Type: application\/json' -d @- > \/dev\/null 2>&1 & }; __claudebar_hook",
-            "type" : "command"
-          }
-        ],
-        "matcher" : ".*"
-      }
-    ],
-    "TaskCompleted" : [
-      {
-        "hooks" : [
-          {
-            "command" : "__claudebar_hook() { PORT=$(cat \"$HOME\/.claude\/claudebar-hook-port\" 2>\/dev\/null || echo 19847); cat | curl -s -X POST \"http:\/\/localhost:${PORT}\/hook\" -H 'Content-Type: application\/json' -d @- > \/dev\/null 2>&1 & }; __claudebar_hook",
-            "type" : "command"
-          }
-        ],
-        "matcher" : ".*"
-      }
-    ],
-    "UserPromptSubmit" : [
-      {
-        "hooks" : [
-          {
-            "command" : "~\/.claude\/ccnotify\/ccnotify.py UserPromptSubmit",
-            "type" : "command"
-          }
-        ]
-      }
-    ]
-  },
-  "permissions" : {
-    "allow" : [
+  "permissions": {
+    "allow": [
       "Read",
       "Glob",
       "Grep",
       "WebFetch",
       "WebSearch",
       "Bash(chmod:*)",
-      "Bash(\"\/Users\/raphael\/Library\/Mobile Documents\/iCloud~md~obsidian\/Documents\/my_vault\/_Assets\/claude_usage_log.json\")",
+      "Bash(\"/Users/raphael/Library/Mobile Documents/iCloud~md~obsidian/Documents/my_vault/_Assets/claude_usage_log.json\")",
       "Bash(mkdir -p:*)",
       "Bash(bun run:*)",
       "Bash(bdg:*)",
@@ -189,23 +55,34 @@
       "Bash(curl:*)",
       "Bash(wget:*)",
       "Bash(http:*)",
-      "mcp__playwright__browser_navigate",
-      "mcp__playwright__browser_click",
-      "mcp__playwright__browser_snapshot",
-      "mcp__playwright__browser_wait_for",
-      "mcp__playwright__browser_type",
-      "mcp__playwright__browser_fill_form",
-      "mcp__playwright__browser_resize",
-      "mcp__playwright__browser_close",
-      "mcp__playwright__browser_run_code",
-      "mcp__playwright__browser_evaluate",
-      "mcp__playwright__browser_network_requests",
-      "mcp__playwright__browser_batch_execute",
-      "mcp__playwright__browser_take_screenshot",
-      "mcp__playwright__browser_tab_list",
-      "mcp__playwright__browser_tab_new",
-      "mcp__playwright__browser_tab_select",
-      "Bash(npx @tontoko\/fast-playwright-mcp@latest:*)",
+      "mcp__pw-fast__browser_navigate",
+      "mcp__pw-fast__browser_click",
+      "mcp__pw-fast__browser_snapshot",
+      "mcp__pw-fast__browser_wait_for",
+      "mcp__pw-fast__browser_type",
+      "mcp__pw-fast__browser_resize",
+      "mcp__pw-fast__browser_close",
+      "mcp__pw-fast__browser_evaluate",
+      "mcp__pw-fast__browser_network_requests",
+      "mcp__pw-fast__browser_batch_execute",
+      "mcp__pw-fast__browser_take_screenshot",
+      "mcp__pw-fast__browser_tab_list",
+      "mcp__pw-fast__browser_tab_new",
+      "mcp__pw-fast__browser_tab_select",
+      "mcp__pw-fast__browser_find_elements",
+      "mcp__pw-fast__browser_hover",
+      "mcp__pw-fast__browser_drag",
+      "mcp__pw-fast__browser_press_key",
+      "mcp__pw-fast__browser_select_option",
+      "mcp__pw-fast__browser_file_upload",
+      "mcp__pw-fast__browser_handle_dialog",
+      "mcp__pw-fast__browser_inspect_html",
+      "mcp__pw-fast__browser_console_messages",
+      "mcp__pw-fast__browser_diagnose",
+      "mcp__pw-fast__browser_install",
+      "mcp__pw-fast__browser_navigate_back",
+      "mcp__pw-fast__browser_navigate_forward",
+      "mcp__pw-fast__browser_tab_close",
       "Bash(claude mcp list:*)",
       "Bash(xargs:*)",
       "Bash(echo:*)",
@@ -244,23 +121,156 @@
       "ListMcpResourcesTool",
       "ReadMcpResourceTool"
     ],
-    "ask" : [
+    "deny": [
+      "Bash(rm -rf /*:*)",
+      "Bash(rm -rf ~/*:*)",
+      "Bash(sudo rm -rf:*)",
+      "Bash(mkfs:*)",
+      "Bash(dd if=* of=/dev/*:*)"
+    ],
+    "ask": [
       "Bash(git push --force:*)",
       "Bash(git reset --hard:*)"
     ],
-    "defaultMode" : "default",
-    "deny" : [
-      "Bash(rm -rf \/*:*)",
-      "Bash(rm -rf ~\/*:*)",
-      "Bash(sudo rm -rf:*)",
-      "Bash(mkfs:*)",
-      "Bash(dd if=* of=\/dev\/*:*)"
+    "defaultMode": "default"
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/ccnotify/ccnotify.py Notification"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ~/.claude/hooks/damage-control/bash-tool-damage-control.py",
+            "timeout": 5
+          },
+          {
+            "type": "prompt",
+            "prompt": "You are a security reviewer evaluating a bash command for destructive potential. Analyze this command: $ARGUMENTS\n\nBLOCK if the command would:\n- Delete, remove, or destroy files/directories recursively or in bulk\n- Overwrite or corrupt critical system files, configs, or data\n- Cause irreversible data loss\n- Execute destructive operations via find, xargs, or loops\n- Wipe, format, or damage filesystems\n\nALLOW if the command is:\n- Read-only (cat, ls, grep, find without -delete/-exec rm)\n- Safe write operations to non-critical paths\n- Standard development commands (git status, npm install, stow, etc.)\n- Stow commands for dotfile management (stow, stow -R, stow -D, stow --adopt)\n- Precise SQL DELETE with a specific ID in WHERE clause\n\nRespond with JSON: {\"decision\": \"approve\" or \"block\", \"reason\": \"[HOOK:security-reviewer] brief explanation\"}",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ~/.claude/hooks/damage-control/edit-tool-damage-control.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ~/.claude/hooks/damage-control/write-tool-damage-control.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__claudebar_hook() { PORT=$(cat \"$HOME/.claude/claudebar-hook-port\" 2>/dev/null || echo 19847); cat | curl -s -X POST \"http://localhost:${PORT}/hook\" -H 'Content-Type: application/json' -d @- > /dev/null 2>&1 & }; __claudebar_hook"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__claudebar_hook() { PORT=$(cat \"$HOME/.claude/claudebar-hook-port\" 2>/dev/null || echo 19847); cat | curl -s -X POST \"http://localhost:${PORT}/hook\" -H 'Content-Type: application/json' -d @- > /dev/null 2>&1 & }; __claudebar_hook"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/ccnotify/ccnotify.py Stop"
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__claudebar_hook() { PORT=$(cat \"$HOME/.claude/claudebar-hook-port\" 2>/dev/null || echo 19847); cat | curl -s -X POST \"http://localhost:${PORT}/hook\" -H 'Content-Type: application/json' -d @- > /dev/null 2>&1 & }; __claudebar_hook"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__claudebar_hook() { PORT=$(cat \"$HOME/.claude/claudebar-hook-port\" 2>/dev/null || echo 19847); cat | curl -s -X POST \"http://localhost:${PORT}/hook\" -H 'Content-Type: application/json' -d @- > /dev/null 2>&1 & }; __claudebar_hook"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__claudebar_hook() { PORT=$(cat \"$HOME/.claude/claudebar-hook-port\" 2>/dev/null || echo 19847); cat | curl -s -X POST \"http://localhost:${PORT}/hook\" -H 'Content-Type: application/json' -d @- > /dev/null 2>&1 & }; __claudebar_hook"
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__claudebar_hook() { PORT=$(cat \"$HOME/.claude/claudebar-hook-port\" 2>/dev/null || echo 19847); cat | curl -s -X POST \"http://localhost:${PORT}/hook\" -H 'Content-Type: application/json' -d @- > /dev/null 2>&1 & }; __claudebar_hook"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/ccnotify/ccnotify.py UserPromptSubmit"
+          }
+        ]
+      }
     ]
   },
-  "skipDangerousModePermissionPrompt" : true,
-  "statusLine" : {
-    "command" : "uv run ~\/.claude\/status_lines\/status_line_v6.py",
-    "padding" : 0,
-    "type" : "command"
-  }
+  "statusLine": {
+    "type": "command",
+    "command": "uv run ~/.claude/status_lines/status_line_v6.py",
+    "padding": 0
+  },
+  "skipDangerousModePermissionPrompt": true
 }

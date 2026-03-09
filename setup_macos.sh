@@ -69,7 +69,7 @@ if [[ "$install_apps" == "y" ]]; then
     fi
 
     # oh-my-zsh plugins
-    local zsh_custom="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+    zsh_custom="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
     [[ ! -d "$zsh_custom/plugins/zsh-autosuggestions" ]] && \
         git clone https://github.com/zsh-users/zsh-autosuggestions "$zsh_custom/plugins/zsh-autosuggestions"
     [[ ! -d "$zsh_custom/plugins/zsh-syntax-highlighting" ]] && \
@@ -113,6 +113,13 @@ info "===================="
 if [[ "$overwrite_dotfiles" == "y" ]]; then
     stow .
     success "Dotfiles set up successfully."
+fi
+
+# Docker Desktop: symlink cli-plugins into XDG config so `docker compose` works
+if [[ -d "$HOME/.docker/cli-plugins" && ! -e "$HOME/.config/docker/cli-plugins" ]]; then
+    mkdir -p "$HOME/.config/docker"
+    ln -s "$HOME/.docker/cli-plugins" "$HOME/.config/docker/cli-plugins"
+    success "Docker CLI plugins symlinked to XDG config."
 fi
 
 # Generate configs from templates

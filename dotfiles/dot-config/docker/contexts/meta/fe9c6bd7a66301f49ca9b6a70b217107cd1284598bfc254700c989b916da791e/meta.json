@@ -1,0 +1,1 @@
+{"Name":"desktop-linux","Metadata":{"Description":"Docker Desktop","GODEBUG":"x509negativeserial=1"},"Endpoints":{"docker":{"Host":"unix:///Users/raphael/.docker/run/docker.sock","SkipTLSVerify":false}}}

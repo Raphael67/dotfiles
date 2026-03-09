@@ -28,7 +28,7 @@ hosts:
         # Configure host for API endpoint. Defaults to the host itself.
         api_host: gitlab.com
         # Your GitLab access token. To get one, read https://docs.gitlab.com/user/profile/personal_access_tokens/
-        token:
+        token: !!null '-'
         # Custom proxy for this host. Overrides environment proxy settings when set.
         proxy:
         # The domains of associated container registries. These are used to configure the

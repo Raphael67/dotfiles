@@ -91,34 +91,34 @@ bind C-x send-prefix
 
 | Key | Action |
 |-----|--------|
-| `prefix + h/j/k/l` | Navigate panes (vim-style) |
-| `prefix + H/J/K/L` | Resize panes |
-| `C-h/j/k/l` | Navigate panes (without prefix, with vim-tmux-navigator) |
-| `prefix + n` | Next window |
-| `prefix + p` | Previous window |
+| `C-h/j/k/l` | Navigate panes (no prefix needed) |
+| `C-Left` / `C-Right` | Previous/next window (no prefix) |
+| `C-Down` | Choose session |
+| `C-Up` | Choose tree |
 | `prefix + 0-9` | Go to window by number |
+| `prefix + >` / `<` | Swap window right/left |
 
 ### Panes and Windows
 
 | Key | Action |
 |-----|--------|
-| `prefix + v` | Split vertical |
-| `prefix + %` | Split horizontal |
-| `prefix + c` | New window |
-| `prefix + x` | Kill pane |
-| `prefix + &` | Kill window |
+| `prefix + v` | Split horizontal (right) |
+| `prefix + %` | Split vertical (down) |
+| `prefix + b` | Break pane to new window |
+| `prefix + j` | Join pane from another window (horizontal) |
+| `prefix + J` | Join pane from another window (vertical) |
 | `prefix + z` | Toggle pane zoom |
-| `prefix + {` / `}` | Swap pane |
-| `prefix + !` | Break pane to new window |
+| `prefix + {` / `}` | Swap pane up/down |
+| `prefix + space` | Cycle layouts |
+| `S-Left/Right/Up/Down` | Resize panes (with prefix) |
 
 ### Sessions
 
 | Key | Action |
 |-----|--------|
 | `prefix + d` | Detach |
-| `prefix + s` | List sessions |
-| `prefix + $` | Rename session |
-| `prefix + (` / `)` | Previous/next session |
+| `C-Down` | Choose session (no prefix) |
+| `C-Up` | Choose tree (no prefix) |
 
 ### Copy Mode
 
@@ -137,6 +137,7 @@ bind C-x send-prefix
 | `prefix + :` | Command prompt |
 | `prefix + ?` | List key bindings |
 | `prefix + N` | Open new Ghostty window without tmux |
+| `prefix + r` | Reload config |
 
 ## Session Persistence
 
@@ -162,19 +163,28 @@ set -g @continuum-save-interval '15' # Save interval (minutes)
 
 ```tmux
 # In tmux.catppuccin.conf
-set -g @catppuccin_flavor 'macchiato'
-
-# Window styling
+set -g @catppuccin_flavor "macchiato"
 set -g @catppuccin_window_status_style "rounded"
-set -g @catppuccin_window_default_text "#W"
-set -g @catppuccin_window_current_text "#W"
 
-# Status bar modules
-set -g @catppuccin_status_modules_right "directory session"
-set -g @catppuccin_status_modules_left ""
+# Custom separators for rounded look
+set -g @catppuccin_status_left_separator ""
+set -g @catppuccin_status_right_separator " "
+set -g @catppuccin_status_connect_separator "no"
 
-# Pane borders
-set -g @catppuccin_pane_active_border_style "fg=#{@thm_lavender}"
+# Window text (current window shows zoom indicator)
+set -g @catppuccin_window_text " #W"
+set -g @catppuccin_window_current_text "#W#{?window_zoomed_flag,(),}"
+set -g @catppuccin_window_number_position "right"
+
+# Status bar layout
+# Left: session name
+set -g status-left "#{E:@catppuccin_status_session}"
+# Right: directory, network, cpu, uptime, battery (conditional)
+set -g status-right "#{E:@catppuccin_status_directory}"
+set -ag status-right "#{E:@catppuccin_status_network}"
+set -agF status-right "#{E:@catppuccin_status_cpu}"
+set -ag status-right "#{E:@catppuccin_status_uptime}"
+set -agF status-right "#{?#{battery_status},#{E:@catppuccin_status_battery},}"
 ```
 
 ## Common Configuration Options
@@ -195,14 +205,14 @@ set -g base-index 1          # Start windows at 1
 set -g pane-base-index 1     # Start panes at 1
 set -g renumber-windows on   # Renumber on close
 set -g mouse on              # Enable mouse
-set -g history-limit 50000   # Scrollback buffer
+set -g history-limit 1000000 # Scrollback buffer
 ```
 
 ### Status Bar
 
 ```tmux
 set -g status on
-set -g status-position bottom    # or 'top'
+set -g status-position top
 set -g status-interval 1         # Update every second
 set -g status-justify left
 set -g status-left-length 40

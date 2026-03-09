@@ -351,7 +351,15 @@ vim.keymap.set("n", "<C-t>", function() ui.nav_file(2) end)
 ```lua
 vim.diagnostic.config({
     virtual_text = true,
-    signs = true,
+    signs = {
+        -- Neovim 0.12+: use signs.text instead of vim.fn.sign_define()
+        text = {
+            [vim.diagnostic.severity.ERROR] = " ",
+            [vim.diagnostic.severity.WARN] = " ",
+            [vim.diagnostic.severity.INFO] = " ",
+            [vim.diagnostic.severity.HINT] = "󰌵",
+        },
+    },
     underline = true,
     update_in_insert = false,
     severity_sort = true,
@@ -361,6 +369,8 @@ vim.diagnostic.config({
     },
 })
 ```
+
+> **Note (Neovim 0.12):** The old `vim.fn.sign_define("DiagnosticSign*")` API is deprecated. Use `signs.text` in `vim.diagnostic.config()` instead.
 
 ### Diagnostic Keymaps
 
@@ -381,7 +391,8 @@ vim.diagnostic.config({
 
 ### LSP Info
 ```vim
-:LspInfo         " Active clients
+:lsp             " Interactive LSP client management (Neovim 0.12+)
+:LspInfo         " Active clients (from lspconfig plugin)
 :LspLog          " LSP logs
 :LspRestart      " Restart servers
 ```
@@ -451,8 +462,8 @@ vim.api.nvim_create_autocmd("BufReadPre", {
 ```lua
 vim.filetype.add({
     extension = {
-        tf = "terraform",
-        tfvars = "terraform",
+        tf = "opentofu",
+        tfvars = "opentofu",
     },
     filename = {
         [".envrc"] = "bash",

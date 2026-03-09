@@ -44,17 +44,17 @@ $directory\
 $git_branch\
 $git_status\
 $fill\
-$docker_context\
 $python\
-$nodejs\
-$rust\
-$golang\
-$php\
 $lua\
+$nodejs\
+$golang\
 $haskell\
+$rust\
 $ruby\
-$cmd_duration\
+$aws\
+$docker_context\
 $jobs\
+$cmd_duration\
 $line_break\
 $character"""
 ```
@@ -91,6 +91,34 @@ surface0 = "#363a4f"
 base = "#24273a"
 mantle = "#1e2030"
 crust = "#181926"
+
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"
 ```
 
 ## Module Configuration Examples
@@ -99,15 +127,17 @@ crust = "#181926"
 
 ```toml
 [directory]
-style = "fg:text bg:surface0"
+style = "fg:#e3e5e5 bg:#769ff0"
 format = "[ $path ]($style)"
-truncation_length = 3
+truncation_length = 0
 truncate_to_repo = false
+truncation_symbol = "…/"
 
 [directory.substitutions]
-"Documents" = "docs"
-"Downloads" = "down"
-"~/Projects" = "proj"
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
 ```
 
 ### Git Branch
@@ -115,27 +145,16 @@ truncate_to_repo = false
 ```toml
 [git_branch]
 symbol = ""
-style = "fg:mauve"
-format = '[$symbol $branch ]($style)'
-truncation_length = 20
+style = "bg:#394260"
+format = '[[ $symbol $branch ](fg:#769ff0 bg:#394260)]($style)'
 ```
 
 ### Git Status
 
 ```toml
 [git_status]
-style = "fg:red"
-format = '([$all_status$ahead_behind]($style) )'
-conflicted = "="
-ahead = "⇡${count}"
-behind = "⇣${count}"
-diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-untracked = "?"
-stashed = "\\$"
-modified = "!"
-staged = "+"
-renamed = "»"
-deleted = "✘"
+style = "bg:#394260"
+format = '[[($all_status$ahead_behind )](fg:#769ff0 bg:#394260)]($style)'
 ```
 
 ### Character (Prompt Symbol)
@@ -151,45 +170,84 @@ vimcmd_symbol = "[❮](bold green)"
 
 ```toml
 [cmd_duration]
-min_time = 2000                    # Show if > 2 seconds
-format = "[$duration]($style) "
-style = "fg:yellow"
+min_time = 500
+style = 'fg:gray'
+format = '[$duration]($style)'
 ```
 
 ### Language Modules
 
 ```toml
 [python]
-symbol = ""
-style = "bg:surface0"
-format = '[[ $symbol ($version) (\($virtualenv\)) ](fg:blue bg:surface0)]($style)'
+style = "bg:#212736"
+symbol = ' '
+format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
 pyenv_version_name = true
+pyenv_prefix = ''
 
 [nodejs]
 symbol = ""
-style = "bg:surface0"
-format = '[[ $symbol ($version) ](fg:green bg:surface0)]($style)'
+style = "bg:#212736"
+format = '[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)'
 
 [rust]
 symbol = ""
-style = "bg:surface0"
-format = '[[ $symbol ($version) ](fg:peach bg:surface0)]($style)'
+style = "bg:#212736"
+format = '[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)'
 
 [golang]
 symbol = ""
-style = "bg:surface0"
-format = '[[ $symbol ($version) ](fg:sky bg:surface0)]($style)'
+style = "bg:#212736"
+format = '[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)'
+
+[lua]
+format = '[$symbol($version )]($style)'
+symbol = ' '
+
+[haskell]
+style = 'blue'
+symbol = ' '
+
+[ruby]
+style = 'blue'
+symbol = ' '
+```
+
+### AWS
+
+```toml
+[aws]
+symbol = ' '
+style = 'yellow'
+format = '[$symbol($profile )(\[$duration\] )]($style)'
 ```
 
 ### Docker Context
 
 ```toml
 [docker_context]
-symbol = ""
-style = "bg:surface0"
-format = '[[ $symbol $context ](fg:sky bg:surface0)]($style)'
-only_with_files = true
-detect_files = ["docker-compose.yml", "Dockerfile"]
+symbol = ' '
+style = 'fg:#06969A'
+format = '[$symbol]($style) $path'
+detect_files = ['docker-compose.yml', 'docker-compose.yaml', 'Dockerfile']
+detect_extensions = ['Dockerfile']
+```
+
+### Jobs
+
+```toml
+[jobs]
+symbol = ' '
+style = 'red'
+number_threshold = 1
+format = '[$symbol]($style)'
+```
+
+### Package
+
+```toml
+[package]
+symbol = '󰏗 '
 ```
 
 ## Adding a New Language Module
@@ -281,9 +339,9 @@ disabled = false
 
 ```toml
 [hostname]
-ssh_only = true
-format = "[$hostname]($style) "
-style = "fg:green"
+ssh_only = false
+style = "fg:#cad3f5 bg:#494d64"
+format = "[ $hostname ]($style)"
 ```
 
 ### Username

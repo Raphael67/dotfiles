@@ -125,7 +125,7 @@ macos-titlebar-style = transparent    # native, transparent, tabs
 macos-option-as-alt = true    # false, left, right, true
 
 # App icon variant
-macos-icon = default    # official, blueprint, xray, etc.
+macos-icon = official    # official, blueprint, xray, custom, etc.
 
 # Secure keyboard entry indicator
 macos-secure-input-indication = true
@@ -356,6 +356,59 @@ infocmp -x | ssh user@host -- tic -x -
 ```
 
 This installs Ghostty's terminfo on the remote server.
+
+## New Features (1.1.0 - 1.3.0)
+
+### Command Palette
+
+```ini
+# Open with Cmd+Shift+P (macOS) or Ctrl+Shift+P
+keybind = super+shift+p=toggle_command_palette
+
+# Add custom entries
+command-palette-entry = custom:My Action
+```
+
+### Quick Terminal
+
+Drop-down terminal overlay (activated globally):
+
+```ini
+keybind = global:super+grave=toggle_quick_terminal
+quick-terminal-position = top      # top, bottom, left, right, center
+quick-terminal-screen = main
+quick-terminal-animation-duration = 0.2
+quick-terminal-autohide = true
+```
+
+### Background Image
+
+```ini
+background-image = /path/to/image.png
+background-image-opacity = 0.1
+background-image-position = center
+background-image-fit = contain
+```
+
+### Link Previews
+
+```ini
+link-previews = true
+```
+
+### Shell Integration Features
+
+Granular control over shell integration features:
+
+```ini
+shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo,path
+```
+
+### Theme Discovery
+
+```bash
+ghostty +list-themes    # List all available built-in themes
+```
 
 ## Tiling Window Manager Integration
 

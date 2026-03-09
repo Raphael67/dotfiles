@@ -51,7 +51,10 @@ Tools that use these:
 
 ```zsh
 # In dot-zshrc
-export ZSH=$HOME/.oh-my-zsh
+export ZSH="${XDG_DATA_HOME:-$HOME/.local/share}/oh-my-zsh"
+# Fallback: use legacy path if XDG path doesn't exist yet
+[[ ! -d "$ZSH" && -d "$HOME/.oh-my-zsh" ]] && export ZSH="$HOME/.oh-my-zsh"
+
 plugins=(evalcache tmux zsh-syntax-highlighting zsh-autosuggestions)
 source $ZSH/oh-my-zsh.sh
 ```
@@ -107,15 +110,28 @@ fi
 ```
 
 # nvm (Node.js) — ~300ms savings
-if [[ -d "$NVM_DIR" ]]; then
+# Eagerly adds default node version to PATH, then lazy-loads nvm
+if [[ -d "$NVM_DIR" || -d "/opt/homebrew/opt/nvm" ]]; then
+  # Add default node version to PATH immediately (no nvm load)
+  if [[ -d "$NVM_DIR/versions/node" ]]; then
+    local default_node=$(ls -1 "$NVM_DIR/versions/node" | sort -V | tail -1)
+    [[ -n "$default_node" ]] && export PATH="$NVM_DIR/versions/node/$default_node/bin:$PATH"
+  fi
+
   nvm() {
     unset -f nvm node npm npx
-    [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+    # Supports both Homebrew and standard nvm paths
+    if [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
+      export NVM_DIR="/opt/homebrew/opt/nvm"
+      \. "/opt/homebrew/opt/nvm/nvm.sh"
+    elif [[ -s "$NVM_DIR/nvm.sh" ]]; then
+      \. "$NVM_DIR/nvm.sh"
+    fi
     nvm "$@"
   }
-  for cmd in node npm npx; do
-    eval "${cmd}() { unset -f nvm node npm npx; nvm use default --silent; command ${cmd} \"\$@\" }"
-  done
+  node() { unset -f node; nvm use --lts --silent 2>/dev/null; node "$@"; }
+  npm() { unset -f npm; nvm use --lts --silent 2>/dev/null; npm "$@"; }
+  npx() { unset -f npx; nvm use --lts --silent 2>/dev/null; npx "$@"; }
 fi
 ```
 
@@ -139,13 +155,12 @@ _evalcache zoxide init zsh --cmd cd
 ```
 
 **Currently cached:**
-- `zoxide init zsh --cmd cd`
+- `zoxide init zsh --cmd cd` (skipped under Claude Code)
 - `starship init zsh`
-- `gh copilot alias -- zsh`
 - `jenv init -` (via lazy loading)
 - `pyenv init -` (via lazy loading)
 
-**Clear cache:** Delete `~/.zsh-evalcache/`
+**Clear cache:** Delete `$XDG_CACHE_HOME/zsh-evalcache/`
 
 ## History Configuration
 
@@ -174,34 +189,66 @@ Aliases are defined in `dotfiles/dot-config/zsh/aliases.zsh`.
 ```zsh
 alias g="git"
 alias ga="git add"
-alias gaa="git add -A"
-alias gc="git commit"
+alias gap="git add --patch"
+alias gb="git branch"
+alias gc="git commit -v"
+alias gcl="git clone"
 alias gco="git checkout"
+alias gd="git diff ..."
+alias gds="git diff --staged"
+alias gf="git fetch"
+alias gl="git log --all --graph ..."   # Pretty graph log
+alias gm="git merge"
 alias gp="git push"
-alias gl="git pull"
-alias gst="git status"
+alias gpo="git push origin"
+alias gs="git status --short --branch"
+alias gu="git pull"
+alias gup="git fetch && git rebase"
 alias lg="lazygit"
 ```
 
-**Navigation:**
+**fzf-powered Git:**
 ```zsh
-alias doc="cd ~/Documents"
-alias dow="cd ~/Downloads"
+alias gafzf='...'    # Git add with fzf multi-select
+alias gcofzf='...'   # Checkout branch with fzf
+alias grfzf='...'    # Git restore with fzf
+alias grsfzf='...'   # Git restore --staged with fzf
+alias grmfzf='...'   # Git rm with fzf
 ```
 
 **Quick Commit Function:**
 ```zsh
-qc() {
-  # Extracts ticket ID from branch name
-  local branch=$(git rev-parse --abbrev-ref HEAD)
-  local ticket=$(echo "$branch" | grep -oE '[A-Z]+-[0-9]+')
-  git add -A
-  if [[ -n "$ticket" ]]; then
-    git commit -m "$ticket: $1"
+quick_commit() {
+  # Extracts ticket ID from branch name (e.g., PROJ-123)
+  local branch_name=$(git branch --show-current)
+  local ticket_id=$(echo "$branch_name" | awk -F '-' '{print toupper($1"-"$2)}')
+  # Supports optional "push" as first arg
+  if [[ "$1" == "push" ]]; then
+    git commit --no-verify -m "$ticket_id: ${*:2}" && git push
   else
-    git commit -m "$1"
+    git commit --no-verify -m "$ticket_id: $*"
   fi
 }
+alias gqc='quick_commit'
+alias gqcp='quick_commit push'
+```
+
+**Neovim:**
+```zsh
+alias v='poetry_run_nvim'   # Uses poetry run nvim if in poetry project
+alias vi='poetry_run_nvim'
+```
+
+**Misc:**
+```zsh
+alias c='clear'
+alias e='exit'
+alias r='. ranger'
+alias oo='...'           # Open Obsidian vault in nvim
+alias notmux='...'       # New Ghostty window without tmux
+alias news='...'         # HYS RSS reader (last 48h)
+alias fixmouse='...'     # Reset stuck mouse reporting mode
+alias clyo='claude --dangerously-skip-permissions'
 ```
 
 ### Adding New Aliases
@@ -240,11 +287,20 @@ ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(backward-delete-char)
 
 ## zsh-syntax-highlighting Configuration
 
+Full Catppuccin Macchiato theme applied with ~30 style entries. Key settings:
+
 ```zsh
-# Disable path underlines (can be slow)
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main cursor)
 typeset -A ZSH_HIGHLIGHT_STYLES
+ZSH_HIGHLIGHT_STYLES[command]='fg=#8aadf4'        # blue
+ZSH_HIGHLIGHT_STYLES[alias]='fg=#a6da95'           # green
+ZSH_HIGHLIGHT_STYLES[builtin]='fg=#ed8796'         # red
+ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=#ed8796'   # red
+ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=#a6da95'
+ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=#a6da95'
 ZSH_HIGHLIGHT_STYLES[path]=none
 ZSH_HIGHLIGHT_STYLES[path_prefix]=none
+# ... plus ~20 more Catppuccin-themed entries
 ```
 
 ## Key Bindings
@@ -296,20 +352,15 @@ alias cat="bat --style=plain --paging=auto"
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 ```
 
-## Tmux Auto-Start
+## Tmux Auto-Start (Disabled)
 
-```zsh
-if [[ -z "$TMUX" && "$TERM_PROGRAM" != "vscode" && -z "$NO_TMUX" && "$CLAUDECODE" != "1" ]]; then
-  ZSH_TMUX_AUTOSTART=true
-  tmux attach -t main 2>/dev/null || tmux new -s main
-fi
+Currently commented out in dot-zshrc. Use manual start:
+
+```bash
+tmux attach -t main || tmux new -s main
 ```
 
-**Bypass conditions:**
-- Already in tmux (`$TMUX` set)
-- In VS Code terminal (`$TERM_PROGRAM` = "vscode")
-- `NO_TMUX` environment variable set
-- Running under Claude Code (`$CLAUDECODE` = "1")
+The `notmux` alias opens a Ghostty window without tmux.
 
 ## Shell Style Guidelines
 
@@ -399,17 +450,26 @@ zsh -xv 2>&1 | tee ~/zsh-debug.log
 ### Startup Profiling Functions
 
 ```zsh
-# Detailed startup timing breakdown
+# Average startup time (10 runs)
 zsh-startuptime() {
-  for i in $(seq 1 5); do
-    /usr/bin/time zsh -i -c exit 2>&1
+  local total=0
+  for i in $(seq 1 10); do
+    local t=$({ time zsh -i -c exit; } 2>&1 | grep real | awk '{print $2}' | sed 's/[^0-9.]//g')
+    total=$(echo "$total + $t" | bc)
   done
+  echo "average: $(echo "scale=3; $total / 10" | bc)s (10 runs)"
+}
+
+# Verbose profiling with zprof
+zsh-startuptime-verbose() {
+  zsh -i -c "zprof" 2>/dev/null
 }
 
 # Neovim startup profiling
 nvim-startuptime() {
-  nvim --startuptime /tmp/nvim-startuptime.log -c 'quit'
-  sort -k2 -n /tmp/nvim-startuptime.log | tail -20
+  nvim --headless --startuptime /tmp/nvim-startuptime.log -c 'qall' && \
+    tail -1 /tmp/nvim-startuptime.log && \
+    rm /tmp/nvim-startuptime.log
 }
 ```
 

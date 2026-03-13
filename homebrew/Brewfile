@@ -13,6 +13,8 @@ brew "node"
 # brew "bun"
 # Python version management
 brew "pyenv"
+# Set default applications for file types
+brew "duti"
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
 # Terminal multiplexer

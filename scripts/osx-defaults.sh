@@ -137,6 +137,13 @@ apply_osx_system_defaults() {
     defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 
     killall Dock
+
+    # Default file associations (requires duti)
+    if command -v duti &> /dev/null; then
+        info "Setting default file associations..."
+        duti -s com.microsoft.VSCode public.json all        # .json → VSCode
+        duti -s com.microsoft.VSCode .ts all                # .ts → VSCode
+    fi
 }
 if [ "$(basename "$0")" = "$(basename "${BASH_SOURCE[0]}")" ]; then
     register_keyboard_shortcuts

@@ -6,9 +6,12 @@ Output styles are markdown files that modify Claude's system prompt to change re
 
 ## Configuration
 
+> **Deprecated (v2.1.73)**: `/output-style` is deprecated. Use `/config` instead. Output style is now fixed at session start for better prompt caching.
+
 Activate a style:
 ```bash
-/output-style [name]
+/config    # Preferred (v2.1.73+)
+/output-style [name]   # Deprecated
 ```
 
 ### Locations

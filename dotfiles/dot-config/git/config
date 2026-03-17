@@ -51,6 +51,9 @@ addEmptyPathspec = false
 pushNonFastForward = false
 statusHint = false
 
+[submodule]
+recurse = true # Auto-checkout submodules when switching branches/worktrees
+
 [status]
 branch = true            # Show branch information in status
 showStash = true         # Show stash information in status

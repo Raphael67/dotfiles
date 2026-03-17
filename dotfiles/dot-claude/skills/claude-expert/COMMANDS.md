@@ -369,6 +369,17 @@ PROMPT: $2
 | Discovery | Explicit only | Auto or explicit |
 | Use case | Quick actions | Complex domains |
 
+## Notable Built-in Commands (Recent)
+
+| Command | Description |
+|---------|-------------|
+| `/plan [description]` | Enter plan mode. Optional description starts planning immediately (v2.1.72+) |
+| `/context` | Shows context usage with actionable optimization tips (v2.1.74+) |
+| `/loop [interval] <prompt>` | Run a prompt on a recurring interval (v2.1.71) |
+| `/effort [low\|medium\|high\|auto]` | Set effort level. Works while Claude is responding (v2.1.73+) |
+| `/config` | Configure settings including output style (replaces deprecated `/output-style` v2.1.73+) |
+| `/btw` | Side question that sees full context but has no tools; answer discarded from history |
+
 ## Best Practices
 
 1. **Keep commands focused**: One purpose per command

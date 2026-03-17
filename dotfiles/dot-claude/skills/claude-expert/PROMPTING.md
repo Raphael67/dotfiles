@@ -177,13 +177,13 @@ Start Claude's response to guide format:
 | Sonnet 4.6 | `claude-sonnet-4-6` | Frontier performance for coding, agents, and professional work at scale |
 | Haiku 4.5 | `claude-haiku-4-5-20251001` | Fast, simple tasks |
 
-> **Note**: Opus 4.0 and 4.1 have been removed from Claude Code (v2.1.68). Users are automatically migrated to Opus 4.6.
+> **Note**: Opus 4.0 and 4.1 have been removed from Claude Code (v2.1.68). Users are automatically migrated to Opus 4.6. Default Opus model on Bedrock, Vertex, and Microsoft Foundry is now Opus 4.6 (v2.1.73).
 
 ### Claude Opus 4.6 Capabilities
 
 Opus 4.6 is Anthropic's most advanced model with:
 - **1M token context window** (beta) - first Opus-class model with this capacity
-- **Adaptive thinking** - effort levels: `low`, `medium` (default for Max/Team), `high`, `max`
+- **Adaptive thinking** - effort levels: `low`, `medium` (default for Max/Team), `high`
 - **128k output tokens** support
 - **Context compaction** - automatic summarization of older conversation context
 - **Enhanced coding** - superior performance in large codebases, planning, code review
@@ -200,6 +200,22 @@ Analyze this complex architectural problem thoroughly.
 ```
 
 This is re-introduced as a per-turn effort override.
+
+**Effort level changes (v2.1.72+)**: Simplified to `low`/`medium`/`high` (removed `max`). Symbols: `○` low, `◐` medium, `●` high. Use `/effort auto` to reset to default. `/effort` works while Claude is responding (v2.1.73+).
+
+### Model Overrides (v2.1.73+)
+
+Use `modelOverrides` setting to map model picker entries to custom provider model IDs (e.g., Bedrock inference profile ARNs):
+
+```json
+{
+  "modelOverrides": {
+    "opus": "arn:aws:bedrock:us-west-2:123456789:inference-profile/custom-opus"
+  }
+}
+```
+
+Full model IDs (e.g., `claude-opus-4-6`) are now accepted in agent frontmatter `model:` field and `--agents` JSON config (v2.1.74).
 
 ### Fast Mode (Opus 4.6)
 

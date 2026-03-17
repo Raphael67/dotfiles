@@ -1,5 +1,7 @@
 {
-	"auths": {},
+	"auths": {
+		"registry.gitlab.com": {}
+	},
 	"credsStore": "osxkeychain",
 	"currentContext": "desktop-linux"
 }

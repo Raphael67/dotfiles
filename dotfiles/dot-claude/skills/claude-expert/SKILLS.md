@@ -104,8 +104,9 @@ Claude Code ships with built-in skills available in every session:
 |-------|-------------|
 | `/simplify` | Reviews recently changed files for code reuse, quality, and efficiency. Spawns 3 parallel review agents |
 | `/batch <instruction>` | Orchestrates large-scale parallel changes across a codebase. Decomposes into 5-30 units, each in an isolated git worktree |
-| `/debug [description]` | Troubleshoots current Claude Code session by reading debug logs |
-| `/claude-api` | Loads Claude API reference for your project's language. Auto-activates on `anthropic`/`@anthropic-ai/sdk`/`claude_agent_sdk` imports |
+| `/debug [description]` | Troubleshoots current Claude Code session by reading debug logs. Toggles debug logging on mid-session (v2.1.71) |
+| `/loop [interval] <prompt>` | Runs a prompt repeatedly on an interval (e.g., `/loop 5m check the deploy`). Schedules recurring cron tasks within the session (v2.1.71) |
+| `/claude-api` | Loads Claude API reference for your project's language (Python, TypeScript, Java, Go, Ruby, C#, PHP, cURL) + Agent SDK reference. Auto-activates on `anthropic`/`@anthropic-ai/sdk`/`claude_agent_sdk` imports |
 
 ## Argument Substitution
 
@@ -570,6 +571,7 @@ Available pre-built LSP plugins: `pyright-lsp`, `typescript-lsp`, `rust-lsp`.
 ## Environment Variables
 
 - `SLASH_COMMAND_TOOL_CHAR_BUDGET` - Character budget for skill descriptions (scales to 2% of context window; fallback minimum 16,000 chars)
+- `CLAUDE_CODE_DISABLE_CRON` - Immediately stop scheduled cron jobs mid-session (v2.1.72)
 
 ## Advanced Patterns
 

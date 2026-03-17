@@ -156,12 +156,14 @@ Always respond with:
 | `model` | No | Default model (`sonnet`, `opus`, `haiku`, `inherit`) |
 | `allowed-tools` | No | Restrict available tools |
 | `disallowedTools` | No | Tools to deny (removed from inherited list) |
-| `permissionMode` | No | `default`, `acceptEdits`, `delegate`, `dontAsk`, `bypassPermissions`, `plan` |
+| `permissionMode` | No | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan` |
 | `skills` | No | Preload skills into agent context |
 | `hooks` | No | Lifecycle hooks: PreToolUse, PostToolUse, Stop (converted to SubagentStop) |
 | `memory` | No | Persistent memory scope: `user`, `project`, or `local` |
 | `mcpServers` | No | MCP servers: reference configured names or define inline |
 | `maxTurns` | No | Limit conversation turns |
+| `background` | No | Set to `true` to always run as background task. Default: `false` |
+| `isolation` | No | Set to `worktree` to run in a temporary git worktree (isolated repo copy). Auto-cleaned if no changes |
 
 ### Permission Modes
 
@@ -594,27 +596,29 @@ In `settings.json`:
 }
 ```
 
-## Restricting Spawnable Agents with Task(agent_type)
+## Restricting Spawnable Agents with Agent(agent_type)
+
+> **Note**: In v2.1.63, the Task tool was renamed to Agent. Existing `Task(...)` references in settings and agent definitions still work as aliases.
 
 When an agent runs as main thread with `claude --agent`, restrict which subagent types it can spawn:
 
 ```yaml
 ---
 name: orchestrator
-tools: Task(worker, researcher), Read, Bash
+tools: Agent(worker, researcher), Read, Bash
 ---
 ```
 
 - This is an **allowlist**: only `worker` and `researcher` can be spawned
-- Use `Task` without parentheses to allow all subagent types
-- Omit `Task` entirely to prevent spawning any subagents
+- Use `Agent` without parentheses to allow all subagent types
+- Omit `Agent` entirely to prevent spawning any subagents
 - Only applies to main thread agents (`claude --agent`); subagents cannot spawn other subagents
 
 Also usable in permissions deny list:
 ```json
 {
   "permissions": {
-    "deny": ["Task(Explore)", "Task(my-agent)"]
+    "deny": ["Agent(Explore)", "Agent(my-agent)"]
   }
 }
 ```
@@ -694,6 +698,11 @@ Or per-session: `claude --teammate-mode in-process`
 - Lead is fixed for lifetime
 - Split panes not supported in VS Code terminal, Windows Terminal, or Ghostty
 - Permissions set at spawn (all teammates inherit lead's mode)
+- Team agents inherit the leader's model (v2.1.72)
+
+## Side Questions with /btw
+
+For quick questions about something already in your conversation, use `/btw` instead of a subagent. It sees your full context but has no tool access, and the answer is discarded rather than added to history.
 
 ## When to Use Multi-Agent Orchestration
 

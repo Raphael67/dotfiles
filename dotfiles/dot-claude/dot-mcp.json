@@ -26,6 +26,13 @@
                 "-y",
                 "@upstash/context7-mcp"
             ]
+        },
+        "datagouv": {
+            "command": "npx",
+            "args": [
+                "mcp-remote",
+                "https://mcp.data.gouv.fr/mcp"
+            ]
         }
     }
 }

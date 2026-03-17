@@ -32,3 +32,9 @@ fi
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# PostgreSQL client tools (libpq, keg-only)
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+
+# Added by Obsidian
+export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"

@@ -20,9 +20,10 @@ Hooks are scripts or prompts that execute in response to Claude Code events. The
 | `SessionStart` | Session begins/resumes | Environment setup (execution deferred at startup for performance) |
 | `SessionEnd` | Session terminates | Cleanup, logging |
 | `PreCompact` | Before context compaction | Pre-compaction actions |
-| `InstructionsLoaded` | After CLAUDE.md/rules/skills loaded | Post-instruction setup (v2.1.69+) |
-| `WorktreeCreate` | Git worktree created | Worktree setup (v2.1.69+) |
-| `WorktreeRemove` | Git worktree removed | Worktree cleanup (v2.1.69+) |
+| `InstructionsLoaded` | After CLAUDE.md/rules/skills loaded | Post-instruction setup (v2.1.69+). Fires at session start and lazily during session |
+| `ConfigChange` | Configuration file changes during session | React to settings/skills changes. Matchers: `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills` (v2.1.72+) |
+| `WorktreeCreate` | Git worktree created (via `--worktree` or `isolation: "worktree"`) | Worktree setup, replaces default git behavior (v2.1.69+) |
+| `WorktreeRemove` | Git worktree removed (session exit or subagent finish) | Worktree cleanup (v2.1.69+) |
 | `PermissionRequest` | Permission dialog shown | Dynamic permission decisions |
 | `Notification` | Claude sends notification | Desktop notifications |
 
@@ -247,7 +248,8 @@ Hooks are configured under the `hooks` key:
 | Notification | Notification type | `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog` |
 | SubagentStart, SubagentStop | Agent type | `Bash`, `Explore`, `Plan`, custom names |
 | PreCompact | Trigger type | `manual`, `auto` |
-| UserPromptSubmit, Stop, TeammateIdle, TaskCompleted | No matcher support | Always fires |
+| `ConfigChange` | Configuration source | `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills` |
+| UserPromptSubmit, Stop, TeammateIdle, TaskCompleted, WorktreeCreate, WorktreeRemove, InstructionsLoaded | No matcher support | Always fires |
 
 ### Common Fields
 
@@ -771,6 +773,7 @@ state_file = f"~/.claude/security_warnings_state_{session_id}.json"
 | `CLAUDE_CODE_REMOTE` | `true` if running in remote/web environment |
 | `CLAUDE_ENV_FILE` | Path to persist env vars (Setup and SessionStart) |
 | `CLAUDE_PLUGIN_ROOT` | Plugin script directory path (for plugin hooks) |
+| `CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS` | Configurable timeout for SessionEnd hooks (v2.1.74). Previously hardcoded at 1.5s |
 
 ## Advanced Hook Output
 

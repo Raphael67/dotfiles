@@ -101,6 +101,34 @@ MCP_CLIENT_SECRET=your-secret claude mcp add --transport http my-server \
 
 The `--client-secret` flag prompts for masked input. Use `MCP_CLIENT_SECRET` env var for CI/automation.
 
+### Fixed OAuth Callback Port
+
+Use `--callback-port` to fix the OAuth callback port for servers requiring a specific redirect URI:
+
+```bash
+# With dynamic client registration
+claude mcp add --transport http --callback-port 8080 my-server https://mcp.example.com/mcp
+
+# With pre-configured credentials
+claude mcp add --transport http --client-id YOUR_ID --client-secret --callback-port 8080 my-server https://mcp.example.com/mcp
+```
+
+Also supported in JSON config:
+```json
+{
+  "mcpServers": {
+    "my-server": {
+      "type": "http",
+      "url": "https://mcp.example.com/mcp",
+      "oauth": {
+        "clientId": "your-client-id",
+        "callbackPort": 8080
+      }
+    }
+  }
+}
+```
+
 ### Custom Auth Server Metadata URL (v2.1.69+)
 
 For servers using non-standard OAuth discovery:
@@ -435,7 +463,8 @@ MAX_MCP_OUTPUT_TOKENS=50000 claude
 | `MAX_MCP_OUTPUT_TOKENS` | Max tokens in output (default: 25,000) |
 | `MCP_TIMEOUT` | Server startup timeout in ms |
 | `MCP_CLIENT_SECRET` | OAuth client secret for CI/automation |
-| `ENABLE_TOOL_SEARCH` | Dynamic tool loading: `auto` (default), `auto:N`, `true`, `false` |
+| `ENABLE_TOOL_SEARCH` | Dynamic tool loading: `auto` (default), `auto:N`, `true`, `false`. Disabled by default when `ANTHROPIC_BASE_URL` is non-first-party |
+| `ENABLE_CLAUDEAI_MCP_SERVERS` | Set to `false` to disable claude.ai MCP servers in Claude Code |
 
 ## CLI Commands
 

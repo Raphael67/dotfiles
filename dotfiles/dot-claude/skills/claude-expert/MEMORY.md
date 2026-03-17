@@ -138,6 +138,16 @@ Auto memory is Claude's persistent note-taking system. Claude automatically reco
 - Direct request: "remember that we use pnpm, not npm"
 - Direct request: "save to memory that API tests require local Redis"
 
+### Custom Memory Directory (v2.1.74+)
+
+Store auto memory in a custom location with `autoMemoryDirectory`:
+```json
+// ~/.claude/settings.json or .claude/settings.local.json
+{ "autoMemoryDirectory": "~/my-custom-memory-dir" }
+```
+
+Accepted from policy, local, and user settings. NOT accepted from project settings (`.claude/settings.json`) to prevent a shared project from redirecting memory writes.
+
 ### Configuration
 
 Disable auto memory globally:
@@ -157,6 +167,25 @@ Environment variable override (takes precedence over all settings):
 export CLAUDE_CODE_DISABLE_AUTO_MEMORY=1  # Force off
 export CLAUDE_CODE_DISABLE_AUTO_MEMORY=0  # Force on
 ```
+
+### Excluding CLAUDE.md Files (claudeMdExcludes)
+
+In large monorepos, skip irrelevant CLAUDE.md files:
+```json
+// .claude/settings.local.json
+{
+  "claudeMdExcludes": [
+    "**/monorepo/CLAUDE.md",
+    "/home/user/monorepo/other-team/.claude/rules/**"
+  ]
+}
+```
+
+Patterns match against absolute file paths using glob syntax. Configurable at any settings layer. Managed policy CLAUDE.md cannot be excluded.
+
+### CLAUDE.md HTML Comments (v2.1.72+)
+
+HTML comments (`<!-- ... -->`) in CLAUDE.md are now hidden from Claude when auto-injected at session start. Comments remain visible when read with the Read tool. Useful for metadata or notes that shouldn't consume context.
 
 ## Agent Memory
 

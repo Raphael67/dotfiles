@@ -1,7 +1,48 @@
 {
-  "lastUpdateTimestamp": "2026-03-06T12:00:00Z",
-  "lastVersion": "2.1.70",
+  "lastUpdateTimestamp": "2026-03-13T12:00:00Z",
+  "lastVersion": "2.1.74",
   "updateHistory": [
+    {
+      "timestamp": "2026-03-13T12:00:00Z",
+      "version": "2.1.74",
+      "filesUpdated": [
+        "SKILLS.md",
+        "COMMANDS.md",
+        "SUBAGENTS.md",
+        "PROMPTING.md",
+        "HOOKS.md",
+        "MCP.md",
+        "MEMORY.md",
+        "OUTPUT-STYLES.md",
+        "SKILL.md"
+      ],
+      "changesApplied": 18,
+      "newFeatures": [
+        "/loop command for recurring prompts on interval (v2.1.71)",
+        "Cron scheduling tools for recurring prompts within a session (v2.1.71)",
+        "Effort levels simplified to low/medium/high, removed max (v2.1.72)",
+        "/plan accepts optional description argument (v2.1.72)",
+        "ExitWorktree tool for leaving worktree sessions (v2.1.72)",
+        "CLAUDE.md HTML comments hidden from auto-injection (v2.1.72)",
+        "CLAUDE_CODE_DISABLE_CRON env var (v2.1.72)",
+        "model parameter restored on Agent tool (v2.1.72)",
+        "Task tool renamed to Agent tool (v2.1.63 alias still works)",
+        "modelOverrides setting for custom provider model IDs (v2.1.73)",
+        "/output-style deprecated, use /config instead (v2.1.73)",
+        "Default Opus on Bedrock/Vertex/Foundry now Opus 4.6 (v2.1.73)",
+        "/effort works while Claude is responding (v2.1.73)",
+        "autoMemoryDirectory setting for custom memory location (v2.1.74)",
+        "/context command with actionable optimization tips (v2.1.74)",
+        "Full model IDs accepted in agent frontmatter model: field (v2.1.74)",
+        "CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS env var (v2.1.74)",
+        "ConfigChange hook event for reacting to settings changes",
+        "background and isolation: worktree agent frontmatter fields",
+        "--callback-port for MCP OAuth fixed callback port",
+        "claudeMdExcludes setting to skip irrelevant CLAUDE.md files",
+        "/btw side questions (full context, no tools, discarded from history)",
+        "ENABLE_CLAUDEAI_MCP_SERVERS env var to disable claude.ai MCP servers"
+      ]
+    },
     {
       "timestamp": "2026-03-06T12:00:00Z",
       "version": "2.1.70",

@@ -47,14 +47,14 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - **MANDATORY**: Every skill with external resources must include a self-update cookbook (see SKILLS.md Self-Update Pattern)
 
 ### Hooks
-- 13 hook events covering the full lifecycle (Setup, SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, etc.)
+- 17 hook events covering the full lifecycle (Setup, SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, ConfigChange, etc.)
 - Setup hook (`claude --init`) for repo initialization and dependency installation
 - Can `block`, `allow`, or `ask` for confirmation
 - Exit codes: 0=allow, 2=block, JSON output for decisions
 - `CLAUDE_ENV_FILE` for persisting env vars (Setup/SessionStart)
 
 ### MCP
-- Servers defined in `~/.claude/.mcp.json`
+- Servers defined in `~/.claude.json`, `.mcp.json`, or managed-mcp.json
 - Provide external tools and resources
 - Use stdio, SSE, or HTTP transport
 

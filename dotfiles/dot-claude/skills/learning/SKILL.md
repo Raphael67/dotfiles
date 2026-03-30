@@ -33,25 +33,25 @@ Create personalized, structured learning plans for any topic and store them in O
 - **TOPIC**: $ARGUMENTS
 - **SKILL_DIR**: directory containing this SKILL.md
 - **ENV_FILE**: SKILL_DIR/.env
-- **VAULT_PATH**: loaded from ENV_FILE (see Bootstrap below)
-- **OUTPUT_DIR**: VAULT_PATH/Projects/Learning - TOPIC
+- **LEARNING_PATH**: loaded from ENV_FILE (see Bootstrap below)
+- **OUTPUT_DIR**: LEARNING_PATH/Learning - TOPIC
 
 ## Bootstrap: Load Configuration
 
-Before anything else (including Argument Routing), resolve VAULT_PATH:
+Before anything else (including Argument Routing), resolve LEARNING_PATH:
 
 1. **Read** `ENV_FILE` (i.e., `SKILL_DIR/.env`)
 2. **If the file exists** and contains a non-empty `LEARNING_PATH=` value:
-   - Set `VAULT_PATH` to that value (strip quotes if present)
+   - Set `LEARNING_PATH` to that value (strip quotes if present)
 3. **If the file does not exist or `LEARNING_PATH` is empty/missing**:
    - Ask the user via `AskUserQuestion`:
-     > "Where should learning plans be stored? Enter the full path to the directory (e.g., ~/Documents/Learning or an Obsidian vault path):"
+     > "Where should learning plans be stored? Enter the full path to the directory where `Learning - {topic}` folders will be created (e.g., ~/Documents/Projects):"
    - Write the answer to `ENV_FILE` as: `LEARNING_PATH=<user's answer>`
-   - Set `VAULT_PATH` to the user's answer
+   - Set `LEARNING_PATH` to the user's answer
 
 **`.env` format example:**
 ```
-LEARNING_PATH=~/Library/Mobile Documents/iCloud~md~obsidian/Documents/my_vault
+LEARNING_PATH=~/Library/Mobile Documents/iCloud~md~obsidian/Documents/my_vault/Projects
 ```
 
 ## Argument Routing
@@ -87,9 +87,9 @@ If $ARGUMENTS is "self-update", read **cookbook/self-update.md** and follow its 
 
 Scan for existing learning plans and let the user choose one to continue.
 
-1. **Scan** for all `Learning - *` directories in VAULT_PATH/Projects/:
+1. **Scan** for all `Learning - *` directories in LEARNING_PATH/:
    ```
-   Glob pattern: VAULT_PATH/Projects/Learning - */00-Plan.md
+   Glob pattern: LEARNING_PATH/Learning - */00-Plan.md
    ```
 
 2. **For each plan found**, read its `00-Progress.md` to extract:

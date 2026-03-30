@@ -409,6 +409,34 @@ async function main() {
 main();
 ```
 
+## MCP Elicitation (v2.1.76+)
+
+MCP servers can request interactive user input during tool calls. This is handled via `Elicitation` and `ElicitationResult` hooks:
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "Elicitation",
+    "action": "accept",
+    "content": { "username": "value" }
+  }
+}
+```
+
+## MCP Channels (Research Preview, v2.1.80+)
+
+Channels allow MCP servers to push messages into a session:
+- `--channels` flag enables channel support for MCP servers
+- `--channels` permission relay forwards tool approvals to MCP servers (v2.1.81+)
+
+```bash
+claude mcp add --transport http --channels my-server https://api.example.com/mcp
+```
+
+## MCP OAuth CIMD (v2.1.81+)
+
+Support for Client ID Metadata Document (CIMD / SEP-991) for OAuth authentication with MCP servers.
+
 ## Using MCP Tools in Claude
 
 Once configured, MCP tools appear with prefix `mcp__ServerName__`:
@@ -465,6 +493,7 @@ MAX_MCP_OUTPUT_TOKENS=50000 claude
 | `MCP_CLIENT_SECRET` | OAuth client secret for CI/automation |
 | `ENABLE_TOOL_SEARCH` | Dynamic tool loading: `auto` (default), `auto:N`, `true`, `false`. Disabled by default when `ANTHROPIC_BASE_URL` is non-first-party |
 | `ENABLE_CLAUDEAI_MCP_SERVERS` | Set to `false` to disable claude.ai MCP servers in Claude Code |
+| `ANTHROPIC_CUSTOM_MODEL_OPTION` | Custom model entry in `/model` picker (v2.1.78+) |
 
 ## CLI Commands
 

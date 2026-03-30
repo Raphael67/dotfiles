@@ -36,6 +36,7 @@ Status lines receive JSON via stdin with these fields:
 | `cost` | object | `total_cost`, `input_tokens`, `output_tokens`, `cache_creation_tokens`, `cache_read_tokens` |
 | `duration` | object | `start_time`, `elapsed_seconds` |
 | `line_changes` | object | `additions`, `deletions` |
+| `rate_limits` | object | Rate limit info with 5-hour and 7-day windows (v2.1.80+) |
 
 ## Output Format
 

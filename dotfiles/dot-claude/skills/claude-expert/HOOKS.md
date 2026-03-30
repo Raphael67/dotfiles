@@ -20,6 +20,12 @@ Hooks are scripts or prompts that execute in response to Claude Code events. The
 | `SessionStart` | Session begins/resumes | Environment setup (execution deferred at startup for performance) |
 | `SessionEnd` | Session terminates | Cleanup, logging |
 | `PreCompact` | Before context compaction | Pre-compaction actions |
+| `PostCompact` | After context compaction completes (v2.1.76+) | Post-compaction actions |
+| `StopFailure` | Turn ends due to API error (v2.1.78+) | Rate-limit handling, error recovery. Output and exit code ignored |
+| `Elicitation` | When an MCP server requests user input (v2.1.76+) | MCP input decisions |
+| `ElicitationResult` | After user responds to MCP elicitation (v2.1.76+) | MCP response filtering |
+| `CwdChanged` | Working directory changes (v2.1.83+) | Reactive environment management |
+| `FileChanged` | File changes detected (v2.1.83+) | Auto-linting, file watchers |
 | `InstructionsLoaded` | After CLAUDE.md/rules/skills loaded | Post-instruction setup (v2.1.69+). Fires at session start and lazily during session |
 | `ConfigChange` | Configuration file changes during session | React to settings/skills changes. Matchers: `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills` (v2.1.72+) |
 | `WorktreeCreate` | Git worktree created (via `--worktree` or `isolation: "worktree"`) | Worktree setup, replaces default git behavior (v2.1.69+) |
@@ -249,7 +255,8 @@ Hooks are configured under the `hooks` key:
 | SubagentStart, SubagentStop | Agent type | `Bash`, `Explore`, `Plan`, custom names |
 | PreCompact | Trigger type | `manual`, `auto` |
 | `ConfigChange` | Configuration source | `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills` |
-| UserPromptSubmit, Stop, TeammateIdle, TaskCompleted, WorktreeCreate, WorktreeRemove, InstructionsLoaded | No matcher support | Always fires |
+| `StopFailure` | Error type | `rate_limit`, `authentication_failed`, `server_error` |
+| UserPromptSubmit, Stop, TeammateIdle, TaskCompleted, WorktreeCreate, WorktreeRemove, InstructionsLoaded, CwdChanged, FileChanged | No matcher support | Always fires |
 
 ### Common Fields
 
@@ -773,7 +780,9 @@ state_file = f"~/.claude/security_warnings_state_{session_id}.json"
 | `CLAUDE_CODE_REMOTE` | `true` if running in remote/web environment |
 | `CLAUDE_ENV_FILE` | Path to persist env vars (Setup and SessionStart) |
 | `CLAUDE_PLUGIN_ROOT` | Plugin script directory path (for plugin hooks) |
+| `CLAUDE_PLUGIN_DATA` | Persistent data directory for plugin state (survives updates) (v2.1.78+) |
 | `CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS` | Configurable timeout for SessionEnd hooks (v2.1.74). Previously hardcoded at 1.5s |
+| `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` | Set to `1` to strip credentials from subprocess environments (v2.1.83+) |
 
 ## Advanced Hook Output
 

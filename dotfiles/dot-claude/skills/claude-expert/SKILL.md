@@ -47,7 +47,7 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - **MANDATORY**: Every skill with external resources must include a self-update cookbook (see SKILLS.md Self-Update Pattern)
 
 ### Hooks
-- 17 hook events covering the full lifecycle (Setup, SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, ConfigChange, etc.)
+- 22+ hook events covering the full lifecycle (Setup, SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, StopFailure, CwdChanged, FileChanged, Elicitation, etc.)
 - Setup hook (`claude --init`) for repo initialization and dependency installation
 - Can `block`, `allow`, or `ask` for confirmation
 - Exit codes: 0=allow, 2=block, JSON output for decisions

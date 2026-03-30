@@ -164,6 +164,8 @@ Always respond with:
 | `maxTurns` | No | Limit conversation turns |
 | `background` | No | Set to `true` to always run as background task. Default: `false` |
 | `isolation` | No | Set to `worktree` to run in a temporary git worktree (isolated repo copy). Auto-cleaned if no changes |
+| `effort` | No | Effort level when agent is active. Overrides session effort. Options: `low`, `medium`, `high`, `max` (Opus 4.6 only) |
+| `initialPrompt` | No | Auto-submit prompt for first turn (v2.1.83+). Agent starts working immediately without manual trigger |
 
 ### Permission Modes
 
@@ -699,6 +701,10 @@ Or per-session: `claude --teammate-mode in-process`
 - Split panes not supported in VS Code terminal, Windows Terminal, or Ghostty
 - Permissions set at spawn (all teammates inherit lead's mode)
 - Team agents inherit the leader's model (v2.1.72)
+
+## TaskOutput Deprecation (v2.1.83+)
+
+The `TaskOutput` tool is deprecated. Use `Read` on the task output file path instead for reading agent results.
 
 ## Side Questions with /btw
 

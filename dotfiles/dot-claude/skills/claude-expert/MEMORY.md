@@ -209,6 +209,10 @@ When memory is enabled:
 - Agent maintains `MEMORY.md` automatically
 - First 200 lines of `MEMORY.md` in system prompt each session
 
+## Managed Settings Drop-In Directory (v2.1.83+)
+
+`managed-settings.d/` directory supports independent policy fragments for modular organization-wide configuration. Each file in the directory is loaded as an independent policy fragment.
+
 ## Organization-Level Memory
 
 Deploy centrally managed CLAUDE.md to the managed policy location via MDM, Group Policy, Ansible, etc.

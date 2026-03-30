@@ -117,3 +117,5 @@ insteadOf = "gh:"
 
 [url "git@gitlab.com:"]
 insteadOf = "gl:"
+[rerere]
+	enabled = true

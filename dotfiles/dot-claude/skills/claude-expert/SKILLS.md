@@ -94,6 +94,7 @@ Instructions and content...
 | `agent` | No | Agent type when `context: fork` (e.g., `Explore`, `Plan`, custom) |
 | `model` | No | Model to use (`sonnet`, `opus`, `haiku`) |
 | `hooks` | No | Lifecycle hooks scoped to skill. See Hooks reference |
+| `effort` | No | Effort level when skill is active. Overrides session effort. Options: `low`, `medium`, `high`, `max` (Opus 4.6 only) (v2.1.80+) |
 | `argument-hint` | No | Hint shown during autocomplete (e.g., `[issue-number]`) |
 
 ## Bundled Skills
@@ -548,6 +549,7 @@ my-plugin/
 - Install: `/plugin install plugin-name@marketplace` or `claude plugin install`
 - Test locally: `claude --plugin-dir ./my-plugin`
 - `${CLAUDE_PLUGIN_ROOT}` env var for portable paths in hooks/scripts
+- `${CLAUDE_PLUGIN_DATA}` env var for persistent plugin state (survives updates) (v2.1.78+)
 - Plugin cache at `~/.claude/plugins/cache`
 - Reload after changes: `/reload-plugins`
 
@@ -572,6 +574,7 @@ Available pre-built LSP plugins: `pyright-lsp`, `typescript-lsp`, `rust-lsp`.
 
 - `SLASH_COMMAND_TOOL_CHAR_BUDGET` - Character budget for skill descriptions (scales to 2% of context window; fallback minimum 16,000 chars)
 - `CLAUDE_CODE_DISABLE_CRON` - Immediately stop scheduled cron jobs mid-session (v2.1.72)
+- `CLAUDE_CODE_PLUGIN_SEED_DIR` - Seed directory for plugins. Supports multiple directories (v2.1.79+)
 
 ## Advanced Patterns
 

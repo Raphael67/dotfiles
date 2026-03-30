@@ -184,7 +184,7 @@ Start Claude's response to guide format:
 Opus 4.6 is Anthropic's most advanced model with:
 - **1M token context window** (beta) - first Opus-class model with this capacity
 - **Adaptive thinking** - effort levels: `low`, `medium` (default for Max/Team), `high`
-- **128k output tokens** support
+- **128k output tokens** support (default max increased to 64k in v2.1.77, upper bound 128k)
 - **Context compaction** - automatic summarization of older conversation context
 - **Enhanced coding** - superior performance in large codebases, planning, code review
 - **Agentic excellence** - improved autonomous task execution and tool coordination
@@ -201,7 +201,7 @@ Analyze this complex architectural problem thoroughly.
 
 This is re-introduced as a per-turn effort override.
 
-**Effort level changes (v2.1.72+)**: Simplified to `low`/`medium`/`high` (removed `max`). Symbols: `○` low, `◐` medium, `●` high. Use `/effort auto` to reset to default. `/effort` works while Claude is responding (v2.1.73+).
+**Effort level changes (v2.1.72+)**: Simplified to `low`/`medium`/`high` (removed `max` from general use; `max` still available for Opus 4.6 only). Symbols: `○` low, `◐` medium, `●` high. Use `/effort auto` to reset to default. `/effort` works while Claude is responding (v2.1.73+). `/effort` also available as a slash command (v2.1.76+).
 
 ### Model Overrides (v2.1.73+)
 

@@ -203,6 +203,8 @@ TIMEOUT_SECONDS: 3600
 DEFAULT_MODEL: sonnet
 ```
 
+For variables that depend on the user's machine (paths, secrets, preferences), load them from a `.env` file at runtime instead of hardcoding. See [Environment Bootstrap Pattern](#environment-bootstrap-pattern).
+
 ### 2. Instructions Section
 Core guidance for the skill:
 
@@ -466,6 +468,7 @@ Writes to `.claude/skills` directory are **blocked in sandbox mode**. This preve
 5. **Version your skills**: Track changes with version field
 6. **Document reference files**: Table showing when to read each
 7. **Always add self-update**: Every skill with external resources MUST include a self-update cookbook. See [Self-Update Pattern](#self-update-pattern)
+8. **Use `.env` for machine-specific config**: Paths, secrets, user preferences — never hardcode. See [Environment Bootstrap Pattern](#environment-bootstrap-pattern)
 
 ## Nested Skill Discovery (Monorepos)
 
@@ -671,6 +674,82 @@ DEFAULT_PORT: 5173
 - Change directory to SKILL_DIR before operations
 - Use DEFAULT_PORT unless specified otherwise
 - Never create files outside SKILL_DIR
+```
+
+### Environment Bootstrap Pattern
+
+Make skills portable by loading machine-specific configuration from a `.env` file on first run.
+
+**When to use**: The skill needs paths, secrets, or preferences that vary per machine. Never hardcode these values.
+
+#### Directory Structure
+```
+skill-name/
+├── SKILL.md
+├── .env              # Machine-specific config (gitignored)
+├── cookbook/
+└── ...
+```
+
+#### `.env` Format
+```bash
+# One KEY=VALUE per line
+OUTPUT_PATH=~/Library/Mobile Documents/iCloud~md~obsidian/Documents/my_vault
+API_ENDPOINT=https://api.example.com
+PREFERRED_FORMAT=markdown
+```
+
+#### Bootstrap Section Template
+
+Add this section to SKILL.md **before** Argument Routing or Workflow:
+
+```markdown
+## Variables
+
+- **SKILL_DIR**: directory containing this SKILL.md
+- **ENV_FILE**: SKILL_DIR/.env
+- **OUTPUT_PATH**: loaded from ENV_FILE (see Bootstrap below)
+
+## Bootstrap: Load Configuration
+
+Before anything else (including Argument Routing), resolve configuration:
+
+1. **Read** `ENV_FILE` (i.e., `SKILL_DIR/.env`)
+2. **If the file exists** and contains a non-empty `OUTPUT_PATH=` value:
+   - Set the variable to that value (strip quotes if present)
+3. **If the file does not exist or the key is empty/missing**:
+   - Ask the user via `AskUserQuestion`:
+     > "Where should output files be stored? Enter the full path:"
+   - Write the answer to `ENV_FILE` as: `OUTPUT_PATH=<user's answer>`
+   - Set the variable to the user's answer
+```
+
+#### Use Cases
+
+| Type | How to Resolve | Example |
+|------|---------------|---------|
+| Paths | `AskUserQuestion` with example path | `OUTPUT_PATH=~/Documents/notes` |
+| Secrets | `bw-fetch password "<name>"` piped into `.env` | `API_KEY=sk-...` |
+| Preferences | `AskUserQuestion` with options | `FORMAT=markdown` |
+
+#### Agent Companion
+
+If the skill has an associated agent in `~/.claude/agents/`, the agent should reference the **same** `.env` file via absolute path:
+
+```markdown
+## Variables
+
+- **SKILL_DIR**: ~/.claude/skills/skill-name
+- **ENV_FILE**: SKILL_DIR/.env
+```
+
+This way configuring once (from either the skill or the agent) works for both.
+
+#### `.gitignore`
+
+Always exclude `.env` from version control. If the skill is tracked in a dotfiles repo, add:
+```
+dotfiles/dot-claude/skills/skill-name/.env
 ```
 
 ### Argument Hint Pattern

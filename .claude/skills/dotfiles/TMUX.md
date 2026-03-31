@@ -17,6 +17,8 @@ dotfiles/dot-config/tmux/
     ├── tmux-continuum/
     ├── tmux-fzf/
     ├── tmux-fzf-url/
+    ├── tmux-sessionx/
+    ├── tmux-floax/
     └── catppuccin/
 ```
 
@@ -75,6 +77,8 @@ set -g @plugin 'git@github.com:user/plugin'
 | `catppuccin/tmux` | Theme |
 | `tmux-cpu` | CPU display |
 | `tmux-battery` | Battery display |
+| `tmux-sessionx` | Fuzzy session manager with zoxide |
+| `tmux-floax` | Floating popup panes |
 
 ## Key Bindings
 
@@ -97,6 +101,21 @@ bind C-x send-prefix
 | `C-Up` | Choose tree |
 | `prefix + 0-9` | Go to window by number |
 | `prefix + >` / `<` | Swap window right/left |
+| `prefix + o` | Open sessionx (fuzzy session picker) |
+
+### vim-tmux-navigator
+
+Seamless navigation between tmux panes and nvim splits using the same keys:
+
+| Key | Action |
+|-----|--------|
+| `C-h` | Move left (across nvim splits and tmux panes) |
+| `C-j` | Move down |
+| `C-k` | Move up |
+| `C-l` | Move right |
+| `C-\` | Previous pane/split |
+
+Configured in `tmux.custom.conf` with `is_vim` shell check — detects nvim/vim/fzf and forwards keys accordingly.
 
 ### Panes and Windows
 
@@ -137,6 +156,7 @@ bind C-x send-prefix
 | `prefix + :` | Command prompt |
 | `prefix + ?` | List key bindings |
 | `prefix + N` | Open new Ghostty window without tmux |
+| `prefix + p` | Toggle floating pane (floax) |
 | `prefix + r` | Reload config |
 
 ## Session Persistence

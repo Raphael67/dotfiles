@@ -560,3 +560,214 @@ alias ra='ranger'
 | `yy` | Copy |
 | `dd` | Cut |
 | `pp` | Paste |
+
+---
+
+## atuin (shell history database)
+
+### Configuration
+
+```
+dotfiles/dot-config/atuin/config.toml -> ~/.config/atuin/config.toml
+```
+
+### Shell Setup
+
+```zsh
+# In dot-zshrc
+_evalcache atuin init zsh
+```
+
+### Key Bindings
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+R` | Interactive history search (fuzzy) |
+| `Up arrow` | History filtered to current host |
+| `Enter` | Execute selected command |
+| `Tab` | Return to shell for editing |
+| `Ctrl+R` (inside search) | Cycle filter: global → host → session → directory |
+
+### Configuration Highlights
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `search_mode` | fuzzy | Typo-tolerant matching |
+| `filter_mode` | global | Default search all history |
+| `filter_mode_shell_up_key_binding` | host | Up arrow = current machine only |
+| `workspaces` | true | Git-aware directory filtering |
+| `secrets_filter` | true | Auto-filter AWS keys, tokens |
+| `enter_accept` | true | Enter runs immediately |
+
+### Commands
+
+```bash
+atuin stats              # Most-used commands
+atuin search "pattern"   # Search history
+atuin import auto        # Import from zsh/bash
+```
+
+---
+
+## direnv (per-directory environment)
+
+### Configuration
+
+```
+dotfiles/dot-config/direnv/direnv.toml -> ~/.config/direnv/direnv.toml
+dotfiles/dot-config/direnv/direnvrc -> ~/.config/direnv/direnvrc
+```
+
+### Shell Setup
+
+```zsh
+# In dot-zshrc
+_evalcache direnv hook zsh
+```
+
+### Usage
+
+```bash
+cd ~/Projects/myapp     # .envrc auto-loads
+cd ~                    # .envrc auto-unloads
+direnv allow            # Trust a new/changed .envrc
+direnv edit .           # Edit .envrc (auto-allows on save)
+```
+
+### Custom stdlib (from direnvrc)
+
+| Function | Usage in .envrc | Purpose |
+|----------|----------------|---------|
+| `use nvm` | `use nvm` or `use nvm 20` | Auto-switch Node version from .nvmrc |
+| `use pyenv` | `use pyenv` or `use pyenv 3.12` | Auto-switch Python from .python-version |
+| `layout uv` | `layout uv` | Create/activate uv virtualenv |
+
+### Configuration Highlights
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `load_dotenv` | true | Auto-load .env files |
+| `strict_env` | true | Fail fast on errors |
+| `hide_env_diff` | true | Cleaner output |
+| `whitelist.prefix` | ~/Projects | Auto-trust project .envrc files |
+
+---
+
+## television (TUI data browser)
+
+### Configuration
+
+```
+dotfiles/dot-config/television/config.toml -> ~/.config/television/config.toml
+dotfiles/dot-config/television/cable/ -> ~/.config/television/cable/
+dotfiles/dot-config/television/scripts/ -> ~/.config/television/scripts/
+```
+
+### Shell Setup
+
+```zsh
+# In dot-zshrc
+_evalcache tv init zsh
+```
+
+### Usage
+
+```bash
+tv                      # Default channel (files)
+tv git-branch           # Browse git branches
+tv brew-packages        # Browse/manage brew packages
+tv docker-containers    # Browse containers
+tv claude-sessions      # Browse Claude Code sessions
+```
+
+### Shell Integration (Ctrl+T)
+
+Type a command, then press `Ctrl+T` — television picks the right channel:
+
+| Command prefix | Channel |
+|---------------|---------|
+| `git checkout` | git-branch |
+| `git add` | git-diff |
+| `cd` | dirs |
+| `nvim` | files |
+| `docker run` | docker-images |
+
+### Key Bindings (inside tv)
+
+| Key | Action |
+|-----|--------|
+| `Enter` | Confirm selection |
+| `Tab` | Multi-select |
+| `Ctrl+R` | Remote control (switch channels) |
+| `Ctrl+X` | Action picker |
+| `Ctrl+Y` | Copy to clipboard |
+| `Ctrl+O` | Toggle preview |
+
+### Custom Cable Channels
+
+| Channel | Source | Actions |
+|---------|--------|---------|
+| brew-packages | brew list | upgrade |
+| git-branch | branches | checkout, delete, merge |
+| git-log | commit history | — |
+| git-diff | changed files | — |
+| git-stash | stashes | apply, drop |
+| docker-containers | containers | start, logs, exec |
+| gh-prs | open PRs | open in browser, checkout |
+| k8s-pods | pods | logs, exec |
+| claude-sessions | JSONL files | resume, open in VS Code, delete |
+| tmux-sessions | sessions | switch |
+
+---
+
+## glow (terminal markdown renderer)
+
+### Configuration
+
+```
+dotfiles/dot-config/glow/glow.yml -> ~/.config/glow/glow.yml
+```
+
+### Usage
+
+```bash
+glow README.md          # Render a markdown file
+glow                    # TUI browser for markdown files
+cat notes.md | glow     # Pipe markdown into glow
+```
+
+### Configuration
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `style` | auto | Matches terminal dark/light mode |
+| `pager` | true | Paginate long documents |
+| `width` | 100 | Readable line length |
+| `mouse` | true | Scroll in TUI mode |
+| `local` | true | No Charm Cloud |
+
+---
+
+## fzf-tab (fuzzy tab completion)
+
+Installed as an oh-my-zsh custom plugin. Replaces default zsh tab completion with fzf.
+
+### Previews (configured via zstyle in dot-zshrc)
+
+| Context | Preview |
+|---------|---------|
+| `cd` tab | eza directory listing |
+| `cat`/`nvim` tab | bat file preview |
+| `git checkout` tab | git log graph |
+| `kill` tab | process details |
+| `brew` tab | brew info |
+| `export`/`unset` tab | variable value |
+
+### Key Bindings
+
+| Key | Action |
+|-----|--------|
+| `Tab` | Trigger fuzzy completion |
+| `Ctrl+Space` | Multi-select |
+| `<` / `>` | Switch completion groups |
+| `/` | Continue into selected directory |

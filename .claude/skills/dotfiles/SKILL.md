@@ -1,6 +1,6 @@
 ---
 name: dotfiles
-description: Expert in managing dotfiles using GNU Stow. Use when working with shell configs (zsh, oh-my-zsh, bash), editors (neovim, nvim, vscode), terminal tools (tmux, ghostty), prompts (starship), CLI replacements (eza, bat, fzf, zoxide, lazygit), keyboard (karabiner), secrets (bitwarden-cli), nushell integration, XDG Base Directory compliance, or any configuration in ~/.config. Covers stow symlink management, lazy loading patterns, Catppuccin theming, security best practices, and this specific dotfiles repository structure.
+description: Expert in managing dotfiles using GNU Stow. Use when working with shell configs (zsh, oh-my-zsh, bash), editors (neovim, nvim, vscode), terminal tools (tmux, ghostty), prompts (starship), CLI replacements (eza, bat, fzf, zoxide, lazygit, atuin, direnv, television, glow), keyboard (karabiner), secrets (bitwarden-cli), nushell integration, XDG Base Directory compliance, or any configuration in ~/.config. Covers stow symlink management, lazy loading patterns, Catppuccin theming, security best practices, and this specific dotfiles repository structure.
 user-invocable: true
 argument-hint: [self-update]
 ---
@@ -60,6 +60,10 @@ If argument is `self-update`, execute [cookbook/self-update.md](cookbook/self-up
 │   │   ├── zsh/               # Zsh aliases
 │   │   ├── bat/               # bat config
 │   │   ├── lazygit/           # lazygit config
+│   │   ├── atuin/              # Shell history database
+│   │   ├── direnv/             # Per-directory env vars
+│   │   ├── television/         # TUI data browser
+│   │   ├── glow/               # Markdown renderer
 │   │   ├── karabiner/         # Keyboard mods
 │   │   └── nushell/           # Nushell config
 │   ├── dot-claude/            # -> ~/.claude/

@@ -55,7 +55,7 @@ export ZSH="${XDG_DATA_HOME:-$HOME/.local/share}/oh-my-zsh"
 # Fallback: use legacy path if XDG path doesn't exist yet
 [[ ! -d "$ZSH" && -d "$HOME/.oh-my-zsh" ]] && export ZSH="$HOME/.oh-my-zsh"
 
-plugins=(evalcache tmux zsh-syntax-highlighting zsh-autosuggestions)
+plugins=(evalcache tmux fzf-tab zsh-syntax-highlighting zsh-autosuggestions)
 source $ZSH/oh-my-zsh.sh
 ```
 
@@ -67,6 +67,7 @@ source $ZSH/oh-my-zsh.sh
 | `tmux` | Tmux integration and auto-start |
 | `zsh-syntax-highlighting` | Command syntax coloring |
 | `zsh-autosuggestions` | Fish-like suggestions |
+| `fzf-tab` | Fuzzy tab completion (replaces default zsh tab) |
 
 ### Adding Custom Plugins
 
@@ -159,6 +160,9 @@ _evalcache zoxide init zsh --cmd cd
 - `starship init zsh`
 - `jenv init -` (via lazy loading)
 - `pyenv init -` (via lazy loading)
+- `atuin init zsh`
+- `direnv hook zsh`
+- `tv init zsh`
 
 **Clear cache:** Delete `$XDG_CACHE_HOME/zsh-evalcache/`
 
@@ -337,6 +341,60 @@ _evalcache zoxide init zsh --cmd cd
 export FZF_DEFAULT_OPTS="..."  # Catppuccin colors
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 ```
+
+### atuin (shell history)
+```zsh
+# Replaces Ctrl+R with a full-text searchable history database
+_evalcache atuin init zsh
+```
+
+Config: `~/.config/atuin/config.toml`
+- Search mode: fuzzy (default), also supports prefix, fulltext, skim
+- Filter mode: global (Ctrl+R), host-only (Up arrow)
+- Workspace mode: git-aware directory filtering
+- Secrets auto-filter: AWS keys, GitHub tokens, etc.
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+R` | Open atuin interactive search |
+| `Up arrow` | Scroll history (filtered to current host) |
+| `Enter` | Execute selected command |
+| `Tab` | Return to shell for editing |
+
+### direnv (per-directory env vars)
+```zsh
+_evalcache direnv hook zsh
+```
+
+Config: `~/.config/direnv/direnv.toml`, `~/.config/direnv/direnvrc`
+- Auto-loads `.envrc` and `.env` files when entering a directory
+- Auto-unloads when leaving
+- `~/Projects` is whitelisted (auto-trusted)
+- Custom stdlib: `use_nvm`, `use_pyenv`, `layout_uv`
+
+### television (TUI data browser)
+```zsh
+_evalcache tv init zsh
+```
+
+Config: `~/.config/television/config.toml`, cable channels in `~/.config/television/cable/`
+- Smart autocomplete: type a command then `Ctrl+T` to pick contextually
+- Channel triggers: `git checkout` + `Ctrl+T` opens git-branch channel
+- Custom cable channels: brew-packages, docker-containers, git-*, gh-prs, k8s-pods, claude-sessions
+- Theme: Catppuccin
+
+### fzf-tab (fuzzy tab completion)
+
+Replaces zsh's default tab completion with fzf. Configured via zstyle in `dot-zshrc`:
+
+- `cd` tab: directory preview with eza
+- `cat`/`nvim` tab: file preview with bat
+- `git checkout` tab: git log preview
+- `kill` tab: process details preview
+- `brew` tab: brew info preview
+- `Ctrl+Space`: multi-select
+- `<`/`>`: switch completion groups
+- `/`: continuous directory completion
 
 ### eza (ls replacement)
 ```zsh

@@ -64,6 +64,10 @@ tmux source ~/.config/tmux/tmux.conf  # Reload tmux
 | `dotfiles/dot-config/starship/` | `~/.config/starship/` |
 | `dotfiles/dot-config/ghostty/` | `~/.config/ghostty/` |
 | `dotfiles/dot-config/git/` | `~/.config/git/` |
+| `dotfiles/dot-config/atuin/` | `~/.config/atuin/` |
+| `dotfiles/dot-config/direnv/` | `~/.config/direnv/` |
+| `dotfiles/dot-config/television/` | `~/.config/television/` |
+| `dotfiles/dot-config/glow/` | `~/.config/glow/` |
 | `dotfiles/dot-claude/` | `~/.claude/` (global Claude config, skills, commands, hooks) |
 | `homebrew/Brewfile` | Package manifest |
 

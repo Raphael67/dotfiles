@@ -27,6 +27,8 @@ dotfiles/dot-config/nvim/
         ├── comment.lua
         ├── debug.lua
         ├── database.lua
+        ├── flash.lua
+        ├── noice.lua
         ├── none-ls.lua
         ├── claude.lua
         └── misc.lua
@@ -150,7 +152,7 @@ return {
 
         -- Setup servers
         local lspconfig = require("lspconfig")
-        local capabilities = require("cmp_nvim_lsp").default_capabilities()
+        local capabilities = require('blink.cmp').get_lsp_capabilities()
 
         lspconfig.lua_ls.setup({ capabilities = capabilities })
         lspconfig.ts_ls.setup({ capabilities = capabilities })
@@ -329,7 +331,7 @@ vim.keymap.set("n", "<C-t>", function() ui.nav_file(2) end)
 | `telescope.lua` | nvim-telescope | Fuzzy finder |
 | `treesitter.lua` | nvim-treesitter | Syntax highlighting |
 | `lsp.lua` | nvim-lspconfig + Mason | Language servers |
-| `autocompletion.lua` | nvim-cmp | Code completion |
+| `autocompletion.lua` | blink.cmp | Completion with ghost text, fuzzy matching |
 | `lualine.lua` | lualine.nvim | Status line |
 | `bufferline.lua` | bufferline.nvim | Buffer tabs |
 | `neotree.lua` | neo-tree.nvim | File explorer |
@@ -342,9 +344,11 @@ vim.keymap.set("n", "<C-t>", function() ui.nav_file(2) end)
 | `comment.lua` | Comment.nvim | Comment toggling |
 | `debug.lua` | nvim-dap | Debugging |
 | `database.lua` | vim-dadbod | Database client |
+| `flash.lua` | flash.nvim | Label-based motions and jumps |
+| `noice.lua` | noice.nvim | Floating cmdline, notifications, LSP UI |
 | `none-ls.lua` | none-ls.nvim | Formatters/linters |
 | `claude.lua` | claude.vim | Claude integration |
-| `misc.lua` | Various | Additional plugins |
+| `misc.lua` | Various | Additional plugins (mini.surround, mini.icons, which-key, autopairs, etc.) |
 
 ## Diagnostics Configuration
 

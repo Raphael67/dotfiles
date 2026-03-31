@@ -29,6 +29,9 @@ Cross-platform dotfiles managed with [GNU Stow](https://www.gnu.org/software/sto
 | [Ghostty](https://ghostty.org) | GPU-accelerated terminal emulator |
 | [Zsh](https://www.zsh.org) + [Oh-My-Zsh](https://ohmyz.sh) | Shell with plugins (autosuggestions, syntax highlighting) |
 | [Starship](https://starship.rs) | Cross-shell prompt |
+| [atuin](https://atuin.sh) | Shell history database with fuzzy search |
+| [direnv](https://direnv.net) | Per-directory environment variables |
+| fzf-tab | Fuzzy tab completion for zsh |
 | [Nushell](https://www.nushell.sh) | Structured data shell (secondary) |
 
 ### Editor
@@ -56,6 +59,9 @@ Cross-platform dotfiles managed with [GNU Stow](https://www.gnu.org/software/sto
 | `top` | [btop](https://github.com/aristocratos/btop) | Resource monitor |
 | `git` (TUI) | [lazygit](https://github.com/jesseduffield/lazygit) | Terminal UI for git |
 | — | [fzf](https://github.com/junegunn/fzf) | Fuzzy finder for everything |
+| `Ctrl+R` | [atuin](https://atuin.sh) | Shell history with fuzzy search, sync, per-directory filtering |
+| — | [television](https://github.com/alexpasmantier/television) | TUI data browser (git, docker, brew, sessions) |
+| — | [glow](https://github.com/charmbracelet/glow) | Terminal markdown renderer |
 | — | [fastfetch](https://github.com/fastfetch-cli/fastfetch) | System info |
 
 ### Dev Tools
@@ -107,6 +113,10 @@ A consistent [Catppuccin Macchiato](https://github.com/catppuccin/catppuccin) th
 - fzf
 - bat
 - btop
+- lazygit
+- atuin
+- television
+- glow
 - VSCode
 
 ## Installation
@@ -211,7 +221,7 @@ Zsh loads fast thanks to lazy loading of version managers:
 Plugin manager: [lazy.nvim](https://github.com/folke/lazy.nvim) — plugins load on demand.
 
 **Highlights:**
-- **LSP** — language server protocol with autocompletion
+- **LSP + blink.cmp** — language servers with ghost text completion, fuzzy matching
 - **DAP** — debug adapter protocol
 - **Telescope** — fuzzy finder for files, grep, buffers
 - **Treesitter** — syntax highlighting and code objects
@@ -222,6 +232,9 @@ Plugin manager: [lazy.nvim](https://github.com/folke/lazy.nvim) — plugins load
 - **Bufferline** — tab-style buffer management
 - **Lualine** — statusline
 - **vim-tmux-navigator** — seamless tmux/nvim pane switching
+- **mini.surround** — add/delete/replace surroundings (quotes, brackets, tags)
+- **flash.nvim** — label-based motions and jumps
+- **noice.nvim** — floating cmdline, notifications, LSP UI
 - **Claude + Copilot** — AI code assistance
 
 ## tmux
@@ -233,6 +246,9 @@ Plugin manager: [lazy.nvim](https://github.com/folke/lazy.nvim) — plugins load
 - **tmux-fzf-url** — open URLs from scrollback with fzf
 - **tmux-yank** — clipboard integration
 - **tmux-cpu** / **tmux-battery** — status bar widgets
+- **tmux-sessionx** — fuzzy session manager with zoxide integration
+- **tmux-floax** — floating popup panes
+- **vim-tmux-navigator** — seamless Ctrl+h/j/k/l across tmux/nvim
 - **catppuccin/tmux** — themed status bar
 
 ## Claude AI Integration

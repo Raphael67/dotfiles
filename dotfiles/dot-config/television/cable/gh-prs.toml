@@ -1,0 +1,24 @@
+[metadata]
+name = "gh-prs"
+description = "List GitHub PRs for the current repo"
+requirements = ["gh"]
+
+[source]
+command = "gh pr list --state open --limit 50 --json number,title,author --jq '.[] | \"#\\(.number) \\(.title) @\\(.author.login)\"'"
+
+[preview]
+command = "gh pr view '{split: :0}' --json title,body,state,headRefName,additions,deletions --jq '\"\\(.title)\\n\\(.state) \\(.headRefName)\\n+\\(.additions) -\\(.deletions)\\n\\n\\(.body)\"'"
+
+[keybindings]
+enter = "actions:open"
+ctrl-o = "actions:checkout"
+
+[actions.open]
+description = "Open PR in browser"
+command = "gh pr view '{split: :0}' --web"
+mode = "execute"
+
+[actions.checkout]
+description = "Checkout PR branch locally"
+command = "gh pr checkout '{split: :0}'"
+mode = "execute"

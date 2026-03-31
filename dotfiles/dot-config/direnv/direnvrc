@@ -1,0 +1,76 @@
+# Custom direnv stdlib extensions
+# Loaded before every .envrc
+# https://direnv.net/man/direnv-stdlib.1.html
+
+# use nvm - auto-switch node version from .nvmrc
+use_nvm() {
+    local node_version="${1:-}"
+
+    if [[ -z "$node_version" ]] && [[ -f .nvmrc ]]; then
+        node_version=$(cat .nvmrc)
+    fi
+
+    if [[ -z "$node_version" ]]; then
+        log_error "No node version specified and no .nvmrc found"
+        return 1
+    fi
+
+    local nvm_dir="${NVM_DIR:-$HOME/.local/share/nvm}"
+    # Also check homebrew nvm path
+    [[ ! -d "$nvm_dir" && -d "/opt/homebrew/opt/nvm" ]] && nvm_dir="/opt/homebrew/opt/nvm"
+
+    local node_prefix="$nvm_dir/versions/node"
+    # Strip leading 'v' if present for directory lookup
+    local clean_version="${node_version#v}"
+
+    # Find matching version directory
+    local version_dir
+    version_dir=$(find "$node_prefix" -maxdepth 1 -name "v${clean_version}*" | sort -V | tail -1)
+
+    if [[ -z "$version_dir" ]]; then
+        log_error "Node version $node_version not installed via nvm"
+        return 1
+    fi
+
+    PATH_add "$version_dir/bin"
+    export NODE_VERSION="$clean_version"
+    log_status "using node $(node --version) (via nvm)"
+}
+
+# use pyenv - auto-switch python version from .python-version
+use_pyenv() {
+    local python_version="${1:-}"
+
+    if [[ -z "$python_version" ]] && [[ -f .python-version ]]; then
+        python_version=$(cat .python-version)
+    fi
+
+    if [[ -z "$python_version" ]]; then
+        log_error "No python version specified and no .python-version found"
+        return 1
+    fi
+
+    local pyenv_root="${PYENV_ROOT:-$HOME/.pyenv}"
+    local python_prefix="$pyenv_root/versions/$python_version"
+
+    if [[ ! -d "$python_prefix" ]]; then
+        log_error "Python $python_version not installed via pyenv"
+        return 1
+    fi
+
+    PATH_add "$python_prefix/bin"
+    log_status "using python $(python3 --version) (via pyenv)"
+}
+
+# layout uv - create/activate a uv-managed virtualenv
+layout_uv() {
+    local venv_dir="${1:-.venv}"
+
+    if [[ ! -d "$venv_dir" ]]; then
+        log_status "creating venv with uv in $venv_dir"
+        uv venv "$venv_dir"
+    fi
+
+    source "$venv_dir/bin/activate"
+    log_status "using venv $venv_dir ($(python3 --version))"
+}

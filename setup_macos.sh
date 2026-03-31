@@ -48,17 +48,17 @@ if [[ "$install_apps" == "y" ]]; then
         if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
             npm install -g "$line"
         fi
-    done < npm/packages.txt
+    done <npm/packages.txt
 
     # Install Python tools with uv (isolated environments)
     info "Installing Python tools..."
-    if command -v uv &> /dev/null; then
+    if command -v uv &>/dev/null; then
         while IFS= read -r line || [[ -n "$line" ]]; do
             # Skip empty lines and comments
             if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
                 uv tool install "$line"
             fi
-        done < pip/packages.txt
+        done <pip/packages.txt
     else
         info "Warning: uv not found, skipping Python tools"
     fi
@@ -70,12 +70,14 @@ if [[ "$install_apps" == "y" ]]; then
 
     # oh-my-zsh plugins
     zsh_custom="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-    [[ ! -d "$zsh_custom/plugins/zsh-autosuggestions" ]] && \
+    [[ ! -d "$zsh_custom/plugins/zsh-autosuggestions" ]] &&
         git clone https://github.com/zsh-users/zsh-autosuggestions "$zsh_custom/plugins/zsh-autosuggestions"
-    [[ ! -d "$zsh_custom/plugins/zsh-syntax-highlighting" ]] && \
+    [[ ! -d "$zsh_custom/plugins/zsh-syntax-highlighting" ]] &&
         git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$zsh_custom/plugins/zsh-syntax-highlighting"
-    [[ ! -d "$zsh_custom/plugins/evalcache" ]] && \
+    [[ ! -d "$zsh_custom/plugins/evalcache" ]] &&
         git clone https://github.com/mroth/evalcache "$zsh_custom/plugins/evalcache"
+    [[ ! -d "$zsh_custom/plugins/fzf-tab" ]] &&
+        git clone https://github.com/Aloxaf/fzf-tab "$zsh_custom/plugins/fzf-tab"
 
     USER_HOME="${DOTFILES_HOME:-$HOME}"
     BREW_PREFIX="${HOMEBREW_PREFIX:-/opt/homebrew}"
@@ -125,7 +127,7 @@ fi
 # Generate configs from templates
 if [[ -f "$SCRIPT_DIR/dotfiles/dot-config/.jira/.config.yml.template" ]]; then
     info "Generating Jira CLI config from template..."
-    envsubst < "$SCRIPT_DIR/dotfiles/dot-config/.jira/.config.yml.template" > "$HOME/.config/.jira/.config.yml"
+    envsubst <"$SCRIPT_DIR/dotfiles/dot-config/.jira/.config.yml.template" >"$HOME/.config/.jira/.config.yml"
     success "Jira CLI config generated."
 fi
 

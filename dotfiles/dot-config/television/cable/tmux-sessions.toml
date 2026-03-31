@@ -1,0 +1,20 @@
+[metadata]
+name = "tmux-sessions"
+description = "List and switch tmux sessions"
+requirements = ["tmux"]
+
+[source]
+command = "tmux list-sessions -F '#{session_name}\t#{session_windows} windows\t#{session_created_string}'"
+display = "{split:\t:0} ({split:\t:1})"
+output = "{split:\t:0}"
+
+[preview]
+command = "tmux capture-pane -t '{split:\t:0}' -p 2>/dev/null | tail -30"
+
+[keybindings]
+enter = "actions:switch"
+
+[actions.switch]
+description = "Switch to the selected session"
+command = "tmux switch-client -t '{split:\t:0}'"
+mode = "execute"

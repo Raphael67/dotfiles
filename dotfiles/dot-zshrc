@@ -77,12 +77,37 @@ fi
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(evalcache tmux zsh-syntax-highlighting zsh-autosuggestions)
+plugins=(evalcache tmux fzf-tab zsh-syntax-highlighting zsh-autosuggestions)
 
 source $ZSH/oh-my-zsh.sh
 source ~/.config/zsh/aliases.zsh
 
 # User configuration
+
+# fzf-tab
+# Preview directory contents on cd/ls tab completion
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always --icons=auto $realpath 2>/dev/null || ls -1 --color=always $realpath'
+zstyle ':fzf-tab:complete:ls:*' fzf-preview 'eza -1 --color=always --icons=auto $realpath 2>/dev/null || ls -1 --color=always $realpath'
+# Preview file contents on cat/bat/vim/nvim tab completion
+zstyle ':fzf-tab:complete:(cat|bat|vim|nvim|code):*' fzf-preview 'bat --color=always --style=numbers --line-range=:50 $realpath 2>/dev/null || cat $realpath'
+# Preview environment variables
+zstyle ':fzf-tab:complete:export:*' fzf-preview 'echo ${(P)word}'
+zstyle ':fzf-tab:complete:unset:*' fzf-preview 'echo ${(P)word}'
+# Preview systemctl/brew services
+zstyle ':fzf-tab:complete:brew:*' fzf-preview 'brew info $word 2>/dev/null | head -10'
+# Preview git branches/tags
+zstyle ':fzf-tab:complete:git-(checkout|switch|merge|rebase|diff|log):*' fzf-preview \
+  'git log --oneline --graph --color=always --date=short $word 2>/dev/null | head -20'
+# Preview kill/ps processes
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
+  '[[ $group == "[process ID]" ]] && ps -p $word -o pid,user,%cpu,%mem,command | tail -1'
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags '--preview-window=down:3:wrap'
+# Switch groups with < and >
+zstyle ':fzf-tab:*' switch-group '<' '>'
+# Minimum completion entries to trigger fzf (don't fzf for 1-2 results)
+zstyle ':fzf-tab:*' fzf-min-height 5
+# Continuous completion (keep completing after selecting a directory)
+zstyle ':fzf-tab:*' continuous-trigger '/'
 
 # zsh-autosuggestions
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
@@ -292,6 +317,21 @@ if type fzf > /dev/null; then
   --multi"
   [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
   alias fzf="fzf --ansi"
+fi
+
+# atuin (shell history database - replaces Ctrl+R)
+if type atuin > /dev/null; then
+  _evalcache atuin init zsh
+fi
+
+# direnv (per-directory environment variables)
+if type direnv > /dev/null; then
+  _evalcache direnv hook zsh
+fi
+
+# television (fuzzy TUI data browser - Ctrl+T for smart autocomplete)
+if type tv > /dev/null; then
+  _evalcache tv init zsh
 fi
 
 # bat

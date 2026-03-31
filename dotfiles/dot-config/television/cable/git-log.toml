@@ -1,0 +1,12 @@
+[metadata]
+name = "git-log"
+description = "Browse git commit history"
+requirements = ["git"]
+
+[source]
+command = "git log --oneline --color=always --date=short --pretty=format:'%C(yellow)%h%Creset %C(green)%ad%Creset %s %C(blue)<%an>%Creset'"
+output = "{split: :0}"
+ansi = true
+
+[preview]
+command = "git show --stat --color=always '{0}'"

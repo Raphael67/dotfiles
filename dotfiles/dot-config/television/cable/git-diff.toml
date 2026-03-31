@@ -1,0 +1,13 @@
+[metadata]
+name = "git-diff"
+description = "Browse changed files (staged and unstaged)"
+requirements = ["git"]
+
+[source]
+command = [
+    "git diff --name-only",
+    "git diff --cached --name-only",
+]
+
+[preview]
+command = "git diff --color=always -- '{}' 2>/dev/null || git diff --cached --color=always -- '{}'"

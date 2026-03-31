@@ -1,0 +1,18 @@
+[metadata]
+name = "npm-scripts"
+description = "List and run npm/bun scripts from package.json"
+requirements = ["node"]
+
+[source]
+command = "cat package.json 2>/dev/null | grep -E '^\\s+\"' | grep -v '{\\|}'| head -30 | sed 's/[,\"]//g' | awk '{print $1}'"
+
+[preview]
+command = "cat package.json 2>/dev/null | grep -A1 '\"{}\"' | head -2"
+
+[keybindings]
+enter = "actions:run"
+
+[actions.run]
+description = "Run the selected script"
+command = "npm run '{}'"
+mode = "execute"

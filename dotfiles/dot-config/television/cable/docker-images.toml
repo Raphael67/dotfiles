@@ -1,0 +1,12 @@
+[metadata]
+name = "docker-images"
+description = "List Docker images"
+requirements = ["docker"]
+
+[source]
+command = "docker images --format '{{.Repository}}:{{.Tag}}\t{{.Size}}\t{{.CreatedSince}}'"
+display = "{split:\t:0} ({split:\t:1}, {split:\t:2})"
+output = "{split:\t:0}"
+
+[preview]
+command = "docker image inspect '{split:\t:0}' 2>/dev/null | head -40"

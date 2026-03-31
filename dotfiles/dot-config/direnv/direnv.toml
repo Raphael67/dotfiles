@@ -1,0 +1,21 @@
+# direnv global configuration
+# https://direnv.net/man/direnv.toml.1.html
+
+[global]
+# Also load .env files automatically (in addition to .envrc)
+load_dotenv = true
+
+# Strict mode: fail fast on errors in .envrc
+strict_env = true
+
+# Warn if .envrc takes longer than 5s to load
+warn_timeout = "5s"
+
+# Suppress noisy env diff output (just show loaded/unloaded)
+hide_env_diff = true
+
+[whitelist]
+# Auto-trust .envrc in your own project directories
+prefix = [
+    "~/Projects",
+]

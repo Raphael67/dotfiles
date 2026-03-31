@@ -1,0 +1,15 @@
+# Glow - Terminal Markdown Renderer
+# https://github.com/charmbracelet/glow
+
+# Style (auto picks dark/light based on terminal background)
+style: "auto"
+# Mouse support in TUI mode
+mouse: true
+# Use pager for long documents
+pager: true
+# Word wrap width (0 = terminal width)
+width: 100
+# Show hidden/ignored files in TUI browser
+all: false
+# Local mode — no Charm Cloud stash
+local: true

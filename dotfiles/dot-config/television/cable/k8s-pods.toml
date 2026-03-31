@@ -1,0 +1,25 @@
+[metadata]
+name = "k8s-pods"
+description = "List and manage Kubernetes pods"
+requirements = ["kubectl"]
+
+[source]
+command = "kubectl get pods --no-headers -o custom-columns='NAME:.metadata.name,STATUS:.status.phase,RESTARTS:.status.containerStatuses[0].restartCount,AGE:.metadata.creationTimestamp'"
+output = "{split: :0}"
+
+[preview]
+command = "kubectl describe pod '{split: :0}' 2>/dev/null | head -60"
+
+[keybindings]
+ctrl-l = "actions:logs"
+ctrl-e = "actions:exec"
+
+[actions.logs]
+description = "Follow pod logs"
+command = "kubectl logs -f '{split: :0}'"
+mode = "execute"
+
+[actions.exec]
+description = "Exec into the pod"
+command = "kubectl exec -it '{split: :0}' -- /bin/sh"
+mode = "execute"

@@ -1,0 +1,99 @@
+# Atuin - Shell History Manager
+# https://docs.atuin.sh/configuration/config/
+
+# ================================
+# Search
+# ================================
+
+# Fuzzy matching (like fzf) - also supports: prefix, fulltext, skim
+search_mode = "fuzzy"
+
+# Search all history by default (also: host, session, directory, workspace)
+filter_mode = "global"
+
+# Up arrow: filter to current host only (more relevant suggestions)
+filter_mode_shell_up_key_binding = "host"
+
+# Workspace filtering: show commands from anywhere in the git repo tree
+workspaces = true
+
+# ================================
+# UI
+# ================================
+
+# Compact style - less chrome, more history
+style = "compact"
+
+# Show preview of long commands
+show_preview = true
+max_preview_height = 4
+
+# Enter executes immediately, Tab returns to shell for editing
+enter_accept = true
+
+# Invert UI - search bar at top (like fzf)
+invert = false
+
+# Show help row with version and keymap hints
+show_help = true
+
+# ================================
+# History
+# ================================
+
+# Auto-filter secrets (AWS keys, GitHub tokens, Slack tokens, etc.)
+secrets_filter = true
+
+# Filter out commands matching these patterns
+history_filter = [
+    "^bw-fetch",
+    "^export.*TOKEN",
+    "^export.*SECRET",
+    "^export.*KEY",
+    "^export.*PASSWORD",
+]
+
+# ================================
+# Sync (disabled - local only for now)
+# ================================
+
+# Enable sync v2 protocol (required for dotfiles sync)
+[sync]
+records = true
+
+# ================================
+# Stats
+# ================================
+
+[stats]
+# Track subcommands for these tools (git push vs just git)
+common_subcommands = [
+    "brew",
+    "cargo",
+    "docker",
+    "git",
+    "go",
+    "kubectl",
+    "npm",
+    "bun",
+    "uv",
+    "just",
+    "tmux",
+    "stow",
+]
+
+# Strip sudo prefix from stats
+common_prefix = ["sudo"]
+
+# Ignore noise commands from stats
+ignored_commands = [
+    "cd",
+    "ls",
+    "l",
+    "la",
+    "ll",
+    "clear",
+    "c",
+    "exit",
+    "e",
+]

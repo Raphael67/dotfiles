@@ -33,6 +33,14 @@ brew "starship"
 brew "eza"
 # A better cd command
 brew "zoxide"
+# Magical shell history
+brew "atuin"
+# Per-directory environment variables
+brew "direnv"
+# Fuzzy TUI data browser with cable channels
+brew "television"
+# Render markdown on the CLI
+brew "glow"
 # Simple terminal UI for git commands
 brew "lazygit"
 # Enable alt-tab window switching

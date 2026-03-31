@@ -1,0 +1,33 @@
+[metadata]
+name = "claude-sessions"
+description = "Browse and resume Claude Code sessions"
+requirements = ["claude"]
+
+[source]
+command = "python3 ~/.config/television/scripts/claude-session-list.py"
+display = "{split:\t:1}"
+output = "{split:\t:0}"
+ansi = true
+
+[preview]
+command = "python3 ~/.config/television/scripts/claude-session-preview.py '{split:\t:0}' | glow -s dark -w 0"
+
+[keybindings]
+enter = "actions:resume"
+ctrl-o = "actions:open-transcript"
+ctrl-d = "actions:delete"
+
+[actions.resume]
+description = "Resume session (falls back to VS Code if expired)"
+command = "claude -r '{split:\t:0}' || { jsonl=$(find ~/.claude/projects -name '{split:\t:0}.jsonl' 2>/dev/null | head -1); if [ -n \"$jsonl\" ]; then echo 'Session expired — opening transcript in VS Code'; code \"$jsonl\"; else echo 'JSONL file not found'; fi; }"
+mode = "execute"
+
+[actions.open-transcript]
+description = "Open session transcript in VS Code"
+command = "jsonl=$(find ~/.claude/projects -name '{split:\t:0}.jsonl' 2>/dev/null | head -1) && code \"$jsonl\""
+mode = "execute"
+
+[actions.delete]
+description = "Delete session JSONL file"
+command = "jsonl=$(find ~/.claude/projects -name '{split:\t:0}.jsonl' 2>/dev/null | head -1) && mv \"$jsonl\" ~/.Trash/"
+mode = "fork"

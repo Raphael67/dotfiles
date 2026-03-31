@@ -1,0 +1,117 @@
+# Television - TUI Fuzzy Data Browser
+# https://github.com/alexpasmantier/television
+
+# General
+tick_rate = 50
+default_channel = "files"
+history_size = 200
+global_history = false
+
+# UI
+[ui]
+ui_scale = 100
+orientation = "landscape"
+theme = "catppuccin"
+
+[ui.input_bar]
+position = "top"
+prompt = ">"
+border_type = "rounded"
+
+[ui.results_panel]
+border_type = "rounded"
+
+[ui.preview_panel]
+size = 60
+scrollbar = true
+border_type = "rounded"
+hidden = false
+
+[ui.status_bar]
+separator_open = ""
+separator_close = ""
+hidden = false
+
+[ui.help_panel]
+show_categories = true
+hidden = true
+
+[ui.remote_control]
+show_channel_descriptions = true
+sort_alphabetically = true
+
+# Keybindings
+[keybindings]
+esc = "quit"
+ctrl-c = "quit"
+down = "select_next_entry"
+ctrl-n = "select_next_entry"
+ctrl-j = "select_next_entry"
+up = "select_prev_entry"
+ctrl-p = "select_prev_entry"
+ctrl-k = "select_prev_entry"
+ctrl-up = "select_prev_history"
+ctrl-down = "select_next_history"
+tab = "toggle_selection_down"
+backtab = "toggle_selection_up"
+enter = "confirm_selection"
+ctrl-d = "scroll_preview_half_page_down"
+ctrl-u = "scroll_preview_half_page_up"
+ctrl-f = "cycle_previews"
+ctrl-y = "copy_entry_to_clipboard"
+ctrl-s = "cycle_sources"
+ctrl-r = "toggle_remote_control"
+ctrl-x = "toggle_action_picker"
+ctrl-o = "toggle_preview"
+ctrl-t = "toggle_layout"
+f9 = "toggle_help"
+backspace = "delete_prev_char"
+ctrl-w = "delete_prev_word"
+delete = "delete_next_char"
+left = "go_to_prev_char"
+right = "go_to_next_char"
+
+# Shell integration
+# Ctrl+T = smart autocomplete (context-aware channel picker)
+# Ctrl+R is left to atuin for shell history
+[shell_integration]
+fallback_channel = "files"
+
+[shell_integration.channel_triggers]
+"dirs" = ["cd", "ls", "rmdir", "z"]
+"files" = [
+    "cat",
+    "bat",
+    "less",
+    "head",
+    "tail",
+    "vim",
+    "nvim",
+    "nano",
+    "code",
+    "cp",
+    "mv",
+    "rm",
+    "touch",
+    "chmod",
+]
+"git-diff" = ["git add", "git restore"]
+"git-branch" = [
+    "git checkout",
+    "git branch",
+    "git switch",
+    "git merge",
+    "git rebase",
+    "git pull",
+    "git push",
+]
+"git-log" = ["git log", "git show", "git revert", "git cherry-pick"]
+"git-repos" = ["git clone"]
+"docker-images" = ["docker run"]
+"alias" = ["alias", "unalias"]
+"env" = ["export", "unset"]
+
+[shell_integration.keybindings]
+"smart_autocomplete" = "ctrl-t"
+# Disable tv history — atuin handles Ctrl+R
+# "command_history" = "ctrl-r"

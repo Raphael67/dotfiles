@@ -1,0 +1,26 @@
+[metadata]
+name = "git-stash"
+description = "Browse and manage git stashes"
+requirements = ["git"]
+
+[source]
+command = "git stash list --color=always"
+output = "{split:::0}"
+ansi = true
+
+[preview]
+command = "git stash show -p --color=always '{split:::0}'"
+
+[keybindings]
+enter = "actions:apply"
+ctrl-d = "actions:drop"
+
+[actions.apply]
+description = "Apply the selected stash"
+command = "git stash apply '{split:::0}'"
+mode = "execute"
+
+[actions.drop]
+description = "Drop the selected stash"
+command = "git stash drop '{split:::0}'"
+mode = "execute"

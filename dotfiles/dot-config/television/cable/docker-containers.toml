@@ -1,0 +1,38 @@
+[metadata]
+name = "docker-containers"
+description = "List and manage Docker containers"
+requirements = ["docker"]
+
+[source]
+command = [
+    "docker ps --format '{{.Names}}\t{{.Image}}\t{{.Status}}'",
+    "docker ps -a --format '{{.Names}}\t{{.Image}}\t{{.Status}}'",
+]
+display = "{split:\t:0} ({split:\t:2})"
+output = "{split:\t:0}"
+
+[preview]
+command = "docker logs --tail 30 '{split:\t:0}' 2>&1"
+
+[ui]
+layout = "portrait"
+
+[keybindings]
+ctrl-s = "actions:start"
+ctrl-l = "actions:logs"
+ctrl-e = "actions:exec"
+
+[actions.start]
+description = "Start/stop the selected container"
+command = "docker start '{split:\t:0}'"
+mode = "fork"
+
+[actions.logs]
+description = "Follow logs of the selected container"
+command = "docker logs -f '{split:\t:0}'"
+mode = "execute"
+
+[actions.exec]
+description = "Execute shell in the selected container"
+command = "docker exec -it '{split:\t:0}' /bin/sh"
+mode = "execute"

@@ -70,6 +70,12 @@ return {
 		end,
 	},
 	{
+		-- Surround actions (add, delete, replace)
+		"echasnovski/mini.surround",
+		version = "*",
+		opts = {},
+	},
+	{
 		"ThePrimeagen/vim-be-good",
 	},
 	{

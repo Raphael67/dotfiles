@@ -48,6 +48,8 @@ require("lazy").setup({
   require("plugins.misc"),
   require("plugins.harpoon"),
   require("plugins.aerial"),
+  require("plugins.noice"),
+  require("plugins.flash"),
   require("plugins.vim-tmux-navigator"),
   require("plugins.claude"),
   {
@@ -62,7 +64,7 @@ require("lazy").setup({
           mason = true,
           neotree = true,
           which_key = true,
-          cmp = true,
+          blink_cmp = true,
           gitsigns = true,
           nvimtree = true,
           treesitter = true,

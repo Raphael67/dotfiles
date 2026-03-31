@@ -1,6 +1,6 @@
 ---
 name: dotfiles
-description: Expert in managing dotfiles using GNU Stow. Use when working with shell configs (zsh, oh-my-zsh, bash), editors (neovim, nvim, vscode), terminal tools (tmux, ghostty), prompts (starship), CLI replacements (eza, bat, fzf, zoxide, lazygit, atuin, direnv, television, glow), keyboard (karabiner), secrets (bitwarden-cli), nushell integration, XDG Base Directory compliance, or any configuration in ~/.config. Covers stow symlink management, lazy loading patterns, Catppuccin theming, security best practices, and this specific dotfiles repository structure.
+description: Expert in managing dotfiles using GNU Stow. Use when working with stow (symlinks, conflicts, .stow-local-ignore, .stowrc, restow), shell configs (zsh, oh-my-zsh, bash, .zshrc, aliases, plugins), editors (neovim, nvim, vscode), terminal tools (tmux, ghostty), prompts (starship), CLI replacements (eza, bat, fzf, zoxide, lazygit, atuin, direnv, television, glow), keyboard (karabiner), secrets (bitwarden-cli), nushell integration, XDG Base Directory compliance, Catppuccin theming, or any configuration in ~/.config. Also covers setup scripts (setup.sh, setup_archlinux.sh, Brewfile), lazy loading patterns, and this specific dotfiles repository structure.
 user-invocable: true
 argument-hint: [self-update]
 ---

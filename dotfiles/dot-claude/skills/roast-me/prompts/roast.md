@@ -8,6 +8,8 @@ You will receive:
 1. **Aggregated analysis**: classified prompt issues with impact, techniques, and rewrites
 2. **Raw prompt examples**: selected prompts with their issues and context
 3. **Stats**: metadata about prompting patterns (effective error rate, correction rate, etc.)
+4. **Compute stats**: model distribution, cost data, thinking usage rates from extraction
+5. **Compute analysis**: overuse cases, thinking overuse cases, correctly used opus examples, and summary from the compute efficiency analysis phase
 
 ## Important: Be Fair About Errors
 
@@ -21,9 +23,11 @@ The stats include two error rates:
 
 Generate markdown with these sections:
 
-### 1. Score & Grade
+### 1. Dual Score & Grade
 
-Compute a **score from 0-100** using this formula:
+Compute **two independent scores**:
+
+#### Prompt Quality Score (0-100)
 - Start at 70 (baseline for an active user)
 - -2 per high-severity issue (capped at -30)
 - -1 per medium-severity issue (capped at -15)
@@ -34,10 +38,21 @@ Compute a **score from 0-100** using this formula:
 - -10 if any prompt caused a destructive action (DROP, DELETE, mass removal)
 - Clamp to 0-100
 
-Map to grade: A (90+), B (80-89), C (70-79), D (60-69), F (<60)
+#### Compute Efficiency Score (0-100)
+- Start at 80
+- Subtract: `(confirmed_overuse_count / total_prompts) * 60` (heavy penalty for model overuse rate)
+- Subtract: `(thinking_overuse_count / total_prompts) * 20` (lighter for reasoning overuse)
+- +10 if any non-opus model was used in the period (bonus for trying cheaper models)
+- +10 if compute_efficiency_pct > 0.5 (optimal_cost / actual_cost)
+- Clamp to 0-100
 
-Display as: `## Score: 73/100 (C)`
-With a humorous one-liner.
+Map both to grade: A (90+), B (80-89), C (70-79), D (60-69), F (<60)
+
+Display as:
+```
+## Prompt Quality: 73/100 (C) | Compute Efficiency: 35/100 (F)
+```
+With a humorous one-liner for each score.
 
 ### 2. Top 3 Habits to Break (not 5 — focus)
 
@@ -61,7 +76,55 @@ Format as a table. Use `effective_error_rate` as the headline, with raw rate in 
 | Structured prompts (XML/md) | X% | (verdict) |
 | File paths included | X% | (verdict) |
 
-### 4. Technique Toolbox
+### 4. Compute Efficiency Report
+
+**This section roasts the user's model and reasoning selection habits.**
+
+You will have received `compute_stats` and `compute_analysis` data. Use it to generate:
+
+#### 4a. Money Bonfire
+
+A table showing the damage:
+
+| Metric | Value |
+|--------|-------|
+| Total spend (period) | $X.XX |
+| Optimal spend (if right models used) | $Y.YY |
+| Wasted on overkill | $Z.ZZ (N% of total) |
+| Model split | Opus X% / Sonnet Y% / Haiku Z% |
+| Worst habit | Using Opus for [category] |
+| Extended thinking overuse | N prompts with unnecessary thinking |
+
+#### 4b. Top 3 Compute Sins
+
+For each sin, show:
+- **The sin**: What they did (e.g., "Using Opus with extended thinking to read a config file")
+- **The cost**: Actual cost vs what it should have cost (e.g., "$0.33 vs $0.02")
+- **The fix**: Which model + reasoning level to use for this type of task
+- **Example**: Actual prompt quote from their data + cost breakdown
+
+Use only `high` and `medium` confidence overuse cases from the analysis.
+
+#### 4c. Model Selection Cheat Sheet
+
+Based on their **actual usage patterns**, generate a personalized 4-6 row cheat sheet. Use their real prompt examples to make it concrete:
+
+| Your Task Pattern | Use This | Reasoning | You Used | Cost Ratio |
+|-------------------|----------|-----------|----------|------------|
+| "read/show/list file" | Haiku | low | Opus+thinking | 15x overspend |
+| "fix linting errors" | Sonnet | low | Opus+thinking | 5x overspend |
+| "yes/ok/commit" | Haiku | low | Opus | 5x overspend |
+| "design auth system" | Opus | high | Opus+thinking | 1x (correct!) |
+
+#### 4d. What You Got Right (Compute)
+
+Show 2-3 cases where Opus was genuinely the right choice from the `correctly_used_opus` list. This teaches the user what "worth the money" looks like — complex debugging, architecture, multi-file refactors.
+
+**Tone for this section**: The humor should be about burning money. "You used a nuclear reactor to toast bread" energy. Compare costs to real things ("That $0.31 for reading a file could have bought you 3 Haiku responses that do the exact same thing"). Make fun of the absurdity, not the person.
+
+If the user already uses varied models, praise that! If they're 100% Opus, lean harder on the roast.
+
+### 5. Technique Toolbox
 
 List 3-5 **named techniques** extracted from the analysis. Each is:
 - **Name** (memorable, 2-4 words)
@@ -72,18 +135,20 @@ Example:
 > **The 3W Rule** — When opening a new task
 > Template: `[What] is broken in [Where]. Expected: [Why-expected]. Actual: [Why-actual].`
 
-### 5. What You Do Well
+### 6. What You Do Well
 
-**Mandatory section** — always find positives. Be specific about which prompts were excellent and why. This section should be genuine, not filler.
+**Mandatory section** — always find positives. Be specific about which prompts were excellent and why. This section should be genuine, not filler. Include both prompt quality and compute efficiency positives.
 
-### 6. Focus of the Week
+### 7. Focus of the Week
 
-**Single most impactful change** to try this week. Must be:
-- One specific technique from the Technique Toolbox
+**Single most impactful change** to try this week. Can be either a prompting technique or a compute efficiency habit. Must be:
+- One specific, actionable change
 - Concrete enough to practice consciously
 - Measurable (the user can check if they're doing it by running `/roast-me` again next week)
 
 Format: A clear one-sentence rule + a before/after example.
+
+If the compute efficiency score is much lower than the prompt quality score, prioritize a compute-related focus (e.g., "Switch to Sonnet for single-file edits" or "Use `/fast` mode for simple file reads").
 
 ## Tone Guidelines
 

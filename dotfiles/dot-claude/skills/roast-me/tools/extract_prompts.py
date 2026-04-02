@@ -15,6 +15,7 @@ import sys
 import time
 from collections import defaultdict
 from pathlib import Path
+from typing import Any
 
 CORRECTION_PATTERNS = re.compile(
     r"\b(no[,.]?\s|wrong|instead|actually|don'?t|shouldn'?t|stop|not that|"
@@ -29,6 +30,41 @@ PROMPT_TEXT_LIMIT = 1500
 CORRECTION_TEXT_LIMIT = 500
 ERROR_TEXT_LIMIT = 500
 CONTEXT_BEFORE_LIMIT = 500  # Previous assistant message for context
+
+# Tier-level fallback pricing (per million tokens) for models not in pricing.json
+TIER_FALLBACK_PRICING = {
+    "opus": {"input": 5, "output": 25, "cache_write_5m": 6.25, "cache_read": 0.5},
+    "sonnet": {"input": 3, "output": 15, "cache_write_5m": 3.75, "cache_read": 0.3},
+    "haiku": {"input": 1, "output": 5, "cache_write_5m": 1.25, "cache_read": 0.1},
+}
+
+COMPLEXITY_TO_MODEL = {"simple": "haiku", "moderate": "sonnet", "complex": "opus"}
+MODEL_TIER_RANK = {"haiku": 0, "sonnet": 1, "opus": 2, "unknown": 1}
+
+# Heuristic patterns for task classification
+SIMPLE_PATTERNS = [
+    re.compile(p, re.IGNORECASE) for p in [
+        r"^\s*(yes|ok|oui|go ahead|looks good|lgtm|sure|do it|yep|yup|correct|exactly|perfect)\s*[.!]?\s*$",
+        r"^\s*(commit|push|merge|ship it|deploy)\s*$",
+        r"^\s*(read|cat|show|list|ls|find|check)\b.{0,80}$",
+        r"^\s*(format|lint|prettier|fix.*style|fix.*indent|add semicolons?)\b",
+        r"^\s*(what does|explain|what is|how does|tell me about)\b.{0,120}$",
+        r"^\s*(create|make|add|touch)\s+(a\s+)?(new\s+)?(file|dir|directory|folder)\b.{0,80}$",
+        r"^\s*(delete|remove|rm)\s+.{0,80}$",
+        r"^\s*/\w+",  # slash commands
+    ]
+]
+
+COMPLEX_PATTERNS = [
+    re.compile(p, re.IGNORECASE) for p in [
+        r"\b(design|architect|plan|strategy|migration|roadmap)\b",
+        r"\b(debug|race\s*condition|memory\s*leak|performance\s*(issue|problem|bug))\b",
+        r"\b(implement|build|create)\b.{30,}",  # long implementation requests
+        r"\b(multi.?file|across.*codebase|entire|all\s+files)\b",
+        r"\b(skill|agent|workflow|pipeline|system)\b.*\b(create|build|design|implement)\b",
+        r"\b(refactor|rewrite|overhaul|restructure)\b.*\b(entire|all|whole|codebase)\b",
+    ]
+]
 
 
 def find_session_files(days: int, project: str | None = None) -> list[Path]:
@@ -104,8 +140,161 @@ def is_meta_message(obj: dict) -> bool:
     return False
 
 
-def process_session(session_file: Path) -> list[dict]:
+def load_pricing() -> dict[str, dict]:
+    """Load model pricing from Claude's pricing.json."""
+    pricing_path = Path.home() / ".claude" / "powerline" / "usage" / "pricing.json"
+    try:
+        with open(pricing_path) as f:
+            data = json.load(f).get("data", {})
+        return data
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def get_model_tier(model_name: str) -> str:
+    """Normalize model name to tier: opus, sonnet, haiku."""
+    if not model_name:
+        return "unknown"
+    m = model_name.lower()
+    if "opus" in m:
+        return "opus"
+    if "sonnet" in m:
+        return "sonnet"
+    if "haiku" in m:
+        return "haiku"
+    return "unknown"
+
+
+def estimate_cost(
+    model: str,
+    input_tokens: int,
+    output_tokens: int,
+    cache_creation: int,
+    cache_read: int,
+    pricing: dict[str, dict],
+) -> float:
+    """Estimate cost in USD for a single API call."""
+    # Try exact model match in pricing.json
+    p = pricing.get(model)
+    if not p:
+        # Fallback to tier pricing
+        tier = get_model_tier(model)
+        p = TIER_FALLBACK_PRICING.get(tier, TIER_FALLBACK_PRICING["sonnet"])
+
+    cost = (
+        input_tokens * p["input"]
+        + output_tokens * p["output"]
+        + cache_creation * p["cache_write_5m"]
+        + cache_read * p["cache_read"]
+    ) / 1_000_000
+    return round(cost, 6)
+
+
+def estimate_cost_for_tier(
+    tier: str,
+    input_tokens: int,
+    output_tokens: int,
+    cache_creation: int,
+    cache_read: int,
+) -> float:
+    """Estimate cost if the same call used a different model tier."""
+    p = TIER_FALLBACK_PRICING.get(tier, TIER_FALLBACK_PRICING["sonnet"])
+    cost = (
+        input_tokens * p["input"]
+        + output_tokens * p["output"]
+        + cache_creation * p["cache_write_5m"]
+        + cache_read * p["cache_read"]
+    ) / 1_000_000
+    return round(cost, 6)
+
+
+def classify_task_complexity(prompt_text: str, prompt_length: int,
+                             prompt_position: int, tool_count: int) -> str:
+    """Heuristic task complexity: simple, moderate, or complex."""
+    # Check complex patterns first (they override)
+    for pat in COMPLEX_PATTERNS:
+        if pat.search(prompt_text):
+            return "complex"
+
+    # Check simple patterns
+    for pat in SIMPLE_PATTERNS:
+        if pat.search(prompt_text):
+            return "simple"
+
+    # Fallback heuristics based on length and tool usage
+    if prompt_length < 50 and tool_count <= 2:
+        return "simple"
+    if prompt_length < 200 and tool_count <= 10:
+        return "moderate"
+    if prompt_length > 500:
+        return "complex"
+
+    return "moderate"
+
+
+def extract_response_compute(ordered: list, idx: int, pricing: dict) -> dict:
+    """Extract model, tokens, thinking, and cost from first assistant response."""
+    result = {
+        "response_model": "",
+        "response_model_tier": "unknown",
+        "response_input_tokens": 0,
+        "response_output_tokens": 0,
+        "response_cache_creation_tokens": 0,
+        "response_cache_read_tokens": 0,
+        "response_has_thinking": False,
+        "response_thinking_length": 0,
+        "estimated_cost_usd": 0.0,
+    }
+
+    # Find first assistant message after this prompt
+    for j in range(idx + 1, len(ordered)):
+        _, j_type, j_obj = ordered[j]
+
+        if j_type == "user" and not is_meta_message(j_obj):
+            # Reached next user prompt without finding assistant — stop
+            user_text = extract_user_text(j_obj.get("message", {}).get("content", []))
+            if user_text.strip():
+                break
+
+        if j_type == "assistant":
+            msg = j_obj.get("message", {})
+            model = msg.get("model", "")
+            usage = msg.get("usage", {})
+
+            result["response_model"] = model
+            result["response_model_tier"] = get_model_tier(model)
+
+            input_t = usage.get("input_tokens", 0)
+            output_t = usage.get("output_tokens", 0)
+            cache_create = usage.get("cache_creation_input_tokens", 0)
+            cache_read = usage.get("cache_read_input_tokens", 0)
+
+            result["response_input_tokens"] = input_t
+            result["response_output_tokens"] = output_t
+            result["response_cache_creation_tokens"] = cache_create
+            result["response_cache_read_tokens"] = cache_read
+
+            # Check for thinking blocks
+            content = msg.get("content", [])
+            if isinstance(content, list):
+                for block in content:
+                    if isinstance(block, dict) and block.get("type") == "thinking":
+                        result["response_has_thinking"] = True
+                        thinking_text = block.get("thinking", "")
+                        result["response_thinking_length"] += len(thinking_text)
+
+            result["estimated_cost_usd"] = estimate_cost(
+                model, input_t, output_t, cache_create, cache_read, pricing
+            )
+            break  # Only capture first assistant response
+
+    return result
+
+
+def process_session(session_file: Path, pricing: dict | None = None) -> list[dict]:
     """Process a single session file and extract user prompt records."""
+    if pricing is None:
+        pricing = {}
     messages = []
 
     try:
@@ -246,7 +435,30 @@ def process_session(session_file: Path) -> list[dict]:
             and not followed_by_correction
         )
 
-        prompts.append({
+        # Extract compute data from assistant response
+        compute = extract_response_compute(ordered, idx, pricing)
+
+        # Classify task complexity and compute efficiency
+        complexity = classify_task_complexity(
+            prompt_text, len(prompt_text), position, assistant_tool_count
+        )
+        recommended = COMPLEXITY_TO_MODEL[complexity]
+        actual_tier = compute["response_model_tier"]
+        was_overkill = (
+            MODEL_TIER_RANK.get(actual_tier, 1)
+            > MODEL_TIER_RANK.get(recommended, 1)
+        )
+
+        # Estimate what it would have cost with the recommended model
+        optimal_cost = estimate_cost_for_tier(
+            recommended,
+            compute["response_input_tokens"],
+            compute["response_output_tokens"],
+            compute["response_cache_creation_tokens"],
+            compute["response_cache_read_tokens"],
+        )
+
+        record = {
             "session_file": str(session_file),
             "line_number": line_num,
             "timestamp": timestamp,
@@ -267,7 +479,15 @@ def process_session(session_file: Path) -> list[dict]:
             "assistant_tool_count": assistant_tool_count,
             "assistant_text_length": assistant_text_length,
             "context_before": truncate(context_before, CONTEXT_BEFORE_LIMIT),
-        })
+            # Compute efficiency fields
+            **compute,
+            "task_complexity": complexity,
+            "recommended_model": recommended,
+            "compute_was_overkill": was_overkill,
+            "optimal_cost_usd": optimal_cost,
+        }
+
+        prompts.append(record)
 
     return prompts
 
@@ -289,6 +509,8 @@ def main():
     )
     args = parser.parse_args()
 
+    pricing = load_pricing()
+
     session_files = find_session_files(args.days, args.project)
     if not session_files:
         print(f"No session files found in the last {args.days} days.", file=sys.stderr)
@@ -296,7 +518,7 @@ def main():
             "sessions_scanned": 0, "projects_scanned": 0,
             "total_prompts": 0, "error_rate": 0, "correction_rate": 0,
             "avg_length": 0, "xml_usage_rate": 0,
-        }}
+        }, "compute_stats": {}}
         with open(args.output, "w") as f:
             json.dump(result, f, indent=2)
         print(f"Wrote empty result to {args.output}")
@@ -307,7 +529,7 @@ def main():
 
     for sf in session_files:
         projects.add(extract_project_path(sf))
-        prompts = process_session(sf)
+        prompts = process_session(sf, pricing)
         all_prompts.extend(prompts)
 
     # Prioritize prompts that caused errors/corrections, then cap
@@ -322,6 +544,57 @@ def main():
     corrections = sum(1 for p in all_prompts if p["followed_by_correction"])
     avg_length = sum(p["prompt_length"] for p in all_prompts) / total if total else 0
     xml_count = sum(1 for p in all_prompts if p["has_xml_tags"])
+
+    # Compute stats
+    model_dist: dict[str, dict[str, Any]] = {}
+    total_cost = 0.0
+    total_optimal_cost = 0.0
+    thinking_count = 0
+    thinking_lengths: list[int] = []
+    overkill_count = 0
+
+    saveable_cost = 0.0  # only count savings where optimal < actual
+
+    for p in all_prompts:
+        tier = p.get("response_model_tier", "unknown")
+        cost = p.get("estimated_cost_usd", 0)
+        opt_cost = p.get("optimal_cost_usd", 0)
+
+        if tier not in model_dist:
+            model_dist[tier] = {"count": 0, "total_cost": 0.0}
+        model_dist[tier]["count"] += 1
+        model_dist[tier]["total_cost"] = round(model_dist[tier]["total_cost"] + cost, 6)
+
+        total_cost += cost
+        total_optimal_cost += opt_cost
+
+        # Only count savings where we're actually overspending
+        if cost > opt_cost:
+            saveable_cost += cost - opt_cost
+
+        if p.get("response_has_thinking"):
+            thinking_count += 1
+            thinking_lengths.append(p.get("response_thinking_length", 0))
+
+        if p.get("compute_was_overkill"):
+            overkill_count += 1
+
+    # Add percentages to model distribution
+    for tier_data in model_dist.values():
+        tier_data["pct"] = round(tier_data["count"] / total, 3) if total else 0
+        tier_data["total_cost"] = round(tier_data["total_cost"], 4)
+
+    compute_stats = {
+        "model_distribution": model_dist,
+        "thinking_usage_rate": round(thinking_count / total, 3) if total else 0,
+        "avg_thinking_length": round(sum(thinking_lengths) / len(thinking_lengths)) if thinking_lengths else 0,
+        "total_cost_usd": round(total_cost, 4),
+        "total_optimal_cost_usd": round(total_optimal_cost, 4),
+        "avg_cost_per_prompt_usd": round(total_cost / total, 4) if total else 0,
+        "heuristic_overuse_count": overkill_count,
+        "heuristic_overuse_rate": round(overkill_count / total, 3) if total else 0,
+        "heuristic_savings_usd": round(saveable_cost, 4),
+    }
 
     result = {
         "prompts": all_prompts,
@@ -339,6 +612,7 @@ def main():
                 sum(1 for p in all_prompts if p["has_file_paths"]) / total, 3
             ) if total else 0,
         },
+        "compute_stats": compute_stats,
     }
 
     with open(args.output, "w") as f:
@@ -347,6 +621,8 @@ def main():
     print(f"Scanned {len(session_files)} sessions across {len(projects)} projects")
     print(f"Extracted {total} prompts ({errors} with errors, {recovered} auto-recovered, {unrecovered} impactful)")
     print(f"Corrections: {corrections} | Avg length: {avg_length:.0f} chars | XML: {xml_count}/{total}")
+    print(f"Compute: ${total_cost:.2f} total | ${saveable_cost:.2f} potential savings | {overkill_count} overkill | {thinking_count} with thinking")
+    print(f"Models: {', '.join(f'{t}: {d['count']}' for t, d in sorted(model_dist.items()))}")
     print(f"Output: {args.output}")
 
 

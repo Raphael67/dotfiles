@@ -3,6 +3,7 @@ name: claude-expert
 description: Expert in Claude prompting, skill creation, hooks management, MCP configuration, sub-agents, memory management, and Claude Desktop app features. Use when writing prompts, creating Claude Code skills, configuring hooks, setting up MCP servers, creating custom sub-agents, managing memory (auto memory, CLAUDE.md, rules), asking about Claude Code architecture, or discussing Claude Desktop features (scheduled tasks, cowork, etc.).
 user-invokable: true
 argument-hint: [self-update]
+model: opus
 ---
 
 # Claude Expert Skill

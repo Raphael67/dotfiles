@@ -1,10 +1,12 @@
 ---
 name: roast-me
 description: >
-  Analyzes past Claude Code conversations to roast your prompting habits.
-  Reads user prompts, cross-references with tool errors and corrections,
-  then generates a score, worst habits, techniques, and rewrite suggestions.
-  Tracks your score over time so you can see improvement.
+  Analyzes past Claude Code conversations to roast your prompting habits
+  and compute efficiency. Reads user prompts, cross-references with tool
+  errors and corrections, analyzes model/reasoning choices (Opus vs Sonnet
+  vs Haiku), then generates dual scores (prompt quality + compute efficiency),
+  worst habits, techniques, and a personalized model selection cheat sheet.
+  Tracks scores over time so you can see improvement.
   Use when you want honest feedback on your prompting skills.
 model: opus
 user-invocable: true
@@ -46,6 +48,34 @@ Report category counts to the user as a progress update.
 
 If there are 0 issues flagged, still proceed to Phase 3 — the roast should acknowledge good prompting.
 
+## Phase 2.5: Analyze Compute Efficiency
+
+Read the prompts from `/tmp/roast-me-extracted.json`. Also read the `compute_stats` from the extraction metadata and report a quick summary to the user:
+
+```
+Compute overview: $X.XX total spend | Y% on Opus | Z prompts flagged as potential overkill
+```
+
+Batch the prompts into groups of ~30 (same batching as Phase 2). For each batch, spawn a **parallel Task subagent** with the compute analysis prompt from `prompts/compute.md`.
+
+Each subagent receives:
+- The compute analysis prompt (read from `prompts/compute.md`)
+- Its batch of prompt records as JSON (including the compute fields)
+
+Collect all results. Aggregate across batches:
+- All `overuse_cases` (deduplicated by index)
+- All `thinking_overuse_cases`
+- All `correctly_used_opus` examples
+- Sum up `total_overuse_count`, `total_savings_usd`, `thinking_overuse_count`
+- Find the `worst_category` (most frequent task_type in overuse_cases)
+
+**Filter**: Only keep overuse cases with `confidence` of `high` or `medium`. Discard `low` confidence.
+
+Report to the user:
+```
+Compute analysis complete: X confirmed overuse cases | $Y.YY potential savings | Z thinking overuse
+```
+
 ## Phase 3: Generate Roast
 
 Spawn a single Task subagent with the roast generation prompt from `prompts/roast.md`.
@@ -56,6 +86,8 @@ The subagent receives:
 - The top ~15 worst prompt examples (highest severity + real impact, with their analysis including `impact` and `technique` fields)
 - The stats metadata from the extraction (including `effective_error_rate`)
 - A sample of ~10 good prompts (no issues flagged) for the "What You Do Well" section
+- The `compute_stats` from the extraction metadata
+- Aggregated compute analysis from Phase 2.5: overuse cases (top ~10 worst), thinking overuse cases, correctly used opus examples, and summary totals
 
 **Tone instruction**: Be funny and use humor throughout. Comedy roast style — every joke should teach something. Pop culture references welcome.
 
@@ -76,7 +108,15 @@ Read existing history (if any). Append a new entry:
   "issues_flagged": 45,
   "effective_error_rate": 0.12,
   "correction_rate": 0.08,
-  "focus_of_week": "The 3W Rule: What, Where, Why"
+  "focus_of_week": "The 3W Rule: What, Where, Why",
+  "compute_score": 35,
+  "compute_grade": "F",
+  "compute_total_cost_usd": 47.10,
+  "compute_wasted_cost_usd": 12.50,
+  "compute_efficiency_pct": 0.73,
+  "compute_overuse_count": 45,
+  "compute_thinking_overuse_count": 12,
+  "model_distribution": {"opus": 0.93, "sonnet": 0.05, "haiku": 0.02}
 }
 ```
 
@@ -84,8 +124,10 @@ If there are previous entries, show a trend line after the report:
 
 ```
 Score History:
-  2026-03-10  68/100 (D+)  Focus: Context anchoring
-  2026-03-17  73/100 (C)   Focus: The 3W Rule        +5 ↑
+  Date        Prompt Quality    Compute Efficiency    Focus
+  2026-03-10  68/100 (D+)       --/-- (new)           Context anchoring
+  2026-03-17  73/100 (C) +5↑    35/100 (F)            The 3W Rule
+  2026-03-24  75/100 (C) +2↑    52/100 (F) +17↑       Model selection
 ```
 
 Write the updated history back to `~/.claude/roast-me-history.json`.

@@ -135,6 +135,8 @@
     ],
     "defaultMode": "default"
   },
+  "model": "sonnet",
+  "effortLevel": "medium",
   "hooks": {
     "Notification": [
       {
@@ -273,6 +275,5 @@
     "command": "uv run ~/.claude/status_lines/status_line.py",
     "padding": 0
   },
-  "effortLevel": "medium",
   "skipDangerousModePermissionPrompt": true
 }

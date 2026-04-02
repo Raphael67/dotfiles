@@ -7,6 +7,7 @@
 - **Terminal**: Ghostty
 - **Editor**: VSCode
 - **Package Manager**: Homebrew
+- **Timezone**: Europe/Paris (CET/CEST)
 
 ## Quick Reference
 
@@ -197,38 +198,6 @@ Fetch up-to-date documentation for libraries:
 - For framework-specific patterns (React, NestJS, etc.)
 
 **Usage**: Use `resolve-library-id` to find the library, then `query-docs` to fetch relevant sections.
-
-### Browser Debugger CLI (bdg)
-
-Terminal access to Chrome DevTools Protocol for browser automation and debugging. Optimized for AI agents with self-discovery and token-efficient output.
-
-**Quick Reference:**
-```bash
-# Session management
-bdg example.com                    # Start session with URL
-bdg https://localhost:5173 --chrome-flags="--ignore-certificate-errors"
-bdg stop                           # End session
-
-# Discovery (use these to learn available commands)
-bdg cdp --list                     # List all 53 CDP domains
-bdg cdp Network --list             # List methods in a domain
-bdg cdp Network.getCookies --describe  # Full schema + examples
-bdg cdp --search screenshot        # Search across all domains
-
-# Common operations
-bdg cdp Network.getCookies         # Get cookies
-bdg cdp Page.captureScreenshot     # Take screenshot
-bdg dom query "button"             # Query DOM elements
-bdg cdp Runtime.evaluate --params '{"expression": "document.title"}'
-```
-
-**When to use bdg:**
-- Debugging web applications in browser
-- Inspecting network requests/responses
-- Capturing screenshots
-- Executing JavaScript in page context
-- DOM manipulation and inspection
-- Performance profiling
 
 **Key features:**
 - All 644 CDP protocol methods available

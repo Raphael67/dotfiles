@@ -68,6 +68,7 @@ Deliver the exercise described in the module outline interactively:
 
 #### For Explain-It / Feynman (Foundation)
 - Ask: "Explain {concept} as if you were teaching it to someone who has never heard of it"
+- **NEVER use multiple-choice options** — the user must formulate their own explanation in free text (this is the whole point of the Feynman technique)
 - Evaluate: clarity, completeness, accuracy
 - Point out what was great and what was missing
 - Have them try again if needed
@@ -105,7 +106,7 @@ Deliver the exercise described in the module outline interactively:
 ### Step 4: Module Recap
 
 1. Summarize what was covered
-2. **Feynman check**: Ask the learner to explain the key takeaway in one sentence
+2. **Feynman check**: Ask the learner to explain the key takeaway in one sentence — **never offer choices or suggested answers** (the learner must produce the explanation themselves)
 3. Ask: "On a scale of 1-10, how confident do you feel about this module?"
 4. Note areas where the learner struggled for potential review
 
@@ -155,9 +156,9 @@ When a review is due (check dates in 00-Progress.md):
 2. Based on the review type (Day 1, 3, 7, 14, or 30):
    - **Day 1**: Quick recall — ask 3 key questions about the module
    - **Day 3**: Practice — give a new exercise related to the module
-   - **Day 7**: Feynman — ask learner to explain from memory
+   - **Day 7**: Feynman — ask learner to explain from memory (free-text only, no choices)
    - **Day 14**: Transfer — present a novel problem that uses the module's concepts
-   - **Day 30**: Teach — ask learner to explain as if teaching someone
+   - **Day 30**: Teach — ask learner to explain as if teaching someone (free-text only, no choices)
 3. Update the review date in 00-Progress.md (check it off)
 4. If the learner struggles: flag the module for re-review
 
@@ -179,3 +180,4 @@ When all modules are done:
 - **Patient**: Never express frustration. Rephrase, use different analogies, try different approaches
 - **Language**: Match the user's language (French or English). If they write in French, teach in French
 - **One concept per turn**: Explain ONE theory point, ask ONE question, then STOP and wait for the user's answer before continuing
+- **Feynman = free text only**: During ANY Feynman check (Explain-It exercises, module recaps, spaced repetition Day 7/30), NEVER use `AskUserQuestion` with predefined choices. The whole point of Feynman is that the learner formulates their own explanation. Use open-ended questions in chat instead. Multiple-choice defeats the exercise by giving the answer away

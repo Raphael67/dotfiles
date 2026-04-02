@@ -121,7 +121,7 @@ apply_osx_system_defaults() {
     defaults write com.apple.dock show-process-indicators -bool true
 
     # Fast initial key repeat
-    defaults write NSGlobalDomain InitialKeyRepeat -int 10
+    defaults write NSGlobalDomain InitialKeyRepeat -int 20
 
     # Finder: search current folder by default
     defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"

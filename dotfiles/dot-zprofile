@@ -29,14 +29,12 @@ if type nvm &>/dev/null; then
   fi
 fi
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+# PostgreSQL client tools (libpq, keg-only — macOS/Homebrew only)
+if [[ -d "/opt/homebrew/opt/libpq/bin" ]]; then
+  export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+fi
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
-
-# PostgreSQL client tools (libpq, keg-only)
-export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
-
-# Added by Obsidian
-export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"
-
-eval "$(/opt/homebrew/bin/brew shellenv)"
+# Obsidian (macOS only)
+if [[ -d "/Applications/Obsidian.app/Contents/MacOS" ]]; then
+  export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"
+fi

@@ -71,6 +71,22 @@ tmux source ~/.config/tmux/tmux.conf  # Reload tmux
 | `dotfiles/dot-claude/` | `~/.claude/` (global Claude config, skills, commands, hooks) |
 | `homebrew/Brewfile` | Package manifest |
 
+## Cross-Platform Portability
+
+This repo is shared between macOS and Linux (Arch on WSL). **All shell config files must be portable.**
+
+### Pre-commit checks for shell files
+
+Before committing changes to `dot-zprofile`, `dot-zshrc`, or any shell config:
+1. **No unguarded macOS paths** — references to `/opt/homebrew/`, `/Applications/`, or other macOS-only paths must be wrapped in existence checks (`if [[ -f ... ]]` or `if [[ -d ... ]]`)
+2. **No duplicate `brew shellenv`** — Homebrew's installer blindly appends `eval "$(/opt/homebrew/bin/brew shellenv)"` to `.zprofile`. The guarded block in `dot-zprofile` (lines 7-10) is the single source of truth. Remove any unguarded duplicates before committing.
+3. **Guard pattern** for macOS-only tools:
+   ```zsh
+   if [[ -f /opt/homebrew/bin/brew ]]; then
+     eval "$(/opt/homebrew/bin/brew shellenv)"
+   fi
+   ```
+
 ## Global Git Hooks
 
 Gitleaks runs automatically on every commit via a global pre-commit hook:

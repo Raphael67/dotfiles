@@ -1,5 +1,6 @@
 # Development tools
 7zip
+claude-code
 uv
 deno
 bun

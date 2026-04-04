@@ -1,6 +1,7 @@
 {
     "$help": "https://aka.ms/terminal-documentation",
     "$schema": "https://aka.ms/terminal-profiles-schema",
+    "rendering.graphicsAPI": "direct2d",
     "actions": 
     [
         {

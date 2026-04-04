@@ -14,6 +14,10 @@ import os
 import sys
 from datetime import datetime, timezone
 
+# Force UTF-8 output on Windows (avoids charmap codec errors with Unicode chars)
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
+
 CACHE_PATH = os.path.join(os.environ.get("TMPDIR", "/tmp"), "claude_rate_limits.json")
 
 # ANSI color codes

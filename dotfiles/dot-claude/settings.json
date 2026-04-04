@@ -14,6 +14,10 @@
       "Grep",
       "WebFetch",
       "WebSearch",
+      "Bash(powershell.exe:*)",
+      "Bash(pwsh:*)",
+      "Bash(pwsh.exe:*)",
+      "Bash(wsl:*)",
       "Bash(chmod:*)",
       "Bash(\"/Users/raphael/Library/Mobile Documents/iCloud~md~obsidian/Documents/my_vault/_Assets/claude_usage_log.json\")",
       "Bash(mkdir -p:*)",
@@ -273,6 +277,7 @@
     "command": "uv run ~/.claude/status_lines/status_line.py",
     "padding": 0
   },
-  "skipDangerousModePermissionPrompt": true,
-  "model": "sonnet"
+  "model": "sonnet",
+  "effortLevel": "medium",
+  "skipDangerousModePermissionPrompt": true
 }

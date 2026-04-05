@@ -183,6 +183,21 @@ Skill(deploy *)
 
 Disable all skills: add `Skill` to deny rules in `/permissions`.
 
+## Skill Path Configuration
+
+Skills in rules/hooks can specify target paths using the `paths:` field. Accepts YAML list of glob patterns (v2.1.85+):
+
+```yaml
+---
+name: web-developer
+paths:
+  - "src/**/*.{ts,tsx}"
+  - "public/**/*"
+---
+```
+
+This restricts the skill to only activate when working with files matching those patterns.
+
 ## Skill Approval
 
 Skills without additional permissions or hooks are auto-approved. Only skills requesting extra permissions or defining hooks need user approval.
@@ -550,15 +565,59 @@ my-plugin/
 
 - Plugin skills are namespaced: `/plugin-name:skill-name`
 - Install: `/plugin install plugin-name@marketplace` or `claude plugin install`
+  - **Note**: Organization policy may block plugin installation. If blocked, contact your admin.
 - Test locally: `claude --plugin-dir ./my-plugin`
 - `${CLAUDE_PLUGIN_ROOT}` env var for portable paths in hooks/scripts
 - `${CLAUDE_PLUGIN_DATA}` env var for persistent plugin state (survives updates) (v2.1.78+)
 - Plugin cache at `~/.claude/plugins/cache`
 - Reload after changes: `/reload-plugins`
+- **Plugin executables** (v2.1.91+): Plugins can ship executables under `bin/` that are invoked as bare commands (e.g., `my-plugin` runs `<plugin-root>/bin/my-plugin`)
 
-### LSP Servers in Plugins
+### LSP Servers in Plugins (Code Intelligence)
 
-Plugins can provide Language Server Protocol support for code intelligence:
+Claude Code has a **built-in LSP tool** (since v2.0.74, Dec 2025). Plugins from the official marketplace (`claude-plugins-official`, auto-added) wire a language server binary into that tool. No feature flag needed — the old `ENABLE_LSP_TOOL=1` env var from early blog posts is obsolete.
+
+**Two capabilities Claude gains once an LSP plugin is installed:**
+
+1. **Automatic diagnostics** — after every file edit, the language server reports type errors, missing imports, and syntax issues back to Claude. Claude sees errors and fixes them in the same turn. Press `Ctrl+O` to view inline when the "diagnostics found" indicator appears.
+2. **Code navigation** — Claude can jump to definitions, find references, get hover types, list symbols, find implementations, and trace call hierarchies. More precise than grep.
+
+**Official pre-built LSP plugins** (from `claude-plugins-official`):
+
+| Language   | Plugin              | Binary required              |
+| :--------- | :------------------ | :--------------------------- |
+| C/C++      | `clangd-lsp`        | `clangd`                     |
+| C#         | `csharp-lsp`        | `csharp-ls`                  |
+| Go         | `gopls-lsp`         | `gopls`                      |
+| Java       | `jdtls-lsp`         | `jdtls`                      |
+| Kotlin     | `kotlin-lsp`        | `kotlin-language-server`     |
+| Lua        | `lua-lsp`           | `lua-language-server`        |
+| PHP        | `php-lsp`           | `intelephense`               |
+| Python     | `pyright-lsp`       | `pyright-langserver`         |
+| Rust       | `rust-analyzer-lsp` | `rust-analyzer`              |
+| Swift      | `swift-lsp`         | `sourcekit-lsp`              |
+| TypeScript | `typescript-lsp`    | `typescript-language-server` |
+
+**Setup workflow** (two steps per language):
+
+```bash
+# 1. Install the language server binary (examples)
+uv tool install pyright                              # Python
+bun add -g typescript-language-server typescript     # TypeScript
+rustup component add rust-analyzer                   # Rust
+
+# 2. Install the plugin at user scope
+claude plugin install pyright-lsp@claude-plugins-official --scope user
+claude plugin install typescript-lsp@claude-plugins-official --scope user
+claude plugin install rust-analyzer-lsp@claude-plugins-official --scope user
+
+# 3. Reload (no restart needed)
+/reload-plugins
+```
+
+Verify in `/plugin` → **Installed** tab. If **Errors** tab shows `Executable not found in $PATH`, the binary is missing or not on PATH.
+
+**Custom LSP plugins** — for unsupported languages, create your own plugin with a `.lsp.json`:
 
 ```json
 // .lsp.json
@@ -571,13 +630,19 @@ Plugins can provide Language Server Protocol support for code intelligence:
 }
 ```
 
-Available pre-built LSP plugins: `pyright-lsp`, `typescript-lsp`, `rust-lsp`.
+**Caveats:**
+- `rust-analyzer` and `pyright` can consume significant RAM on large monorepos — disable per-project if needed (`/plugin disable <name>`)
+- Monorepos may show false-positive unresolved-import warnings; doesn't block edits
+- Pyright auto-detects `.venv/` for `uv` projects; for custom layouts, set `venvPath`/`venv` in `pyproject.toml [tool.pyright]`
+- A plugin can be installed but **disabled** — verify status in `/plugin` Installed tab
+- If LSP server crashes, it now auto-restarts on next request (fixed April 2026)
 
 ## Environment Variables
 
 - `SLASH_COMMAND_TOOL_CHAR_BUDGET` - Character budget for skill descriptions (scales to 2% of context window; fallback minimum 16,000 chars)
 - `CLAUDE_CODE_DISABLE_CRON` - Immediately stop scheduled cron jobs mid-session (v2.1.72)
 - `CLAUDE_CODE_PLUGIN_SEED_DIR` - Seed directory for plugins. Supports multiple directories (v2.1.79+)
+- `disableSkillShellExecution` - Managed setting (v2.1.91+). Set to `true` to disable inline shell execution in skills and custom commands
 
 ## Advanced Patterns
 

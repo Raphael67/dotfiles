@@ -84,6 +84,16 @@ claude mcp add --transport http my-server https://api.example.com/mcp \
 
 For servers requiring OAuth 2.0, use `/mcp` inside Claude Code to authenticate via browser. Tokens are stored securely and refreshed automatically.
 
+#### RFC 9728 Protected Resource Metadata Discovery (v2.1.85+)
+
+OAuth discovery follows RFC 9728 standard. Two env vars help configure multi-server setups:
+```bash
+CLAUDE_CODE_MCP_SERVER_NAME=my-server
+CLAUDE_CODE_MCP_SERVER_URL=https://api.example.com/mcp
+```
+
+These variables are used automatically in header helpers during OAuth flows.
+
 ### Pre-Configured OAuth (v2.1.30+)
 
 For servers without Dynamic Client Registration, pre-configure OAuth credentials:
@@ -477,12 +487,39 @@ Disable via `disallowedTools` setting:
 
 MCP servers can send `list_changed` notifications to dynamically update their available tools without reconnecting.
 
+## MCP Tool Descriptions (v2.1.84+)
+
+Tool descriptions and instructions are capped at 2KB. Longer descriptions are truncated to prevent context bloat. Ensure descriptions are concise and informative within this limit.
+
+## MCP Server Deduplication (v2.1.84+)
+
+When multiple MCP server configurations define the same server, local config takes precedence (stops further deduplication). This applies to:
+- Local configuration (~/.claude.json under project path)
+- Project configuration (.mcp.json in project root)
+- User configuration (~/.claude.json)
+- Managed configuration (managed-mcp.json)
+
+First match wins — no merging of configurations occurs.
+
 ## Output Limits
 
 MCP tool output warning at 10,000 tokens. Default max: 25,000 tokens. Increase for large outputs:
 ```bash
 MAX_MCP_OUTPUT_TOKENS=50000 claude
 ```
+
+### MCP Tool Result Persistence Override (v2.1.91+)
+
+To override default result size limits per tool, MCP servers can annotate their result metadata:
+```json
+{
+  "_meta": {
+    "anthropic/maxResultSizeChars": 500000
+  }
+}
+```
+
+This allows individual tools to persist results up to 500KB characters. The MCP server controls this annotation.
 
 ## Environment Variables
 
@@ -491,8 +528,11 @@ MAX_MCP_OUTPUT_TOKENS=50000 claude
 | `MAX_MCP_OUTPUT_TOKENS` | Max tokens in output (default: 25,000) |
 | `MCP_TIMEOUT` | Server startup timeout in ms |
 | `MCP_CLIENT_SECRET` | OAuth client secret for CI/automation |
+| `MCP_CONNECTION_NONBLOCKING` | Set to `true` to skip MCP wait in `-p` mode (v2.1.89+). Uses 5s timeout for MCP connections. |
 | `ENABLE_TOOL_SEARCH` | Dynamic tool loading: `auto` (default), `auto:N`, `true`, `false`. Disabled by default when `ANTHROPIC_BASE_URL` is non-first-party |
 | `ENABLE_CLAUDEAI_MCP_SERVERS` | Set to `false` to disable claude.ai MCP servers in Claude Code |
+| `CLAUDE_CODE_MCP_SERVER_NAME` | Multi-server OAuth header helper: server name for auth discovery (v2.1.85+) |
+| `CLAUDE_CODE_MCP_SERVER_URL` | Multi-server OAuth header helper: server URL for auth discovery (v2.1.85+) |
 | `ANTHROPIC_CUSTOM_MODEL_OPTION` | Custom model entry in `/model` picker (v2.1.78+) |
 
 ## CLI Commands

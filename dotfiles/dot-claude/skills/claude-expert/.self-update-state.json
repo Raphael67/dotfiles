@@ -1,203 +1,81 @@
 {
-  "lastUpdateTimestamp": "2026-03-25T12:00:00Z",
-  "lastVersion": "2.1.83",
+  "lastUpdateTimestamp": "2026-04-05T12:00:00Z",
+  "lastVersion": "2.1.92",
   "updateHistory": [
     {
-      "timestamp": "2026-03-25T12:00:00Z",
-      "version": "2.1.83",
+      "timestamp": "2026-04-05T12:00:00Z",
+      "version": "2.1.92",
       "filesUpdated": [
         "SKILLS.md",
         "COMMANDS.md",
         "SUBAGENTS.md",
-        "PROMPTING.md",
         "HOOKS.md",
-        "MCP.md",
-        "MEMORY.md",
-        "STATUS-LINES.md",
-        "SKILL.md"
+        "MCP.md"
       ],
-      "changesApplied": 22,
+      "changesApplied": 24,
       "newFeatures": [
-        "managed-settings.d/ drop-in directory for independent policy fragments (v2.1.83)",
-        "CwdChanged and FileChanged hook events for reactive environment management (v2.1.83)",
-        "sandbox.failIfUnavailable setting to exit when sandbox unavailable (v2.1.83)",
-        "disableDeepLinkRegistration setting (v2.1.83)",
-        "CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 to strip credentials from subprocesses (v2.1.83)",
-        "Transcript search with / key, n/N navigation (v2.1.83)",
-        "Ctrl+X Ctrl+E alias for external editor (v2.1.83)",
-        "Pasted images insert [Image #N] chip at cursor (v2.1.83)",
-        "initialPrompt agent frontmatter for auto-submit first turn (v2.1.83)",
-        "chat:killAgents and chat:fastMode rebindable via keybindings.json (v2.1.83)",
-        "TaskOutput tool deprecated in favor of Read on task output file path (v2.1.83)",
-        "--bare flag for scripted -p calls (skips hooks, LSP, plugin sync) (v2.1.81)",
-        "--channels permission relay for MCP servers (v2.1.81)",
-        "MCP OAuth CIMD / SEP-991 support (v2.1.81)",
-        "rate_limits field in statusline scripts (v2.1.80)",
-        "effort frontmatter for skills/slash commands (v2.1.80)",
-        "--channels research preview for MCP server message push (v2.1.80)",
-        "StopFailure hook event for API errors (v2.1.78)",
-        "${CLAUDE_PLUGIN_DATA} for plugin persistent state (v2.1.78)",
-        "ANTHROPIC_CUSTOM_MODEL_OPTION env var for custom /model picker entry (v2.1.78)",
-        "Default max output tokens for Opus 4.6 increased to 64k (v2.1.77)",
-        "allowRead sandbox filesystem setting (v2.1.77)",
-        "/copy N accepts optional index (v2.1.77)",
-        "/effort slash command (v2.1.76/v2.1.77)",
-        "/fork renamed to /branch (v2.1.77)",
-        "MCP elicitation support with Elicitation/ElicitationResult hooks (v2.1.76)",
-        "-n/--name CLI flag for session display name (v2.1.76)",
-        "worktree.sparsePaths setting for monorepos (v2.1.76)",
-        "PostCompact hook event (v2.1.76)",
-        "--console flag for claude auth login (v2.1.79)",
-        "VSCode /remote-control bridge session (v2.1.79)",
-        "VSCode session tabs get AI-generated titles (v2.1.79)"
+        "forceRemoteSettingsRefresh policy setting (fail-closed startup) (v2.1.92)",
+        "Interactive Bedrock setup wizard on login (v2.1.92)",
+        "/cost per-model and cache-hit breakdown for subscribers (v2.1.92)",
+        "/release-notes interactive version picker (v2.1.92)",
+        "Removed /tag and /vim commands (vim mode now via /config) (v2.1.92)",
+        "MCP _meta['anthropic/maxResultSizeChars'] for persisting tool results up to 500K (v2.1.91)",
+        "disableSkillShellExecution setting (v2.1.91)",
+        "Plugin bin/ executables invokable as bare commands (v2.1.91)",
+        "Multi-line prompt deep links via %0A encoding (v2.1.91)",
+        "/powerup interactive lessons with animated feature demos (v2.1.90)",
+        "CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE for offline envs (v2.1.90)",
+        "Thinking summaries disabled by default (restore with showThinkingSummaries: true) (v2.1.90)",
+        "'defer' permission decision in PreToolUse hooks (headless pause/resume) (v2.1.89)",
+        "PermissionDenied hook event (fires after auto-mode classifier denials) (v2.1.89)",
+        "Named subagents in @-mention typeahead (v2.1.89)",
+        "MCP_CONNECTION_NONBLOCKING=true for -p mode with 5s timeout (v2.1.89)",
+        "CLAUDE_CODE_NO_FLICKER=1 env var (v2.1.89)",
+        "Conditional 'if' field for hooks using permission rule syntax (v2.1.85)",
+        "PreToolUse hooks can satisfy AskUserQuestion via updatedInput + allow (v2.1.85)",
+        "MCP OAuth follows RFC 9728 Protected Resource Metadata discovery (v2.1.85)",
+        "CLAUDE_CODE_MCP_SERVER_NAME/URL env vars for multi-server headers (v2.1.85)",
+        "Timestamp markers in transcripts for scheduled tasks (v2.1.85)",
+        "Organization policy can block plugin install/enable (v2.1.85)",
+        "PowerShell tool for Windows (opt-in preview) (v2.1.84)",
+        "TaskCreated hook event (fires on TaskCreate) (v2.1.84)",
+        "WorktreeCreate hook type: 'http' support (v2.1.84)",
+        "allowedChannelPlugins managed setting for team allowlists (v2.1.84)",
+        "MCP tool descriptions/instructions capped at 2KB (v2.1.84)",
+        "MCP server deduplication (local config wins) (v2.1.84)",
+        "Global system-prompt caching with ToolSearch enabled (v2.1.84)",
+        "Rules/skills paths: accept YAML list of globs (v2.1.85)",
+        ".jj and .sl added to VCS directory exclusion (v2.1.86)",
+        "X-Claude-Code-Session-Id request header for proxy aggregation (v2.1.86)"
       ]
+    },
+    {
+      "timestamp": "2026-03-25T12:00:00Z",
+      "version": "2.1.83",
+      "filesUpdated": ["SKILLS.md", "COMMANDS.md", "SUBAGENTS.md", "PROMPTING.md", "HOOKS.md", "MCP.md", "MEMORY.md", "STATUS-LINES.md", "SKILL.md"],
+      "changesApplied": 22,
+      "newFeatures": ["See prior history in git"]
     },
     {
       "timestamp": "2026-03-13T12:00:00Z",
       "version": "2.1.74",
-      "filesUpdated": [
-        "SKILLS.md",
-        "COMMANDS.md",
-        "SUBAGENTS.md",
-        "PROMPTING.md",
-        "HOOKS.md",
-        "MCP.md",
-        "MEMORY.md",
-        "OUTPUT-STYLES.md",
-        "SKILL.md"
-      ],
+      "filesUpdated": ["SKILLS.md", "COMMANDS.md", "SUBAGENTS.md", "PROMPTING.md", "HOOKS.md", "MCP.md", "MEMORY.md", "OUTPUT-STYLES.md", "SKILL.md"],
       "changesApplied": 18,
-      "newFeatures": [
-        "/loop command for recurring prompts on interval (v2.1.71)",
-        "Cron scheduling tools for recurring prompts within a session (v2.1.71)",
-        "Effort levels simplified to low/medium/high, removed max (v2.1.72)",
-        "/plan accepts optional description argument (v2.1.72)",
-        "ExitWorktree tool for leaving worktree sessions (v2.1.72)",
-        "CLAUDE.md HTML comments hidden from auto-injection (v2.1.72)",
-        "CLAUDE_CODE_DISABLE_CRON env var (v2.1.72)",
-        "model parameter restored on Agent tool (v2.1.72)",
-        "Task tool renamed to Agent tool (v2.1.63 alias still works)",
-        "modelOverrides setting for custom provider model IDs (v2.1.73)",
-        "/output-style deprecated, use /config instead (v2.1.73)",
-        "Default Opus on Bedrock/Vertex/Foundry now Opus 4.6 (v2.1.73)",
-        "/effort works while Claude is responding (v2.1.73)",
-        "autoMemoryDirectory setting for custom memory location (v2.1.74)",
-        "/context command with actionable optimization tips (v2.1.74)",
-        "Full model IDs accepted in agent frontmatter model: field (v2.1.74)",
-        "CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS env var (v2.1.74)",
-        "ConfigChange hook event for reacting to settings changes",
-        "background and isolation: worktree agent frontmatter fields",
-        "--callback-port for MCP OAuth fixed callback port",
-        "claudeMdExcludes setting to skip irrelevant CLAUDE.md files",
-        "/btw side questions (full context, no tools, discarded from history)",
-        "ENABLE_CLAUDEAI_MCP_SERVERS env var to disable claude.ai MCP servers"
-      ]
+      "newFeatures": ["See prior history in git"]
     },
     {
       "timestamp": "2026-03-06T12:00:00Z",
       "version": "2.1.70",
-      "filesUpdated": [
-        "SKILLS.md",
-        "HOOKS.md",
-        "PROMPTING.md",
-        "MCP.md",
-        "cookbook/self-update.md"
-      ],
+      "filesUpdated": ["SKILLS.md", "HOOKS.md", "PROMPTING.md", "MCP.md", "cookbook/self-update.md"],
       "changesApplied": 12,
-      "newFeatures": [
-        "Bundled skills: /simplify, /batch, /debug, /claude-api (v2.1.63, v2.1.69)",
-        "${CLAUDE_SKILL_DIR} variable for skill self-referencing (v2.1.69)",
-        "HTTP hooks - POST JSON to URL (v2.1.63)",
-        "InstructionsLoaded, WorktreeCreate, WorktreeRemove hook events (v2.1.69)",
-        "agent_id and agent_type in hook event input (v2.1.69)",
-        "Opus 4.0/4.1 removed, medium effort default for Opus 4.6 (v2.1.68)",
-        "ultrathink re-introduced as per-turn effort override (v2.1.68)",
-        "Agent Skills open standard spec (agentskills.io) fields: license, compatibility, metadata",
-        "Plugin system: .claude-plugin, marketplaces, LSP servers, plugin.json schema",
-        "Visual output pattern: skills bundling scripts that generate interactive HTML",
-        "oauth.authServerMetadataUrl for MCP servers (v2.1.69)",
-        "Self-update cookbook updated with Anthropic skills repo sources"
-      ]
+      "newFeatures": ["See prior history in git"]
     },
     {
       "timestamp": "2026-02-27T12:00:00Z",
       "version": "2.1.62",
-      "filesUpdated": [
-        "SKILL.md",
-        "MEMORY.md",
-        "HOOKS.md",
-        "SUBAGENTS.md",
-        "cookbook/self-update.md"
-      ],
+      "filesUpdated": ["SKILL.md", "MEMORY.md", "HOOKS.md", "SUBAGENTS.md", "cookbook/self-update.md"],
       "changesApplied": 8,
-      "newFeatures": [
-        "NEW: MEMORY.md reference file (auto memory, CLAUDE.md hierarchy, rules, agent memory)",
-        "Auto-memory feature (v2.1.59) - Claude saves context automatically",
-        "/memory command and autoMemoryEnabled setting",
-        "CLAUDE_CODE_DISABLE_AUTO_MEMORY env var override",
-        "CLAUDE.md @import syntax for recursive file imports",
-        ".claude/rules/ path-specific conditional rules with glob frontmatter",
-        "Plugin hook system with ${CLAUDE_PLUGIN_ROOT} portable paths",
-        "Orchestration patterns from Anthropic cookbook (query classification, lead agent, confidence filtering, evaluator-optimizer, Ralph pattern)"
-      ]
-    },
-    {
-      "timestamp": "2026-02-19T12:00:00Z",
-      "version": "2.1.47",
-      "filesUpdated": [
-        "PROMPTING.md",
-        "HOOKS.md",
-        "SUBAGENTS.md"
-      ],
-      "changesApplied": 4,
-      "newFeatures": [
-        "Claude Sonnet 4.6 model (v2.1.45)",
-        "last_assistant_message field in Stop/SubagentStop hooks (v2.1.47)",
-        "agent_transcript_path field in SubagentStop hooks (v2.1.47)",
-        "Deferred SessionStart hook execution for performance (v2.1.47)"
-      ]
-    },
-    {
-      "timestamp": "2026-02-14T12:00:00Z",
-      "version": "2.1.42",
-      "filesUpdated": [
-        "SKILLS.md",
-        "HOOKS.md"
-      ],
-      "changesApplied": 4,
-      "newFeatures": [
-        "Sandbox mode blocks writes to .claude/skills (v2.1.38)",
-        "PreToolUse deprecated top-level decision/reason fields",
-        "PostToolUse updatedMCPToolOutput for MCP tools",
-        "claude auth login/status/logout CLI subcommands (v2.1.41)"
-      ]
-    },
-    {
-      "timestamp": "2026-02-09T12:00:00Z",
-      "version": "2.1.37",
-      "filesUpdated": [
-        "SKILLS.md",
-        "SUBAGENTS.md",
-        "PROMPTING.md",
-        "HOOKS.md",
-        "MCP.md"
-      ],
-      "changesApplied": 13,
-      "newFeatures": [
-        "Fast mode for Opus 4.6",
-        "TeammateIdle hook event",
-        "TaskCompleted hook event",
-        "Task(agent_type) syntax for restricting spawnable subagents",
-        "delegate permission mode for agent team leads",
-        "mcpServers frontmatter field for subagents",
-        "Memory MEMORY.md auto-maintenance details (200-line limit)",
-        "elicitation_dialog notification matcher",
-        "bypass_permissions_disabled SessionEnd reason",
-        "CLAUDE_PLUGIN_ROOT env var for hooks",
-        "MCP Tool Search model requirements (Sonnet 4+/Opus 4+)",
-        "MCPSearch disallowedTools setting",
-        "MCP dynamic tool updates via list_changed"
-      ]
+      "newFeatures": ["See prior history in git"]
     }
   ]
 }

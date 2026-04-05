@@ -28,9 +28,11 @@ Hooks are scripts or prompts that execute in response to Claude Code events. The
 | `FileChanged` | File changes detected (v2.1.83+) | Auto-linting, file watchers |
 | `InstructionsLoaded` | After CLAUDE.md/rules/skills loaded | Post-instruction setup (v2.1.69+). Fires at session start and lazily during session |
 | `ConfigChange` | Configuration file changes during session | React to settings/skills changes. Matchers: `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills` (v2.1.72+) |
-| `WorktreeCreate` | Git worktree created (via `--worktree` or `isolation: "worktree"`) | Worktree setup, replaces default git behavior (v2.1.69+) |
+| `WorktreeCreate` | Git worktree created (via `--worktree` or `isolation: "worktree"`) | Worktree setup, replaces default git behavior (v2.1.69+). Supports `type: "http"` (v2.1.84+) |
 | `WorktreeRemove` | Git worktree removed (session exit or subagent finish) | Worktree cleanup (v2.1.69+) |
 | `PermissionRequest` | Permission dialog shown | Dynamic permission decisions |
+| `PermissionDenied` | Permission auto-denied by classifier (v2.1.89+) | React to denied operations, logging, recovery |
+| `TaskCreated` | Task created via TaskCreate (v2.1.84+) | Task validation, logging |
 | `Notification` | Claude sends notification | Desktop notifications |
 
 ## Setup Hook (claude --init)
@@ -256,7 +258,44 @@ Hooks are configured under the `hooks` key:
 | PreCompact | Trigger type | `manual`, `auto` |
 | `ConfigChange` | Configuration source | `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills` |
 | `StopFailure` | Error type | `rate_limit`, `authentication_failed`, `server_error` |
-| UserPromptSubmit, Stop, TeammateIdle, TaskCompleted, WorktreeCreate, WorktreeRemove, InstructionsLoaded, CwdChanged, FileChanged | No matcher support | Always fires |
+| `PermissionDenied` | Denial type | `auto_deny_rule`, `insufficient_permissions` (v2.1.89+) |
+| UserPromptSubmit, Stop, TeammateIdle, TaskCompleted, WorktreeCreate, WorktreeRemove, InstructionsLoaded, CwdChanged, FileChanged, TaskCreated | No matcher support | Always fires |
+
+### Conditional Hook Execution (`if` field, v2.1.85+)
+
+Hooks can conditionally execute using permission rule syntax. This also fixes issues where hooks need compound commands or env-var prefixes:
+
+```json
+{
+  "hooks": [
+    {
+      "type": "command",
+      "if": "Bash(rm -rf *)",
+      "command": "notify-rm-attempt.py",
+      "timeout": 5
+    },
+    {
+      "type": "command",
+      "if": "Edit|Write",
+      "command": "validate-edit.py",
+      "timeout": 5
+    },
+    {
+      "type": "command",
+      "if": "Bash(DEBUG=1 npm install)",
+      "command": "log-npm-install.sh",
+      "timeout": 10
+    }
+  ]
+}
+```
+
+**Supported patterns**:
+- `ToolName` — Match any use of the tool
+- `ToolName(pattern)` — Match tool with argument pattern
+- `Tool1|Tool2` — Match multiple tools
+- `!ToolName` — Negate/exclude pattern
+- Compound commands and env-var prefixes now supported (v2.1.85+)
 
 ### Common Fields
 
@@ -266,6 +305,7 @@ Hooks are configured under the `hooks` key:
 | `timeout` | Seconds. Defaults: 600 (command), 30 (prompt), 60 (agent) |
 | `statusMessage` | Custom spinner message while hook runs |
 | `once` | If `true`, runs only once per session (skills only) |
+| `if` | Conditional execution using permission rule syntax (v2.1.85+) |
 
 ### Command Hook Fields
 
@@ -356,7 +396,7 @@ Each hook type has different blocking capabilities:
 | Hook | Can Block? | Exit 2 Effect | JSON Decision Control |
 |------|-----------|---------------|----------------------|
 | UserPromptSubmit | Yes | Blocks prompt, shows error to user | `approve`/`block` prompt |
-| PreToolUse | Yes | Blocks tool, feeds stderr to Claude | `allow`/`deny`/`ask` |
+| PreToolUse | Yes | Blocks tool, feeds stderr to Claude | `allow`/`deny`/`ask`/`defer` (v2.1.89+) |
 | PostToolUse | Feedback only | Shows error to Claude (tool already ran) | `block` (prompts Claude) |
 | Stop | Yes | Blocks stoppage, forces continuation | `block` (forces Claude to continue) |
 | SubagentStop | Yes | Blocks subagent stoppage | `block` |
@@ -366,6 +406,8 @@ Each hook type has different blocking capabilities:
 | SessionEnd | No | stderr shown to user only | N/A |
 | Setup | No | stderr shown to user only | Context injection via `additionalContext` |
 | PermissionRequest | Yes | N/A | `allow`/`deny` with optional `updatedInput` |
+| PermissionDenied | No | stderr shown to user only | Logging/recovery only |
+| TaskCreated | No | stderr shown to user only | Logging/validation |
 
 ### Common JSON Output Fields (All Hooks)
 
@@ -400,7 +442,7 @@ if not all_tests_passed():
 
 **Caution**: Check `stop_hook_active` to prevent infinite loops.
 
-## JSON Output for Ask Decision
+## JSON Output for Ask/Defer Decision
 
 To trigger a confirmation dialog:
 
@@ -410,6 +452,45 @@ To trigger a confirmation dialog:
     "hookEventName": "PreToolUse",
     "permissionDecision": "ask",
     "permissionDecisionReason": "This command requires confirmation"
+  }
+}
+```
+
+### Deferring Decisions in Headless Mode (v2.1.89+)
+
+For headless sessions using `-p --resume`, PreToolUse hooks can defer decisions to pause the session and resume later:
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "defer",
+    "permissionDecisionReason": "Manual review required before deploying to production"
+  }
+}
+```
+
+This pauses the session at the tool. Resume with `claude --resume` when ready:
+
+```bash
+claude -p --model=claude-opus-4 --resume
+```
+
+**Use cases**:
+- Human approval gates in CI/CD before destructive operations
+- Code review gates before pushing to main branch
+- Manual sign-off on sensitive database operations
+- Integration with external approval workflows
+
+PreToolUse hooks can satisfy AskUserQuestion requests via `updatedInput` and `permissionDecision: "allow"` (v2.1.85+):
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "allow",
+    "updatedInput": {"command": "modified command"},
+    "additionalContext": "Command was modified by validation hook"
   }
 }
 ```
@@ -790,6 +871,8 @@ state_file = f"~/.claude/security_warnings_state_{session_id}.json"
 
 > **Note**: Top-level `decision` and `reason` fields are **deprecated** for PreToolUse. Use `hookSpecificOutput.permissionDecision` and `hookSpecificOutput.permissionDecisionReason` instead. The deprecated values `"approve"` and `"block"` map to `"allow"` and `"deny"` respectively. Other events (PostToolUse, Stop, etc.) continue to use top-level `decision`/`reason`.
 
+> **Bug Fixes (v2.1.90)**: Fixed `PreToolUse` hooks with JSON stdout and exit code 2 not blocking tool call. Fixed `Edit`/`Write` failure when PostToolUse hook rewrites file between edits. Fixed `file_path` not absolute for Write/Edit/Read hooks (v2.1.89).
+
 ```json
 {
   "hookSpecificOutput": {
@@ -813,6 +896,55 @@ state_file = f"~/.claude/security_warnings_state_{session_id}.json"
       "message": "reason",
       "interrupt": false
     }
+  }
+}
+```
+
+### PermissionDenied Hook (v2.1.89+)
+
+Fires after auto-deny classifier rejection. Use for logging or recovery:
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PermissionDenied",
+    "additionalContext": "Operation denied by classifier. Reason: destructive pattern detected"
+  }
+}
+```
+
+### TaskCreated Hook (v2.1.84+)
+
+Fires when a task is created via TaskCreate. Use for logging or validation:
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "TaskCreated",
+    "additionalContext": "Task created: Fix authentication bug"
+  }
+}
+```
+
+### WorktreeCreate Hook with HTTP Support (v2.1.84+)
+
+When a worktree is created via `--worktree` or `isolation: "worktree"`, a `WorktreeCreate` hook fires. Replaces the default git behavior.
+
+Hook input includes:
+```json
+{
+  "worktree_path": "/path/to/worktree",
+  "branch_name": "feature/abc"
+}
+```
+
+For HTTP hooks (v2.1.84+), the hook output can provide a custom worktree path:
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "WorktreeCreate",
+    "worktreePath": "/custom/worktree/path"
   }
 }
 ```

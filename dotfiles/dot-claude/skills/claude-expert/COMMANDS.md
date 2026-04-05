@@ -377,10 +377,14 @@ PROMPT: $2
 | `/context` | Shows context usage with actionable optimization tips (v2.1.74+) |
 | `/loop [interval] <prompt>` | Run a prompt on a recurring interval (v2.1.71) |
 | `/effort [low\|medium\|high\|auto]` | Set effort level. Works while Claude is responding (v2.1.73+). Also available as slash command (v2.1.76+) |
-| `/config` | Configure settings including output style (replaces deprecated `/output-style` v2.1.73+). Includes "Show turn duration" toggle (v2.1.79+) |
+| `/config` | Configure settings including output style (replaces deprecated `/output-style` v2.1.73+). Includes "Show turn duration" toggle (v2.1.79+). Editor mode setting moved here from `/vim` (v2.1.92+) |
 | `/branch` | Fork conversation into a new branch (renamed from `/fork` v2.1.77+, `/fork` still works as alias) |
 | `/copy [N]` | Copy response to clipboard. Optional index to copy a specific response (v2.1.77+) |
 | `/btw` | Side question that sees full context but has no tools; answer discarded from history |
+| `/powerup` | Interactive lessons with animated feature demos (v2.1.90+) |
+| `/release-notes` | View release notes with interactive version picker (v2.1.92+) |
+| `/cost` | View token cost breakdown. Subscription users see per-model and cache-hit breakdown (v2.1.92+) |
+| `/permissions` | Show available and denied commands; Auto mode displays recent tab with retry option for denied commands (v2.1.89+) |
 
 ## Best Practices
 

@@ -83,7 +83,7 @@ When multiple agents share the same name, higher-priority location wins.
 ### /agents Command
 
 Run `/agents` in Claude Code to interactively:
-- View all available agents (built-in, user, project, plugin)
+- View all available agents (built-in, user, project, plugin) — named subagents appear in `@` mention typeahead (v2.1.89+)
 - Create new agents (guided setup or Claude generation)
 - Edit existing agent configuration and tool access
 - Delete custom agents
@@ -593,10 +593,19 @@ In `settings.json`:
     "SubagentStop": [{
       "matcher": "db-agent",
       "hooks": [{"type": "command", "command": "./cleanup-db.sh"}]
+    }],
+    "TaskCreated": [{
+      "matcher": "workflow",
+      "hooks": [{"type": "command", "command": "./on-task-created.sh"}]
     }]
   }
 }
 ```
+
+**Hook Events:**
+- `SubagentStart` — fires when subagent spawns
+- `SubagentStop` — fires when subagent completes
+- `TaskCreated` — fires when task created via TaskCreate tool (v2.1.84+)
 
 ## Restricting Spawnable Agents with Agent(agent_type)
 

@@ -51,7 +51,7 @@ Before anything else (including Argument Routing), resolve LEARNING_PATH:
 
 **`.env` format example:**
 ```
-LEARNING_PATH=~/Library/Mobile Documents/iCloud~md~obsidian/Documents/my_vault/Projects
+LEARNING_PATH=~/Documents/obsidian-vault/Projects
 ```
 
 ## Argument Routing
@@ -89,14 +89,19 @@ Scan for existing learning plans and let the user choose one to continue.
 
 1. **Scan** for all `Learning - *` directories in LEARNING_PATH/:
    ```
+   # Primary: find plans with 00-Plan.md
    Glob pattern: LEARNING_PATH/Learning - */00-Plan.md
+   # Fallback: also find directories matching the naming pattern (may lack 00-Plan.md)
+   Bash: ls -d LEARNING_PATH/Learning\ -\ */
    ```
+   Use the union of both results to catch incomplete plans too.
 
 2. **For each plan found**, read its `00-Progress.md` to extract:
    - Topic name (from frontmatter or folder name)
    - Status (Not Started / In Progress / Completed)
    - Completion count (e.g., "3/10 modules")
    - Last session date
+   - If `00-Progress.md` does not exist, mark as **Not Started** with 0 modules completed
 
 3. **Filter**: Only show plans with Status != "Completed" (unless there are no active plans, then show all)
 

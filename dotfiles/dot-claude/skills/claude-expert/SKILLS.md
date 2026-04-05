@@ -694,7 +694,7 @@ skill-name/
 #### `.env` Format
 ```bash
 # One KEY=VALUE per line
-OUTPUT_PATH=~/Library/Mobile Documents/iCloud~md~obsidian/Documents/my_vault
+OUTPUT_PATH=~/Documents/obsidian-vault
 API_ENDPOINT=https://api.example.com
 PREFERRED_FORMAT=markdown
 ```

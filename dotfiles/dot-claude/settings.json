@@ -19,7 +19,6 @@
       "Bash(pwsh.exe:*)",
       "Bash(wsl:*)",
       "Bash(chmod:*)",
-      "Bash(\"/Users/raphael/Library/Mobile Documents/iCloud~md~obsidian/Documents/my_vault/_Assets/claude_usage_log.json\")",
       "Bash(mkdir -p:*)",
       "Bash(bun run:*)",
       "Bash(bdg:*)",
@@ -145,7 +144,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/ccnotify/ccnotify.py Notification"
+            "command": "uv run ~/.claude/ccnotify/ccnotify.py Notification"
           }
         ]
       }
@@ -214,7 +213,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/ccnotify/ccnotify.py Stop"
+            "command": "uv run ~/.claude/ccnotify/ccnotify.py Stop"
           }
         ]
       },
@@ -266,7 +265,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/ccnotify/ccnotify.py UserPromptSubmit"
+            "command": "uv run ~/.claude/ccnotify/ccnotify.py UserPromptSubmit"
           }
         ]
       }
@@ -277,7 +276,6 @@
     "command": "uv run ~/.claude/status_lines/status_line.py",
     "padding": 0
   },
-  "model": "sonnet",
-  "effortLevel": "medium",
+  "voiceEnabled": true,
   "skipDangerousModePermissionPrompt": true
 }

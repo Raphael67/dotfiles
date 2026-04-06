@@ -167,18 +167,6 @@ cp ~/.claude/file-history/<session-id>/<hash>@v1 /path/to/restore
 
 Allowed languages: Python, Bash, TypeScript, Rust
 
-## English Correction (MANDATORY)
-
-When the user writes in English and their message contains **any** grammar, spelling, phrasing, or semantic error, you **MUST** start your next reply with a correction blockquote **before anything else**. Format:
-
-> ✏️ *"<corrected version of the user's sentence(s)>"*
-
-Rules:
-- **Position**: Always at the **very beginning** of your reply — before any answer, code, or tool output
-- **Scope**: Correct the full sentence(s) that contain errors, not just the individual word
-- **Threshold**: Flag clear mistakes (wrong preposition, subject-verb disagreement, missing article, incorrect word, semantic confusion). Do **not** nitpick informal tone or stylistic choices
-- **Skip when**: The user writes in French, or the message is error-free, or it contains only code/commands
-
 ## Communication Style
 
 - Concise: bullet points over prose

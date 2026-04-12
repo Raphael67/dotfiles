@@ -101,6 +101,9 @@ alias fixmouse="printf '\e[?1000l\e[?1002l\e[?1003l\e[?1006l'"
 
 alias clyo="claude --dangerously-skip-permissions"
 
+# Claude Code with Haiku model router (auto-routes to Sonnet/Opus by complexity)
+alias ccr='claude --agent router --dangerously-skip-permissions'
+
 # Shell profiling
 zsh-startuptime() {
     local total=0

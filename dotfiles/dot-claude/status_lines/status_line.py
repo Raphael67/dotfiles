@@ -6,7 +6,7 @@
 
 """
 Status Line - Context Window + Rate Limits
-Display: [Model] # [###---] | 42.5% used | ~115k left | 5h: 23% ↻2h30m | 7d: 8% | session_id
+Display: [Model] # 42.5% used | ~115k left | 5h: 23% ↻2h30m | 7d: 8% | session_id
 """
 
 import json
@@ -42,6 +42,39 @@ def get_usage_color(percentage):
     return BRIGHT_RED
 
 
+def get_window_usage_color(used_pct, resets_at, window_seconds):
+    """
+    Color the used percentage relative to elapsed time in the window.
+
+    Thresholds:
+      - GREEN  if used_pct <= elapsed_pct              (consuming slower than time)
+      - ORANGE if elapsed_pct < used_pct <= elapsed_pct + remaining_pct / 2
+      - RED    if used_pct > elapsed_pct + remaining_pct / 2
+    """
+    ORANGE = "\033[38;5;208m"
+    if not resets_at or not window_seconds:
+        return get_usage_color(used_pct)
+    try:
+        if isinstance(resets_at, (int, float)):
+            reset_dt = datetime.fromtimestamp(resets_at, tz=timezone.utc)
+        else:
+            reset_dt = datetime.fromisoformat(str(resets_at).replace("Z", "+00:00"))
+        remaining_seconds = (reset_dt - datetime.now(timezone.utc)).total_seconds()
+        remaining_seconds = max(0.0, remaining_seconds)
+        remaining_pct = (remaining_seconds / window_seconds) * 100
+        elapsed_pct = 100 - remaining_pct
+        low_threshold = elapsed_pct
+        high_threshold = elapsed_pct + remaining_pct / 2
+        if used_pct <= low_threshold:
+            return GREEN
+        elif used_pct <= high_threshold:
+            return ORANGE
+        else:
+            return RED
+    except (ValueError, TypeError, OSError):
+        return get_usage_color(used_pct)
+
+
 def create_progress_bar(percentage, width=15):
     filled = int((percentage / 100) * width)
     empty = width - filled
@@ -74,6 +107,30 @@ def format_reset_time(resets_at):
         if total_seconds < 3600:
             return f"{total_seconds // 60}m"
         return f"{total_seconds // 3600}h{(total_seconds % 3600) // 60:02d}m"
+    except (ValueError, TypeError, OSError):
+        return None
+
+
+def format_subscription_time(resets_at):
+    """Format remaining subscription time: 'XdYh' if >= 24h, else 'XhYm'."""
+    if not resets_at:
+        return None
+    try:
+        if isinstance(resets_at, (int, float)):
+            reset_dt = datetime.fromtimestamp(resets_at, tz=timezone.utc)
+        else:
+            reset_dt = datetime.fromisoformat(str(resets_at).replace("Z", "+00:00"))
+        delta = reset_dt - datetime.now(timezone.utc)
+        total_seconds = int(delta.total_seconds())
+        if total_seconds <= 0:
+            return "expired"
+        total_hours = total_seconds // 3600
+        remaining_minutes = (total_seconds % 3600) // 60
+        if total_hours >= 24:
+            days = total_hours // 24
+            hours = total_hours % 24
+            return f"{days}d{hours}h"
+        return f"{total_hours}h{remaining_minutes}m"
     except (ValueError, TypeError, OSError):
         return None
 
@@ -113,14 +170,23 @@ def generate_status_line(input_data):
 
     parts = [
         f"{CYAN}[{model_name}]{RESET}",
-        f"{MAGENTA}#{RESET} {create_progress_bar(used_pct)}",
-        f"{get_usage_color(used_pct)}{used_pct:.1f}%{RESET} used",
+        f"{MAGENTA}#{RESET} {get_usage_color(used_pct)}{used_pct:.1f}%{RESET} used",
         f"{BLUE}~{format_tokens(remaining)} left{RESET}",
     ]
 
     # Rate limits (5h and 7d windows)
     rate_limits = get_rate_limits(input_data)
     if rate_limits:
+        # Subscription remaining time from 7-day window
+        seven_day = rate_limits.get("seven_day")
+        if seven_day and isinstance(seven_day, dict):
+            sub_time = format_subscription_time(seven_day.get("resets_at"))
+            if sub_time:
+                sub_pct = seven_day.get("used_percentage")
+                sub_color = get_usage_color(float(sub_pct)) if sub_pct is not None else GREEN
+                parts.append(f"{DIM}sub:{RESET} {sub_color}{sub_time}{RESET}")
+
+        window_durations = {"five_hour": 5 * 3600, "seven_day": 7 * 24 * 3600}
         for key, label in [("five_hour", "5h"), ("seven_day", "7d")]:
             window = rate_limits.get(key)
             if not window or not isinstance(window, dict):
@@ -129,11 +195,11 @@ def generate_status_line(input_data):
             if pct is None:
                 continue
             pct = float(pct)
-            color = get_usage_color(pct)
+            color = get_window_usage_color(pct, window.get("resets_at"), window_durations[key])
             indicator = f"{DIM}{label}:{RESET} {color}{pct:.0f}%{RESET}"
-            reset = format_reset_time(window.get("resets_at"))
+            reset = format_subscription_time(window.get("resets_at"))
             if reset:
-                indicator += f" {DIM}↻{reset}{RESET}"
+                indicator += f" {DIM}{reset}{RESET}"
             parts.append(indicator)
 
     parts.append(f"{DIM}{session_id}{RESET}")

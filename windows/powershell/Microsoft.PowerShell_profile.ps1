@@ -109,6 +109,7 @@ if (Get-Command eza -ErrorAction SilentlyContinue) {
 # claude
 if (Get-Command claude -ErrorAction SilentlyContinue) {
     function clyo { claude --dangerously-skip-permissions @args }
+    function ask { claude -p --model haiku --dangerously-skip-permissions ($args -join ' ') }
 }
 
 #region Docker

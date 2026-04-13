@@ -91,6 +91,16 @@ $links = @(
         Source = "dotfiles\dot-claude\ccnotify"
         Target = "$HOME\.claude\ccnotify"
         Description = "Claude Code notification scripts"
+    },
+    @{
+        Source = "dotfiles\dot-claude\agents"
+        Target = "$HOME\.claude\agents"
+        Description = "Claude Code agents"
+    },
+    @{
+        Source = "dotfiles\dot-claude\dot-mcp.json"
+        Target = "$HOME\.mcp.json"
+        Description = "Claude Code MCP servers config"
     }
 )
 

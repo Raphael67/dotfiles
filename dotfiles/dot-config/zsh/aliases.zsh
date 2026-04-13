@@ -104,6 +104,9 @@ alias clyo="claude --dangerously-skip-permissions"
 # Claude Code with Haiku model router (auto-routes to Sonnet/Opus by complexity)
 alias ccr='claude --agent router --dangerously-skip-permissions'
 
+# ask: quick factual questions answered by Haiku (one-shot, no session)
+ask() { claude -p --model haiku --dangerously-skip-permissions "$*" }
+
 # Shell profiling
 zsh-startuptime() {
     local total=0

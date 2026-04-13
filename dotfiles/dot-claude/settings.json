@@ -144,7 +144,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run ~/.claude/ccnotify/ccnotify.py Notification"
+            "command": "uv run --no-project ~/.claude/ccnotify/ccnotify.py Notification"
           }
         ]
       }
@@ -213,7 +213,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run ~/.claude/ccnotify/ccnotify.py Stop"
+            "command": "uv run --no-project ~/.claude/ccnotify/ccnotify.py Stop"
           }
         ]
       },
@@ -265,7 +265,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run ~/.claude/ccnotify/ccnotify.py UserPromptSubmit"
+            "command": "uv run --no-project ~/.claude/ccnotify/ccnotify.py UserPromptSubmit"
           }
         ]
       }

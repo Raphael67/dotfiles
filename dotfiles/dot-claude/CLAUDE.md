@@ -140,6 +140,23 @@ cp ~/.claude/file-history/<session-id>/<hash>@v1 /path/to/restore
 - Always review changes before committing
 - Prefer explicit imports over wildcards
 
+### Security Hook System (damage-control)
+
+All bash commands pass through a three-state security hook before execution:
+
+| Decision | Meaning | Examples |
+|----------|---------|---------|
+| `allow` | Run silently, no friction | git status, npm install, stow |
+| `confirm` | Ask user before running | rm -rf, git reset --hard, DROP TABLE |
+| `block` | Blocked unconditionally | mkfs, dd to /dev/, kill -9 -1 |
+
+Path-based rules (independent of bash patterns):
+- **Zero-access paths**: SSH keys (`~/.ssh/`), GPG (`~/.gnupg/`), cloud creds (`~/.aws/`, `~/.kube/`), cert files (`*.pem`, `*.key`) — blocked for all access including reads
+- **Read-only paths**: System dirs (`/etc/`, `/usr/`), lock files, build artifacts — writes blocked, reads allowed
+- **No-delete paths**: `~/.claude/`, git dir, license/readme files — reads/writes allowed, deletion blocked
+
+Config files: `~/.claude/hooks/damage-control/patterns.yaml` (patterns) and `bash-tool-damage-control.py` (logic).
+
 ## Error Handling
 
 - **Build/Test failures**: Fix the issue, don't skip or ignore

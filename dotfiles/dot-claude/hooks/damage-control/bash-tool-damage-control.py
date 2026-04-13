@@ -6,15 +6,17 @@
 Claude Code Security Firewall - Python/UV Implementation
 =========================================================
 
-Blocks dangerous commands before execution via PreToolUse hook.
+Three-state decision hook for PreToolUse (Bash tool).
 Loads patterns from patterns.yaml for easy customization.
 
-Exit codes:
-  0 = Allow command (or JSON output with permissionDecision)
-  2 = Block command (stderr fed back to Claude)
+Output (JSON to stdout):
+  {"decision": "allow"}             - run silently
+  {"decision": "confirm", "reason": "..."}  - ask user confirmation
+  {"decision": "block", "reason": "..."}    - block immediately
 
-JSON output for ask patterns:
-  {"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "ask", "permissionDecisionReason": "..."}}
+Exit codes:
+  0 = Normal exit (decision communicated via JSON)
+  1 = Error (invalid input)
 """
 
 import json
@@ -155,67 +157,65 @@ def check_path_patterns(command: str, path: str, patterns: List[Tuple[str, str]]
     return False, ""
 
 
-def check_command(command: str, config: Dict[str, Any]) -> Tuple[bool, bool, str]:
-    """Check if command should be blocked or requires confirmation.
+def check_command(command: str, config: Dict[str, Any]) -> Tuple[str, str]:
+    """Check if command should be blocked, confirmed, or allowed.
 
-    Returns: (blocked, ask, reason)
-      - blocked=True, ask=False: Block the command
-      - blocked=False, ask=True: Show confirmation dialog
-      - blocked=False, ask=False: Allow the command
+    Returns: (decision, reason)
+      - ("block", reason): Block the command immediately
+      - ("confirm", reason): Ask user for confirmation
+      - ("allow", ""): Allow the command silently
     """
     patterns = config.get("bashToolPatterns", [])
     zero_access_paths = config.get("zeroAccessPaths", [])
     read_only_paths = config.get("readOnlyPaths", [])
     no_delete_paths = config.get("noDeletePaths", [])
 
-    # 1. Check against patterns from YAML (may block or ask)
+    # 1. Check against patterns from YAML
     for item in patterns:
         pattern = item.get("pattern", "")
         reason = item.get("reason", "Blocked by pattern")
-        should_ask = item.get("ask", False)
+        # Support new "action" field; fall back to legacy "ask" field
+        action = item.get("action")
+        if action is None:
+            # Legacy: ask:true → confirm, default → block
+            action = "confirm" if item.get("ask", False) else "block"
 
         try:
             if re.search(pattern, command, re.IGNORECASE):
-                if should_ask:
-                    return False, True, reason  # Ask for confirmation
-                else:
-                    return True, False, f"Blocked: {reason}"  # Block
+                return action, reason
         except re.error:
             continue
 
     # 2. Check for ANY access to zero-access paths (including reads)
     for zero_path in zero_access_paths:
         if is_glob_pattern(zero_path):
-            # Convert glob to regex for command matching
             glob_regex = glob_to_regex(zero_path)
             try:
                 if re.search(glob_regex, command, re.IGNORECASE):
-                    return True, False, f"Blocked: zero-access pattern {zero_path} (no operations allowed)"
+                    return "block", f"zero-access pattern {zero_path} (no operations allowed)"
             except re.error:
                 continue
         else:
-            # Original literal path matching
             expanded = os.path.expanduser(zero_path)
             escaped_expanded = re.escape(expanded)
             escaped_original = re.escape(zero_path)
 
-            # Check both expanded path (/Users/x/.ssh/) and original tilde form (~/.ssh/)
             if re.search(escaped_expanded, command) or re.search(escaped_original, command):
-                return True, False, f"Blocked: zero-access path {zero_path} (no operations allowed)"
+                return "block", f"zero-access path {zero_path} (no operations allowed)"
 
     # 3. Check for modifications to read-only paths (reads allowed)
     for readonly in read_only_paths:
         blocked, reason = check_path_patterns(command, readonly, READ_ONLY_BLOCKED, "read-only path")
         if blocked:
-            return True, False, reason
+            return "block", reason
 
     # 4. Check for deletions on no-delete paths (read/write/edit allowed)
     for no_delete in no_delete_paths:
         blocked, reason = check_path_patterns(command, no_delete, NO_DELETE_BLOCKED, "no-delete path")
         if blocked:
-            return True, False, reason
+            return "block", reason
 
-    return False, False, ""
+    return "allow", ""
 
 
 # ============================================================================
@@ -247,24 +247,26 @@ def main() -> None:
         sys.exit(0)
 
     # Check the command
-    is_blocked, should_ask, reason = check_command(command, config)
+    decision, reason = check_command(command, config)
 
-    if is_blocked:
-        print(f"[HOOK:damage-control] SECURITY: {reason}", file=sys.stderr)
-        print(f"Command: {command[:100]}{'...' if len(command) > 100 else ''}", file=sys.stderr)
-        sys.exit(2)
-    elif should_ask:
-        # Output JSON to trigger confirmation dialog
+    if decision == "block":
         output = {
-            "hookSpecificOutput": {
-                "hookEventName": "PreToolUse",
-                "permissionDecision": "ask",
-                "permissionDecisionReason": f"[HOOK:damage-control] {reason}"
-            }
+            "decision": "block",
+            "reason": f"[HOOK:damage-control] {reason}"
+        }
+        print(json.dumps(output))
+        sys.exit(0)
+    elif decision == "confirm":
+        output = {
+            "decision": "confirm",
+            "reason": f"[HOOK:damage-control] {reason}"
         }
         print(json.dumps(output))
         sys.exit(0)
     else:
+        # Allow silently
+        output = {"decision": "allow"}
+        print(json.dumps(output))
         sys.exit(0)
 
 

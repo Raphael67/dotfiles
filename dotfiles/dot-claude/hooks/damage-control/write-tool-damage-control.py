@@ -6,12 +6,17 @@
 Claude Code Write Tool Damage Control
 ======================================
 
-Blocks writes to protected files via PreToolUse hook on Write tool.
-Loads zeroAccessPaths and readOnlyPaths from patterns.yaml.
+Three-state decision hook for PreToolUse (Write tool).
+Loads patterns from patterns.yaml for easy customization.
+
+Output (JSON to stdout):
+  {"decision": "allow"}                        - allow silently
+  {"decision": "confirm", "reason": "..."}     - ask user confirmation
+  {"decision": "block", "reason": "..."}       - block immediately
 
 Exit codes:
-  0 = Allow write
-  2 = Block write (stderr fed back to Claude)
+  0 = Normal exit (decision communicated via JSON)
+  1 = Error (invalid input)
 """
 
 import json
@@ -23,17 +28,27 @@ sys.path.insert(0, str(__import__('pathlib').Path(__file__).parent))
 from common import match_path, load_config
 
 
-def check_path(file_path: str, config: Dict[str, Any]) -> Tuple[bool, str]:
-    """Check if file_path is blocked. Returns (blocked, reason)."""
+def check_path(file_path: str, config: Dict[str, Any]) -> Tuple[str, str]:
+    """Check if file_path should be blocked, confirmed, or allowed.
+
+    Returns: (decision, reason)
+      - ("block", reason): Block the write immediately
+      - ("confirm", reason): Ask user for confirmation
+      - ("allow", ""): Allow the write silently
+    """
     for zero_path in config.get("zeroAccessPaths", []):
         if match_path(file_path, zero_path):
-            return True, f"zero-access path {zero_path} (no operations allowed)"
+            return "block", f"zero-access path {zero_path} (no operations allowed)"
 
     for readonly in config.get("readOnlyPaths", []):
         if match_path(file_path, readonly):
-            return True, f"read-only path {readonly}"
+            return "block", f"read-only path {readonly}"
 
-    return False, ""
+    for confirm_path in config.get("confirmPaths", []):
+        if match_path(file_path, confirm_path):
+            return "confirm", f"Writing {file_path} requires approval (matches confirmPaths pattern: {confirm_path})"
+
+    return "allow", ""
 
 
 def main() -> None:
@@ -55,12 +70,26 @@ def main() -> None:
     if not file_path:
         sys.exit(0)
 
-    blocked, reason = check_path(file_path, config)
-    if blocked:
-        print(f"SECURITY: Blocked write to {reason}: {file_path}", file=sys.stderr)
-        sys.exit(2)
+    decision, reason = check_path(file_path, config)
 
-    sys.exit(0)
+    if decision == "block":
+        output = {
+            "decision": "block",
+            "reason": f"[HOOK:damage-control] SECURITY: Blocked write to {reason}: {file_path}"
+        }
+        print(json.dumps(output))
+        sys.exit(0)
+    elif decision == "confirm":
+        output = {
+            "decision": "confirm",
+            "reason": f"[HOOK:damage-control] {reason}"
+        }
+        print(json.dumps(output))
+        sys.exit(0)
+    else:
+        output = {"decision": "allow"}
+        print(json.dumps(output))
+        sys.exit(0)
 
 
 if __name__ == "__main__":

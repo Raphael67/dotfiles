@@ -123,7 +123,29 @@
       "TaskList",
       "TaskGet",
       "ListMcpResourcesTool",
-      "ReadMcpResourceTool"
+      "ReadMcpResourceTool",
+      "Bash(git:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(docker:*)",
+      "Bash(docker compose:*)",
+      "Bash(just:*)",
+      "Bash(uv:*)",
+      "Bash(python3:*)",
+      "Bash(lsof:*)",
+      "Bash(pgrep:*)",
+      "Bash(test:*)",
+      "Bash(bash:*)",
+      "Bash(cp:*)",
+      "Bash(mkdir:*)",
+      "Bash(bw:*)",
+      "Bash(rclone:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "Bash(python .claude/hooks/validate-write-path.py electron/renderer)",
+      "Bash(python .claude/hooks/validate-write-path.py electron/main electron/preload)",
+      "Bash(python .claude/hooks/validate-write-path.py backend)"
     ],
     "deny": [
       "Bash(rm -rf /*:*)",
@@ -277,5 +299,6 @@
     "rust-analyzer-lsp@claude-plugins-official": true
   },
   "voiceEnabled": true,
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "model": "haiku"
 }

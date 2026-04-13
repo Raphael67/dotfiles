@@ -10,7 +10,7 @@ allowed-tools:
   - Agent
   - AskUserQuestion
   - Skill
-permissionMode: dontAsk
+permissionMode: default
 memory: user
 effort: medium
 ---

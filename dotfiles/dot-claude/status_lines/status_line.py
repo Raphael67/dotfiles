@@ -6,7 +6,7 @@
 
 """
 Status Line - Context Window + Rate Limits
-Display: [Model] # 42.5% used | ~115k left | 5h: 23% ↻2h30m | 7d: 8% | session_id
+Display: [Model] # 42.5% used | ~115k left | 5h: 23% 2h30m | 7d: 8% 6d12h | session_id
 """
 
 import json
@@ -177,15 +177,6 @@ def generate_status_line(input_data):
     # Rate limits (5h and 7d windows)
     rate_limits = get_rate_limits(input_data)
     if rate_limits:
-        # Subscription remaining time from 7-day window
-        seven_day = rate_limits.get("seven_day")
-        if seven_day and isinstance(seven_day, dict):
-            sub_time = format_subscription_time(seven_day.get("resets_at"))
-            if sub_time:
-                sub_pct = seven_day.get("used_percentage")
-                sub_color = get_usage_color(float(sub_pct)) if sub_pct is not None else GREEN
-                parts.append(f"{DIM}sub:{RESET} {sub_color}{sub_time}{RESET}")
-
         window_durations = {"five_hour": 5 * 3600, "seven_day": 7 * 24 * 3600}
         for key, label in [("five_hour", "5h"), ("seven_day", "7d")]:
             window = rate_limits.get(key)

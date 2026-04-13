@@ -1,4 +1,4 @@
-# Global Claude Configuration
+ Global Claude Configuration
 
 ## Personal Development Environment
 

@@ -103,6 +103,9 @@
       "Bash(git diff:*)",
       "Bash(git show:*)",
       "Bash(git branch:*)",
+      "Bash(bw-inject:*)",
+      "Bash(bw-fetch search:*)",
+      "Bash(bw-fetch meta:*)",
       "Skill",
       "mcp__atlassian__getJiraIssue",
       "mcp__atlassian__getJiraIssueRemoteIssueLinks",
@@ -299,6 +302,7 @@
     "rust-analyzer-lsp@claude-plugins-official": true
   },
   "voiceEnabled": true,
+  "autoDreamEnabled": true,
   "skipDangerousModePermissionPrompt": true,
   "model": "haiku"
 }

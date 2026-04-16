@@ -385,6 +385,7 @@ PROMPT: $2
 | `/release-notes` | View release notes with interactive version picker (v2.1.92+) |
 | `/cost` | View token cost breakdown. Subscription users see per-model and cache-hit breakdown (v2.1.92+) |
 | `/permissions` | Show available and denied commands; Auto mode displays recent tab with retry option for denied commands (v2.1.89+) |
+| `/ultrareview` | Dedicated review session identifying bugs and design issues; introduced with Opus 4.7 (Apr 2026) |
 
 ## Best Practices
 

@@ -169,19 +169,31 @@ Start Claude's response to guide format:
 
 ## Claude 4+ Specifics
 
-### Available Models (Mar 2026)
+### Available Models (Apr 2026)
 
 | Model | ID | Best For |
 |-------|-----|----------|
+| Opus 4.7 | `claude-opus-4-7` | Hardest coding tasks, vision, agentic work requiring top accuracy |
 | Opus 4.6 | `claude-opus-4-6` | Complex reasoning, large codebases, agentic tasks |
 | Sonnet 4.6 | `claude-sonnet-4-6` | Frontier performance for coding, agents, and professional work at scale |
 | Haiku 4.5 | `claude-haiku-4-5-20251001` | Fast, simple tasks |
 
 > **Note**: Opus 4.0 and 4.1 have been removed from Claude Code (v2.1.68). Users are automatically migrated to Opus 4.6. Default Opus model on Bedrock, Vertex, and Microsoft Foundry is now Opus 4.6 (v2.1.73).
 
+### Claude Opus 4.7 Capabilities (Released Apr 16, 2026)
+
+Opus 4.7 is Anthropic's latest model, available via API, Amazon Bedrock, Google Cloud Vertex AI, and Microsoft Foundry:
+- **Improved coding** - 13% better on 93-task coding benchmark vs Opus 4.6; resolves 3× more production tasks on Rakuten-SWE-Bench
+- **Enhanced vision** - images up to 2,576px on the long edge (~3.75 megapixels), 3× previous capacity; 98.5% on XBOW visual-acuity benchmark (vs 54.5% for Opus 4.6)
+- **Stricter instruction following** - more literal interpretation; existing prompts may need retuning
+- **Effort levels** - now includes `xhigh` (extra high) between `high` and `max` for finer reasoning/latency control
+- **Task budgets** (public beta) - guide token expenditure across extended operations
+- **Pricing** - same as Opus 4.6: $5/M input, $25/M output
+- **Updated tokenizer** - may produce 1.0–1.35× more tokens for identical input depending on content type
+
 ### Claude Opus 4.6 Capabilities
 
-Opus 4.6 is Anthropic's most advanced model with:
+Opus 4.6 with:
 - **1M token context window** (beta) - first Opus-class model with this capacity
 - **Adaptive thinking** - effort levels: `low`, `medium` (default for Max/Team), `high`
 - **128k output tokens** support (default max increased to 64k in v2.1.77, upper bound 128k)
@@ -202,6 +214,8 @@ Analyze this complex architectural problem thoroughly.
 This is re-introduced as a per-turn effort override.
 
 **Effort level changes (v2.1.72+)**: Simplified to `low`/`medium`/`high` (removed `max` from general use; `max` still available for Opus 4.6 only). Symbols: `○` low, `◐` medium, `●` high. Use `/effort auto` to reset to default. `/effort` works while Claude is responding (v2.1.73+). `/effort` also available as a slash command (v2.1.76+).
+
+**Opus 4.7 effort levels**: Adds `xhigh` (extra high) between `high` and `max` for finer-grained reasoning vs latency tradeoffs.
 
 ### Model Overrides (v2.1.73+)
 

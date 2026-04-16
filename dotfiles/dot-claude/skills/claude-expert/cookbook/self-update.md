@@ -41,7 +41,7 @@ Track Claude Desktop app features, updates, and new capabilities:
 ### Model-Specific Sources
 
 For model updates and capabilities, also check:
-- https://www.anthropic.com/news/claude-opus-4-6 (or latest model announcement)
+- https://www.anthropic.com/news/claude-opus-4-7 (or latest model announcement)
 - Look for new model announcements on https://www.anthropic.com/news
 
 ## Workflow

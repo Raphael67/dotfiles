@@ -1,7 +1,26 @@
 {
-  "lastUpdateTimestamp": "2026-04-05T12:00:00Z",
+  "lastUpdateTimestamp": "2026-04-16T12:00:00Z",
   "lastVersion": "2.1.92",
   "updateHistory": [
+    {
+      "timestamp": "2026-04-16T12:00:00Z",
+      "version": "2.1.92",
+      "filesUpdated": [
+        "PROMPTING.md",
+        "COMMANDS.md",
+        "cookbook/self-update.md"
+      ],
+      "changesApplied": 5,
+      "newFeatures": [
+        "Claude Opus 4.7 model (claude-opus-4-7) — released Apr 16 2026",
+        "Opus 4.7: 13% coding improvement over Opus 4.6 on 93-task benchmark",
+        "Opus 4.7: enhanced vision (up to 2,576px images, 3× previous capacity)",
+        "Opus 4.7: xhigh effort level between high and max",
+        "Opus 4.7: task budgets public beta",
+        "Opus 4.7: updated tokenizer (1.0–1.35× more tokens for identical input)",
+        "/ultrareview command for dedicated review sessions"
+      ]
+    },
     {
       "timestamp": "2026-04-05T12:00:00Z",
       "version": "2.1.92",

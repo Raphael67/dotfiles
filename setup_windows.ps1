@@ -4,8 +4,20 @@
     Windows dotfiles setup script.
     Installs packages, PowerShell modules, configures WSL, and creates symlinks.
 
+.DESCRIPTION
+    Package installation order:
+      1. WinGet  — primary, installs from winget/packages.json
+      2. Choco   — fallback for packages unavailable in WinGet (choco/packages.txt)
+      3. Post-install steps for tools distributed via npm/bun (e.g. claude-code CLI)
+
 .PARAMETER SkipApps
-    Skip Chocolatey package installation.
+    Skip all package installation (WinGet + Choco).
+
+.PARAMETER SkipWinGet
+    Skip WinGet package installation only.
+
+.PARAMETER SkipChoco
+    Skip Chocolatey fallback package installation only.
 
 .PARAMETER SkipWSL
     Skip WSL configuration.
@@ -16,9 +28,12 @@
 .EXAMPLE
     .\setup_windows.ps1
     .\setup_windows.ps1 -SkipApps
+    .\setup_windows.ps1 -SkipWinGet
 #>
 param(
     [switch]$SkipApps,
+    [switch]$SkipWinGet,
+    [switch]$SkipChoco,
     [switch]$SkipWSL,
     [switch]$SkipSymlinks
 )
@@ -30,31 +45,72 @@ $ScriptDir = Split-Path -Parent $PSCommandPath
 Write-Host "`n=== Dotfiles Windows Setup ===" -ForegroundColor Cyan
 Write-Host ""
 
-#region Chocolatey
-if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
-    Write-Host "Installing Chocolatey..." -ForegroundColor Yellow
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-    Write-Host "Chocolatey installed." -ForegroundColor Green
+#region WinGet
+if (!$SkipApps -and !$SkipWinGet) {
+    Write-Host "`n--- Installing packages via WinGet ---" -ForegroundColor Cyan
+
+    $wingetManifest = "$ScriptDir\winget\packages.json"
+
+    if (!(Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Host "  WinGet not found. Install App Installer from the Microsoft Store." -ForegroundColor Red
+        Write-Host "  Skipping WinGet installation." -ForegroundColor Yellow
+    } elseif (!(Test-Path $wingetManifest)) {
+        Write-Host "  Manifest not found: $wingetManifest" -ForegroundColor Red
+    } else {
+        Write-Host "  Running: winget import --import-file $wingetManifest" -ForegroundColor Gray
+        winget import --import-file $wingetManifest --accept-package-agreements --accept-source-agreements --ignore-unavailable
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "WinGet packages installed." -ForegroundColor Green
+        } else {
+            Write-Host "WinGet import completed with warnings (exit code $LASTEXITCODE)." -ForegroundColor Yellow
+        }
+    }
 } else {
-    Write-Host "Chocolatey already installed." -ForegroundColor DarkGray
+    Write-Host "Skipping WinGet package installation." -ForegroundColor DarkGray
 }
 #endregion
 
-#region Install Packages
-if (!$SkipApps) {
-    Write-Host "`n--- Installing Chocolatey Packages ---" -ForegroundColor Cyan
-    $packages = Get-Content "$ScriptDir\choco\packages.txt" | Where-Object { $_ -and $_ -notmatch '^\s*#' }
-    foreach ($pkg in $packages) {
-        $pkg = $pkg.Trim()
-        if ($pkg) {
-            Write-Host "  Installing $pkg..." -ForegroundColor Gray
+#region Chocolatey fallback
+if (!$SkipApps -and !$SkipChoco) {
+    Write-Host "`n--- Installing Chocolatey fallback packages ---" -ForegroundColor Cyan
+
+    # Bootstrap Choco only if there are actual packages to install
+    $chocoPackages = Get-Content "$ScriptDir\choco\packages.txt" |
+        Where-Object { $_ -and $_ -notmatch '^\s*#' } |
+        ForEach-Object { $_.Trim() } |
+        Where-Object { $_ }
+
+    if ($chocoPackages.Count -eq 0) {
+        Write-Host "  No Chocolatey fallback packages to install." -ForegroundColor DarkGray
+    } else {
+        # Install Chocolatey if not present
+        if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
+            Write-Host "  Installing Chocolatey..." -ForegroundColor Yellow
+            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+            Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+            Write-Host "  Chocolatey installed." -ForegroundColor Green
+        } else {
+            Write-Host "  Chocolatey already installed." -ForegroundColor DarkGray
+        }
+
+        foreach ($pkg in $chocoPackages) {
+            Write-Host "  Installing $pkg (choco)..." -ForegroundColor Gray
             choco install -y $pkg
         }
+        Write-Host "Chocolatey fallback packages installed." -ForegroundColor Green
     }
-    Write-Host "Packages installed." -ForegroundColor Green
 } else {
-    Write-Host "Skipping package installation." -ForegroundColor DarkGray
+    Write-Host "Skipping Chocolatey package installation." -ForegroundColor DarkGray
+}
+#endregion
+
+#region Post-install: claude-code CLI
+if (!$SkipApps) {
+    Write-Host "`n--- Post-install: claude-code CLI ---" -ForegroundColor Cyan
+    # Install via the official Anthropic installer.
+    Write-Host "  Installing claude via official Anthropic installer..." -ForegroundColor Gray
+    irm https://claude.ai/install.ps1 | iex
+    Write-Host "  claude-code installed." -ForegroundColor Green
 }
 #endregion
 

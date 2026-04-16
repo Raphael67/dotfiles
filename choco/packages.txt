@@ -1,41 +1,14 @@
-# Development tools
-7zip
-claude-code
-uv
-deno
-bun
+# Chocolatey fallback packages
+# These are packages not available in WinGet (or where choco is preferred).
+# Primary package manager is WinGet — see ../winget/packages.json.
+
+# .NET Framework legacy runtimes (no exact match in WinGet)
 dotnet4.7.1
 dotnetfx
-ffmpeg
-git
-k9s
-kubernetes-cli
-kubernetes-helm
-make
-nmap
-nvm
-openjdk
+
+# Process analysis (ProcessHacker is discontinued; successor is SystemInformer)
+# Available in WinGet as WinsiderSS.SystemInformer — kept here as choco fallback only
 processhacker
-putty
-sourcetree
-Wget
-wireshark
-vscode
 
-# CLI tools (matching macOS/Linux setup)
-gitleaks
-starship
-bat
-eza
-fzf
-zoxide
-lazygit
-ripgrep
-fd
-
-# Applications
-bambustudio
-googlechrome
-obsidian
-openvpn
-slack
+# claude-code: this is the CLI tool, installed via npm/bun (not WinGet).
+# See setup_windows.ps1 post-install section.

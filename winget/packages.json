@@ -1,0 +1,49 @@
+{
+    "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
+    "WinGetVersion": "1.0.0",
+    "CreationDate": "2026-04-16",
+    "Sources": [
+        {
+            "Packages": [
+                { "PackageIdentifier": "7zip.7zip" },
+                { "PackageIdentifier": "astral-sh.uv" },
+                { "PackageIdentifier": "DenoLand.Deno" },
+                { "PackageIdentifier": "Oven-sh.Bun" },
+                { "PackageIdentifier": "Gyan.FFmpeg" },
+                { "PackageIdentifier": "Git.Git" },
+                { "PackageIdentifier": "Derailed.k9s" },
+                { "PackageIdentifier": "Kubernetes.kubectl" },
+                { "PackageIdentifier": "Helm.Helm" },
+                { "PackageIdentifier": "GnuWin32.Make" },
+                { "PackageIdentifier": "Insecure.Nmap" },
+                { "PackageIdentifier": "CoreyButler.NVMforWindows" },
+                { "PackageIdentifier": "Microsoft.OpenJDK.21" },
+                { "PackageIdentifier": "PuTTY.PuTTY" },
+                { "PackageIdentifier": "Atlassian.Sourcetree" },
+                { "PackageIdentifier": "JernejSimoncic.Wget" },
+                { "PackageIdentifier": "WiresharkFoundation.Wireshark" },
+                { "PackageIdentifier": "Microsoft.VisualStudioCode" },
+                { "PackageIdentifier": "Gitleaks.Gitleaks" },
+                { "PackageIdentifier": "Starship.Starship" },
+                { "PackageIdentifier": "sharkdp.bat" },
+                { "PackageIdentifier": "eza-community.eza" },
+                { "PackageIdentifier": "junegunn.fzf" },
+                { "PackageIdentifier": "ajeetdsouza.zoxide" },
+                { "PackageIdentifier": "JesseDuffield.lazygit" },
+                { "PackageIdentifier": "BurntSushi.ripgrep.MSVC" },
+                { "PackageIdentifier": "sharkdp.fd" },
+                { "PackageIdentifier": "Bambulab.Bambustudio" },
+                { "PackageIdentifier": "Google.Chrome" },
+                { "PackageIdentifier": "Obsidian.Obsidian" },
+                { "PackageIdentifier": "OpenVPNTechnologies.OpenVPN" },
+                { "PackageIdentifier": "SlackTechnologies.Slack" }
+            ],
+            "SourceDetails": {
+                "Argument": "https://cdn.winget.microsoft.com/cache",
+                "Identifier": "Microsoft.Winget.Source_8wekyb3d8bbwe",
+                "Name": "winget",
+                "Type": "Microsoft.PreIndexed.Package"
+            }
+        }
+    ]
+}

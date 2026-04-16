@@ -368,5 +368,6 @@
   "remoteControlAtStartup": false,
   "agentPushNotifEnabled": false,
   "useAutoModeDuringPlan": false,
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "autoUpdatesChannel": "latest"
 }

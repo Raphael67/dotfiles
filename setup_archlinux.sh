@@ -29,6 +29,23 @@ info "Installing packages from pacman/packages.txt..."
 grep -v '^#' "$SCRIPT_DIR/pacman/packages.txt" | grep -v '^$' | xargs sudo pacman -S --needed --noconfirm
 success "Pacman packages installed"
 
+# Install AUR helper (yay) if not present
+if ! command -v yay &>/dev/null; then
+    info "Installing yay (AUR helper)..."
+    tmp_dir=$(mktemp -d)
+    git clone https://aur.archlinux.org/yay.git "$tmp_dir/yay"
+    (cd "$tmp_dir/yay" && makepkg -si --noconfirm)
+    rm -rf "$tmp_dir"
+    success "yay installed"
+else
+    success "yay already installed"
+fi
+
+# Install AUR packages
+info "Installing claude-code from AUR (unstable)..."
+yay -S --needed --noconfirm claude-code
+success "claude-code installed"
+
 # Install oh-my-zsh
 # Support both standard and XDG-compliant install paths
 OMZ_XDG="${XDG_DATA_HOME:-$HOME/.local/share}/oh-my-zsh"

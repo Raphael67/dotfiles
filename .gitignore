@@ -23,6 +23,8 @@ dotfiles/dot-claude/skills/**
 !dotfiles/dot-claude/skills/roast-me/**
 !dotfiles/dot-claude/skills/learning/
 !dotfiles/dot-claude/skills/learning/**
+!dotfiles/dot-claude/skills/agent-expert/
+!dotfiles/dot-claude/skills/agent-expert/**
 dotfiles/dot-claude/skills/learning/.env
 dotfiles/dot-config/cagent/.cagent_first_run
 

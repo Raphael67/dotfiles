@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# bw-inject — Inject Bitwarden credentials without exposing them to stdout
+# Uses bw-fetch internally; Touch ID required for each call.
+#
+# Usage:
+#   bw-inject <field> <item> --to-file <path>
+#   bw-inject <field> <item> --pipe "<command>"
+#   bw-inject <field> <item> --clipboard
+#   bw-inject <field> <item> --env-file <path> <KEY>
+#
+# Fields: password | username | totp | uri | notes | item
+#
+# Examples:
+#   bw-inject password "GitHub" --to-file /tmp/gh-token
+#   bw-inject password "Docker Hub" --pipe "docker login -u user --password-stdin"
+#   bw-inject totp "AWS Root" --clipboard
+#   bw-inject password "Stripe" --env-file .env STRIPE_SECRET_KEY
+
+set -euo pipefail
+
+field="${1:?Usage: bw-inject <field> <item> --to-file|--pipe|--clipboard|--env-file ...}"
+item="${2:?Usage: bw-inject <field> <item> --to-file|--pipe|--clipboard|--env-file ...}"
+mode="${3:?Usage: bw-inject <field> <item> --to-file|--pipe|--clipboard|--env-file ...}"
+
+# Validate field is a secret-bearing field
+case "$field" in
+    password|username|totp|uri|notes|item) ;;
+    *)
+        echo "ERROR: Invalid field '$field'. Use: password|username|totp|uri|notes|item" >&2
+        exit 1
+        ;;
+esac
+
+# Fetch the secret (captured in variable, NOT printed to stdout)
+secret=$(bw-fetch "$field" "$item") || {
+    echo "ERROR: bw-fetch failed for $field of '$item'" >&2
+    exit 1
+}
+
+case "$mode" in
+    --to-file)
+        dest="${4:?--to-file requires a path argument}"
+        printf '%s' "$secret" > "$dest"
+        chmod 600 "$dest"
+        echo "OK: $field for '$item' written to $dest (mode 600)"
+        ;;
+    --pipe)
+        cmd="${4:?--pipe requires a command argument}"
+        printf '%s' "$secret" | eval "$cmd"
+        echo "OK: $field for '$item' piped to: $cmd"
+        ;;
+    --clipboard)
+        printf '%s' "$secret" | pbcopy
+        echo "OK: $field for '$item' copied to clipboard"
+        ;;
+    --env-file)
+        dest="${4:?--env-file requires a path argument}"
+        key="${5:?--env-file requires a KEY argument}"
+        printf '%s=%s\n' "$key" "$secret" >> "$dest"
+        echo "OK: $key written to $dest"
+        ;;
+    *)
+        echo "ERROR: Unknown mode '$mode'. Use: --to-file, --pipe, --clipboard, --env-file" >&2
+        exit 1
+        ;;
+esac
+
+# Zero out the variable (best-effort)
+secret=""

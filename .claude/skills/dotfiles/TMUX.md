@@ -72,7 +72,7 @@ set -g @plugin 'git@github.com:user/plugin'
 | `tmux-yank` | System clipboard integration |
 | `tmux-resurrect` | Save/restore sessions |
 | `tmux-continuum` | Auto-save sessions |
-| `tmux-fzf` | Fuzzy finder integration |
+| `tmux-fzf` (sainnhe) | Fuzzy finder integration |
 | `tmux-fzf-url` | Open URLs with fzf |
 | `catppuccin/tmux` | Theme |
 | `tmux-cpu` | CPU display |
@@ -157,7 +157,6 @@ Configured in `tmux.custom.conf` with `is_vim` shell check — detects nvim/vim/
 | `prefix + ?` | List key bindings |
 | `prefix + N` | Open new Ghostty window without tmux |
 | `prefix + p` | Toggle floating pane (floax) |
-| `prefix + r` | Reload config |
 
 ## Session Persistence
 

@@ -2,13 +2,15 @@
 # bw-fetch — Touch ID-gated Bitwarden credential fetch
 # Each invocation requires sudo (Touch ID) to read the session key.
 # Usage: bw-fetch <field> <item-name>
-#   field: password | username | totp | uri | notes | item
+#   field: password | username | totp | uri | notes | item | search | meta
 #   item-name: Bitwarden item name or ID
 #
 # Examples:
 #   bw-fetch password "GitHub"
 #   bw-fetch totp "AWS Root"
 #   bw-fetch item "Stripe API"    # returns full JSON
+#   bw-fetch search "github"      # list matching items (id, name, username)
+#   bw-fetch meta "GitHub"        # item metadata without secrets
 
 set -euo pipefail
 
@@ -41,8 +43,21 @@ case "$field" in
     search)
         bw list items --search "$item" --session "$session" | jq -r '.[] | "\(.id)\t\(.name)\t\(.login.username // "-")"'
         ;;
+    meta)
+        bw get item "$item" --session "$session" --raw | jq '{
+            id: .id,
+            name: .name,
+            type: .type,
+            folderId: .folderId,
+            organizationId: .organizationId,
+            username: .login.username,
+            uris: [.login.uris[]?.uri],
+            creationDate: .creationDate,
+            revisionDate: .revisionDate
+        }'
+        ;;
     *)
-        echo "ERROR: Unknown field '$field'. Use: password|username|totp|uri|notes|item|search" >&2
+        echo "ERROR: Unknown field '$field'. Use: password|username|totp|uri|notes|item|search|meta" >&2
         exit 1
         ;;
 esac

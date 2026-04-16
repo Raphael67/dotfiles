@@ -343,6 +343,25 @@ def create_left_prompt [] { starship prompt }
 $env.PROMPT_COMMAND = { create_left_prompt }
 ```
 
+### Advanced Configuration
+
+**Config loading order:** env.nu → config.nu → vendor autoload → user autoload → login.nu
+
+> **Note:** Modern Nushell practice consolidates environment setup into `config.nu` rather than maintaining a separate `env.nu`.
+
+**Important behaviors:**
+- `$env.config` settings are **not inherited** by child processes — export variables if they need to persist
+- XDG variables (`$env.XDG_CONFIG_HOME`, `$env.XDG_DATA_HOME`, `$env.XDG_DATA_DIRS`) must point to the **parent directory**, not the nushell subdirectory
+
+**Startup flags:**
+
+| Flag | Effect |
+|------|--------|
+| `nu -n` | Skip all config file loading |
+| `nu --no-std-lib` | Standard library unavailable |
+| `nu -l` | Login shell (runs login.nu) |
+| `nu -n --no-std-lib` | Fastest startup (scripts) |
+
 ---
 
 ## Bitwarden CLI

@@ -103,6 +103,9 @@
       "Bash(git diff:*)",
       "Bash(git show:*)",
       "Bash(git branch:*)",
+      "Bash(bw-inject:*)",
+      "Bash(bw-fetch search:*)",
+      "Bash(bw-fetch meta:*)",
       "Skill",
       "mcp__atlassian__getJiraIssue",
       "mcp__atlassian__getJiraIssueRemoteIssueLinks",
@@ -302,8 +305,18 @@
   "enabledPlugins": {
     "pyright-lsp@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "learn@agentskill-sh": true
+  },
+  "extraKnownMarketplaces": {
+    "agentskill-sh": {
+      "source": {
+        "source": "url",
+        "url": "https://agentskill.sh/marketplace.json"
+      }
+    }
   },
   "voiceEnabled": true,
+  "autoDreamEnabled": true,
   "skipDangerousModePermissionPrompt": true
 }

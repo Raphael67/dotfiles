@@ -404,6 +404,81 @@ Granular control over shell integration features:
 shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo,path
 ```
 
+**SSH Integration (Ghostty 1.3.0+):**
+- `ssh-env`: Sets TERM to xterm-256color on remote hosts, forwards environment variables
+- `ssh-terminfo`: Auto-installs Ghostty's terminfo on remote hosts (replaces manual `infocmp` export)
+
+### Palette Generation (Ghostty 1.3.0+)
+
+```ini
+# Auto-generate 256-color palette from base 16 ANSI colors
+palette-generate = true
+
+# Invert generated palette for light/dark mode compatibility
+palette-harmonious = true
+```
+
+### Selection Behavior (Ghostty 1.2.0+)
+
+```ini
+selection-clear-on-typing = true     # Auto-clear selection when typing (default)
+selection-clear-on-copy = false      # Keep selection after copying
+selection-word-chars = ""            # Custom word boundary characters
+```
+
+### Environment and Input (Ghostty 1.2.0+)
+
+```ini
+# Extra environment variables for terminal sessions
+env = MY_VAR=value
+
+# Pre-send data on terminal startup
+input = text-to-send
+
+# Notify when commands finish (never/unfocused/always)
+notify-on-command-finish = unfocused
+```
+
+### Key Tables (Ghostty 1.3.0+)
+
+Modal keyboard groups for leader-key workflows:
+
+```ini
+# Define a key table
+keybind = ctrl+a>n=new_tab           # Leader key: Ctrl+A then N
+
+# Named key tables
+keybind = resize/left=resize_split:left,10
+keybind = resize/right=resize_split:right,10
+keybind = ctrl+r=activate_key_table:resize
+```
+
+### Keybinding Prefixes (Ghostty 1.3.0+)
+
+```ini
+# Global — works even when Ghostty is not focused (macOS)
+global:super+grave=toggle_quick_terminal
+
+# All — apply to all terminal surfaces
+all:ctrl+c=copy_to_clipboard
+
+# Unconsumed — only when key is not consumed by app
+unconsumed:ctrl+q=quit
+
+# Performable — only if the action can succeed
+performable:ctrl+shift+z=jump_to_prompt:-1
+
+# Chain — multiple actions per binding
+keybind = ctrl+shift+r=chain:reset_font_size,reload_config
+```
+
+### Key Remapping (Ghostty 1.3.0+)
+
+```ini
+# Remap keys globally
+key-remap = left_alt=left_ctrl
+```
+
 ### Theme Discovery
 
 ```bash

@@ -1,4 +1,4 @@
-# Global Claude Configuration
+ Global Claude Configuration
 
 ## Personal Development Environment
 
@@ -37,7 +37,7 @@
 
 ## Workflow Preferences
 
-- **Agents**: Always check if a subagent is more appropriate to do a task
+- **Agents**: Always check if a subagent is more appropriate to do a task. Prefer `/pthread` (mprocs) over background subagents so the user can see agent activity in real time and interact directly
 - **Skills**: Never update or alter a skill without explicit user request
 - **Git**: Use conventional commits format
 - **Documentation**: Keep README files concise and practical

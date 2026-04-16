@@ -253,6 +253,8 @@ alias notmux='...'       # New Ghostty window without tmux
 alias news='...'         # HYS RSS reader (last 48h)
 alias fixmouse='...'     # Reset stuck mouse reporting mode
 alias clyo='claude --dangerously-skip-permissions'
+alias ccr='claude --agent router --dangerously-skip-permissions'  # Haiku model router
+ask() { claude -p --model haiku --dangerously-skip-permissions "$*" }  # Quick factual Q&A
 ```
 
 ### Adding New Aliases
@@ -398,10 +400,7 @@ Replaces zsh's default tab completion with fzf. Configured via zstyle in `dot-zs
 
 ### eza (ls replacement)
 ```zsh
-alias ls="eza -g -s Name --group-directories-first --time-style long-iso --icons=auto"
-alias l="ls -la"
-alias la="ls -la -a"
-alias ll="ls -l"
+alias ls="eza --all --icons=always"
 ```
 
 ### bat (cat replacement)
@@ -419,6 +418,72 @@ tmux attach -t main || tmux new -s main
 ```
 
 The `notmux` alias opens a Ghostty window without tmux.
+
+## Additional Integrations
+
+### VS Code Shell Integration
+
+Loaded early in dot-zshrc to enable seamless terminal integration:
+```zsh
+if [[ -n "$VSCODE_SHELL_INTEGRATION" && -r "$VSCODE_SHELL_INTEGRATION" ]]; then
+  source "$VSCODE_SHELL_INTEGRATION"
+fi
+```
+
+### Mouse Mode Reset
+
+A precmd hook resets mouse reporting mode before each prompt, fixing stuck mouse mode when programs (vim, tmux, less) crash without cleanup:
+```zsh
+_reset_mouse_mode() {
+  printf '\e[?1000l\e[?1002l\e[?1003l\e[?1006l'
+}
+precmd_functions+=(_reset_mouse_mode)
+```
+
+### Ghostty SSH Fix
+
+When using Ghostty terminal on remote servers that don't recognize `xterm-ghostty`:
+```zsh
+if [[ "$TERM" == "xterm-ghostty" ]]; then
+  alias ssh='TERM=xterm-256color ssh'
+fi
+```
+
+### lazygit True Color Fix
+
+Workaround for true color support in lazygit from tmux:
+```zsh
+if type lazygit > /dev/null; then
+  export COLORTERM=truecolor
+  alias lazygit='env TERM=screen-256color lazygit'
+fi
+```
+
+### Docker CLI Completions
+
+```zsh
+fpath=($HOME/.docker/completions $fpath)
+```
+
+### Bun JavaScript Runtime
+
+```zsh
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+```
+
+### .env File Loading
+
+Environment variables loaded from `~/.env` (for per-machine overrides without committing secrets):
+```zsh
+if [[ -f ~/.env ]]; then
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
+            export "$line"
+        fi
+    done < ~/.env
+fi
+```
 
 ## Shell Style Guidelines
 

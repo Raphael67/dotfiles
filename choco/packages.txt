@@ -15,11 +15,9 @@ make
 nmap
 nvm
 openjdk
-postman
 processhacker
 putty
 sourcetree
-virtualbox
 Wget
 wireshark
 vscode
@@ -40,5 +38,4 @@ bambustudio
 googlechrome
 obsidian
 openvpn
-signal
 slack

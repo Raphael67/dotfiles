@@ -9,6 +9,23 @@
 # action: block   = block immediately, no option to override
 bashToolPatterns:
   # ---------------------------------------------------------------------------
+  # BITWARDEN SECRET ISOLATION
+  # Block commands that would expose secrets in Claude's conversation context.
+  # Safe commands: bw-fetch search, bw-fetch meta, bw-inject (all modes)
+  # ---------------------------------------------------------------------------
+  - pattern: '\bbw-fetch\s+(password|totp|notes|item|username|uri)\b'
+    reason: "bw-fetch secret field — use bw-inject instead to avoid exposing secrets"
+
+  - pattern: '\bbw\s+get\s+(password|totp|notes|item)\b'
+    reason: "raw bw get secret — use bw-inject instead"
+
+  - pattern: '\bbw\s+list\s+items\b(?!.*--search)'
+    reason: "bw list items without --search — use bw-fetch search"
+
+  - pattern: '\bbw\s+export\b'
+    reason: "bw export dumps entire vault in plaintext"
+
+  # ---------------------------------------------------------------------------
   # DESTRUCTIVE FILE OPERATIONS
   # action: confirm — destructive but user may have intended this
   # ---------------------------------------------------------------------------

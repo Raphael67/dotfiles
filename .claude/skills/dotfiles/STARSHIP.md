@@ -35,6 +35,23 @@ style = "..."
 disabled = false
 ```
 
+## Format String Syntax
+
+Starship format strings use three core elements:
+
+| Element | Syntax | Example |
+|---------|--------|---------|
+| Variable | `$variable_name` | `$directory`, `$git_branch` |
+| Text Group | `[text]($style)` | `[  $branch](bold green)` |
+| Conditional | `(content)` | `($git_status)` — only renders when variables have values |
+
+**Escape characters:** `$`, `[`, `]`, `(`, `)` must be escaped with `\` to display literally.
+
+### Disabled-by-Default Modules
+
+These modules must be explicitly enabled in your config:
+- Azure, CPP, Direnv, Fossil Branch, Fossil Metrics, Git Metrics, Kubernetes
+
 ## Current Prompt Format
 
 ```toml

@@ -200,7 +200,7 @@ Stow optimizes by creating directory symlinks when possible.
 
 ```
 # Single package owns directory
-~/.config/nvim -> ~/dotfiles/dotfiles/dot-config/nvim
+~/.config/nvim -> ~/dotfiles/dot-config/nvim
 ```
 
 ### Unfolded (Multiple Packages)
@@ -208,9 +208,9 @@ Stow optimizes by creating directory symlinks when possible.
 ```
 # Multiple packages share directory
 ~/.config/
-├── nvim -> ~/dotfiles/dotfiles/dot-config/nvim
-├── tmux -> ~/dotfiles/dotfiles/dot-config/tmux
-└── starship -> ~/dotfiles/dotfiles/dot-config/starship
+├── nvim -> ~/dotfiles/dot-config/nvim
+├── tmux -> ~/dotfiles/dot-config/tmux
+└── starship -> ~/dotfiles/dot-config/starship
 ```
 
 ### Disable Folding
@@ -254,6 +254,28 @@ Makefile
 ```
 
 **Warning:** Creating this file completely overrides defaults.
+
+## Advanced Conflict Resolution
+
+Stow uses a **two-phase algorithm**: it scans for all potential conflicts before performing any operations. If conflicts exist, the entire operation is aborted with no filesystem changes.
+
+### Override and Defer Flags
+
+| Flag | Description |
+|------|-------------|
+| `--override=regexp` | Force stowing files matching pattern, overwriting existing links |
+| `--defer=regexp` | Skip files already stowed by another package |
+| `--adopt` | Move conflicting plain files into the package tree |
+
+```bash
+# Override symlinks owned by another package
+stow --override='\.bashrc' .
+
+# Defer to another stow directory for matching files
+stow --defer='man' .
+```
+
+**Warning:** `--adopt` moves existing files into your package — always commit first so you can review with `git diff`.
 
 ## Version Control Integration
 

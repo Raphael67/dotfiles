@@ -316,7 +316,8 @@
       }
     }
   },
-  "voiceEnabled": true,
+  "effortLevel": "high",
   "autoDreamEnabled": true,
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "voiceEnabled": true
 }

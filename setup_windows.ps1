@@ -6,18 +6,14 @@
 
 .DESCRIPTION
     Package installation order:
-      1. WinGet  — primary, installs from winget/packages.json
-      2. Choco   — fallback for packages unavailable in WinGet (choco/packages.txt)
-      3. Post-install steps for tools distributed via npm/bun (e.g. claude-code CLI)
+      1. WinGet  — installs from winget/packages.json
+      2. Post-install steps for tools distributed via npm/bun (e.g. claude-code CLI)
 
 .PARAMETER SkipApps
-    Skip all package installation (WinGet + Choco).
+    Skip all package installation (WinGet).
 
 .PARAMETER SkipWinGet
     Skip WinGet package installation only.
-
-.PARAMETER SkipChoco
-    Skip Chocolatey fallback package installation only.
 
 .PARAMETER SkipWSL
     Skip WSL configuration.
@@ -33,7 +29,6 @@
 param(
     [switch]$SkipApps,
     [switch]$SkipWinGet,
-    [switch]$SkipChoco,
     [switch]$SkipWSL,
     [switch]$SkipSymlinks
 )
@@ -67,40 +62,6 @@ if (!$SkipApps -and !$SkipWinGet) {
     }
 } else {
     Write-Host "Skipping WinGet package installation." -ForegroundColor DarkGray
-}
-#endregion
-
-#region Chocolatey fallback
-if (!$SkipApps -and !$SkipChoco) {
-    Write-Host "`n--- Installing Chocolatey fallback packages ---" -ForegroundColor Cyan
-
-    # Bootstrap Choco only if there are actual packages to install
-    $chocoPackages = Get-Content "$ScriptDir\choco\packages.txt" |
-        Where-Object { $_ -and $_ -notmatch '^\s*#' } |
-        ForEach-Object { $_.Trim() } |
-        Where-Object { $_ }
-
-    if ($chocoPackages.Count -eq 0) {
-        Write-Host "  No Chocolatey fallback packages to install." -ForegroundColor DarkGray
-    } else {
-        # Install Chocolatey if not present
-        if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
-            Write-Host "  Installing Chocolatey..." -ForegroundColor Yellow
-            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-            Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-            Write-Host "  Chocolatey installed." -ForegroundColor Green
-        } else {
-            Write-Host "  Chocolatey already installed." -ForegroundColor DarkGray
-        }
-
-        foreach ($pkg in $chocoPackages) {
-            Write-Host "  Installing $pkg (choco)..." -ForegroundColor Gray
-            choco install -y $pkg
-        }
-        Write-Host "Chocolatey fallback packages installed." -ForegroundColor Green
-    }
-} else {
-    Write-Host "Skipping Chocolatey package installation." -ForegroundColor DarkGray
 }
 #endregion
 

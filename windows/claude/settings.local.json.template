@@ -9,7 +9,6 @@
       "Bash(Select-Object CsName, WindowsProductName, WindowsVersion, OsArchitecture, CsProcessors, CsTotalPhysicalMemory)",
       "Bash(powershell.exe -Command \"$PSVersionTable | Format-List\")",
       "Bash(powershell.exe -Command \"Get-ComputerInfo | Select-Object CsName, WindowsProductName, WindowsVersion, OsArchitecture, CsProcessors, CsTotalPhysicalMemory\")",
-      "Bash(powershell.exe -Command \"choco list --local-only\")",
       "Bash(powershell.exe:*)",
       "Bash(wsl:*)",
       "WebFetch(domain:github.com)",

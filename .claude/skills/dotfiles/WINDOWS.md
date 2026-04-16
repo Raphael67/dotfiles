@@ -2,12 +2,11 @@
 
 ## Package Management Strategy
 
-Windows uses a two-tier approach: **WinGet first, Chocolatey as fallback**.
+Windows uses **WinGet** as the sole package manager.
 
 | Tier | Tool | Config file | When used |
 |------|------|-------------|-----------|
-| Primary | WinGet | `winget/packages.json` | All packages available in the winget source |
-| Fallback | Chocolatey | `choco/packages.txt` | Packages not (yet) in winget |
+| Primary | WinGet | `winget/packages.json` | All packages |
 | Post-install | bun/npm | inline in `setup_windows.ps1` | npm-distributed CLIs (claude-code) |
 
 ## Running the setup
@@ -17,8 +16,7 @@ Windows uses a two-tier approach: **WinGet first, Chocolatey as fallback**.
 .\setup_windows.ps1
 
 # Skip specific steps
-.\setup_windows.ps1 -SkipWinGet      # choco + post-install only
-.\setup_windows.ps1 -SkipChoco       # winget + post-install only
+.\setup_windows.ps1 -SkipWinGet      # post-install only
 .\setup_windows.ps1 -SkipApps        # no package installation at all
 .\setup_windows.ps1 -SkipWSL         # skip WSL2 config
 .\setup_windows.ps1 -SkipSymlinks    # skip symlink creation
@@ -63,35 +61,13 @@ Installed via `winget import`. All packages verified against the winget source.
 | OpenVPN | `OpenVPNTechnologies.OpenVPN` |
 | Slack | `SlackTechnologies.Slack` |
 
-## Chocolatey fallback packages (`choco/packages.txt`)
-
-Only packages with no winget equivalent.
-
-| Package | Notes |
-|---------|-------|
-| `dotnet4.7.1` | Legacy .NET Framework — no exact winget match |
-| `dotnetfx` | Legacy .NET Framework runtime |
-| `processhacker` | Discontinued; successor is `WinsiderSS.SystemInformer` in winget |
-
-### Note on ProcessHacker
-
-ProcessHacker is discontinued upstream. Its successor, **System Informer**, is available in winget:
-
-```powershell
-winget install WinsiderSS.SystemInformer
-```
-
-Consider switching to System Informer and removing `processhacker` from the choco list.
-
 ## Post-install: claude-code CLI
 
-`claude-code` is the Anthropic CLI distributed as an npm package — it is not in winget.
-The setup script installs it via `bun` (preferred) or `npm` after they are available:
+`claude-code` is the Anthropic CLI — it is not in winget.
+The setup script installs it via the official Anthropic installer:
 
 ```powershell
-bun install -g @anthropic-ai/claude-code
-# or
-npm install -g @anthropic-ai/claude-code
+irm https://claude.ai/install.ps1 | iex
 ```
 
 Note: `Anthropic.Claude` in winget is the **desktop app**, not the CLI.
@@ -100,4 +76,4 @@ Note: `Anthropic.Claude` in winget is the **desktop app**, not the CLI.
 
 1. Check winget first: `winget search <name>`
 2. If found: add `{ "PackageIdentifier": "<ID>" }` to `winget/packages.json` under `Packages`
-3. If not found: add the package name to `choco/packages.txt`
+3. If not available in winget, consider whether the package is still needed

@@ -141,7 +141,7 @@ cd ~/Projects/dotfiles
 
 ```powershell
 .\setup_windows.ps1                   # Full setup
-.\setup_windows.ps1 -SkipApps        # Skip Chocolatey packages
+.\setup_windows.ps1 -SkipApps        # Skip package installation
 .\setup_windows.ps1 -SkipWSL         # Skip WSL configuration
 ```
 

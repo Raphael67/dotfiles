@@ -97,7 +97,7 @@ cask "karabiner-elements"
 brew "diff-so-fancy"
 brew "ffmpeg"
 cask "claude"
-cask "claude-code"
+# claude-code: removed from Homebrew — installed via AUR (claude-code unstable) on Arch/WSL
 # macOS notifications from terminal
 brew "terminal-notifier"
 

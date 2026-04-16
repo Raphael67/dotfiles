@@ -399,6 +399,7 @@ vim.diagnostic.config({
 :LspInfo         " Active clients (from lspconfig plugin)
 :LspLog          " LSP logs
 :LspRestart      " Restart servers
+:log             " Open log files (Neovim 0.13+)
 ```
 
 ### Lazy Plugin Manager
@@ -458,6 +459,25 @@ vim.api.nvim_create_autocmd("BufReadPre", {
     end,
 })
 ```
+
+## Neovim 0.13 Changes
+
+### Breaking Changes
+
+- **API**: `nvim_create_autocmd()`, `nvim_exec_autocmds()`, `nvim_clear_autocmds()` no longer treat empty non-nil patterns or empty arrays as nil
+- **Lua**: `vim.pos` and `vim.range` now require the `buf` parameter
+- **Paths**: `stdpath("log")` moved to `stdpath("state")/logs`
+- **LSP**: `reuse_win` option removed from LSP buffer functions — use `switchbuf` instead
+
+### New Features
+
+- **LSP navigation** (`definition`, `declaration`, `implementation`) now respects the `switchbuf` option
+- **`:log` command** opens log files directly
+- **`vim.net.request()`** supports custom headers via `opts.headers`
+- **Terminal**: TUI re-queries background color on resume, updating `'background'` option
+- **LSP snippets**: Nested snippets and `CompletionItem.preselect` support
+- **Node.js plugins** can use "bun" as a runtime
+- **`:Open`** without arguments uses the current file
 
 ## Common Customizations
 

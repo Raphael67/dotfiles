@@ -485,6 +485,28 @@ Writes to `.claude/skills` directory are **blocked in sandbox mode**. This preve
 7. **Always add self-update**: Every skill with external resources MUST include a self-update cookbook. See [Self-Update Pattern](#self-update-pattern)
 8. **Use `.env` for machine-specific config**: Paths, secrets, user preferences — never hardcode. See [Environment Bootstrap Pattern](#environment-bootstrap-pattern)
 
+### From the agentskills.io Specification
+
+**Start from real expertise**: Extract skills from hands-on task completions, not generic LLM generation. Feed domain-specific artifacts (runbooks, schemas, incident reports, code review history) rather than generic documentation.
+
+**Refine with real execution**: Run the skill against real tasks, read execution traces (not just final outputs), and feed results back. Even one execute-then-revise pass significantly improves quality.
+
+**Add what the agent lacks, omit what it knows**: Skip explaining what PDFs are or how HTTP works. Focus on project-specific conventions, non-obvious edge cases, and concrete tool choices (e.g., "use pdfplumber; for scanned docs, fall back to pdf2image with pytesseract").
+
+**Match specificity to fragility**: Give freedom where multiple approaches are valid; be prescriptive where sequence and consistency matter. Most skills mix both — calibrate each section independently.
+
+**Provide defaults, not menus**: When multiple tools could work, pick one default and briefly mention alternatives as escape hatches. Avoid presenting equal options that force the agent to choose.
+
+**Use gotchas sections**: A list of environment-specific gotchas is often the highest-value content in a skill. These are concrete corrections to mistakes the agent will make without being told (e.g., "The `users` table uses soft deletes — always include `WHERE deleted_at IS NULL`"). Keep gotchas in the main SKILL.md, not a reference file.
+
+**Favor procedures over declarations**: Teach the agent *how to approach* a class of problems, not what to produce for one specific instance. Reusable methods outperform specific answers.
+
+**Plan-validate-execute for batch/destructive ops**: Have the agent create a structured plan, validate it against a source of truth (ideally a script), and only then execute. The key is a validation step that generates actionable error messages for self-correction.
+
+**When to load reference files**: Tell the agent *when* to load each file explicitly (e.g., "Read `references/api-errors.md` if the API returns non-200"). "See references/ for details" is less useful because the agent may not recognize the trigger.
+
+**Design coherent units**: Scope skills like well-named functions — coherent units that compose well. Too narrow forces multiple skills to load; too broad reduces precision. A skill that handles a task and its output formatting is usually one unit; one that also handles administration of the underlying service is probably two.
+
 ## Nested Skill Discovery (Monorepos)
 
 Skills in nested `.claude/skills` directories are auto-discovered:
@@ -524,6 +546,137 @@ Claude Code skills follow the [Agent Skills](https://agentskills.io) open standa
 | `license` | License name or reference to bundled LICENSE file |
 | `compatibility` | Max 500 chars. Environment requirements (product, packages, network) |
 | `metadata` | Arbitrary key-value map for custom properties (e.g., `author`, `version`) |
+
+### Open Standard Spec Notes
+
+The [agentskills.io specification](https://agentskills.io/specification) is the canonical format reference. Key points that differ from or extend Claude Code's conventions:
+
+- **`name` is required** in the open spec (must match the parent directory name exactly)
+- **`description` is required** (1-1024 chars) in the open spec
+- **Directory names**: `references/` (not just `REFERENCE.md`) and `assets/` (templates, images, data files)
+- **Portability**: The same SKILL.md works in Claude Code, VS Code Copilot, OpenAI Codex, and other skills-compatible agents
+- **Multi-client skill directories**: VS Code looks for skills in `.agents/skills/` by default; Claude Code uses `.claude/skills/`
+
+### Skill Validation (skills-ref)
+
+The [skills-ref](https://github.com/agentskills/agentskills/tree/main/skills-ref) reference library validates SKILL.md files against the open spec:
+
+```bash
+# Install
+uv sync   # from the skills-ref directory
+
+# Validate a skill
+skills-ref validate ./my-skill
+
+# Read parsed properties (JSON)
+skills-ref read-properties ./my-skill
+
+# Generate <available_skills> XML for agent prompts
+skills-ref to-prompt ./skill-a ./skill-b
+```
+
+The `to-prompt` output generates the recommended `<available_skills>` XML block for agent system prompts:
+```xml
+<available_skills>
+  <skill>
+    <name>my-skill</name>
+    <description>What this skill does and when to use it</description>
+    <location>/path/to/my-skill/SKILL.md</location>
+  </skill>
+</available_skills>
+```
+
+## agentskill.sh Marketplace
+
+[agentskill.sh](https://agentskill.sh) is a marketplace with 100,000+ community skills. It provides the `ags` CLI (`npx @agentskill.sh/cli`) for discovering, installing, and managing skills from the registry.
+
+### ags CLI Commands
+
+The CLI runs via npx — no global install needed:
+
+```bash
+# Search for skills
+npx @agentskill.sh/cli search "<query>" --json --limit 5
+
+# Install a skill by slug
+npx @agentskill.sh/cli install @<owner>/<slug> --json
+
+# List installed skills
+npx @agentskill.sh/cli list --json
+
+# Update all installed skills
+npx @agentskill.sh/cli update --json
+
+# Remove a skill
+npx @agentskill.sh/cli remove <slug>
+
+# Rate a skill (1-5)
+npx @agentskill.sh/cli feedback <slug> <score> "<comment>"
+```
+
+### Search Result Fields
+
+The `search` command returns a `results` array where each skill has:
+
+| Field | Description |
+|-------|-------------|
+| `slug` | Unique identifier |
+| `name` | Display name |
+| `owner` | Author handle |
+| `description` | What the skill does |
+| `installCount` | Download count |
+| `securityScore` | Safety rating (0-100) |
+| `contentQualityScore` | Content quality rating |
+
+### Install Output Fields
+
+The `install` command returns:
+
+| Field | Description |
+|-------|-------------|
+| `slug` | Skill identifier |
+| `installDir` | Where the skill was written |
+| `filesWritten` | Number of files created |
+| `securityScore` | Safety score |
+| `contentQualityScore` | Quality score |
+
+### Skillsets (Bundles)
+
+Install a bundle of related skills in one command:
+
+```bash
+# Fetch skillset info
+curl https://agentskill.sh/api/agent/skillsets/<slug>/install
+
+# Then install each skill in the bundle
+npx @agentskill.sh/cli install <slug> --json
+```
+
+### Trending Skills
+
+```bash
+curl "https://agentskill.sh/api/agent/search?section=trending&limit=5"
+```
+
+### Security Note
+
+If a skill's `securityScore` is below 30, warn the user before installing. The `learn:scan` skill can perform a deeper security audit of any SKILL.md using a rubric for critical, high, and medium-risk patterns.
+
+### The `learn` Skill (Skill Manager)
+
+The `learn:learn` skill (from the `agentskill-sh` plugin) is the recommended way to interact with the marketplace conversationally. Use it with:
+
+```
+/learn <query>           # Search and install interactively
+/learn @owner/slug       # Install exact skill
+/learn skillset:<slug>   # Install a bundle
+/learn trending          # Show trending skills
+/learn list              # Show installed skills
+/learn update            # Check for updates
+/learn remove <slug>     # Uninstall a skill
+/learn feedback <slug> <1-5> [comment]  # Rate a skill
+/learn scan [path]       # Security scan a SKILL.md
+```
 
 ## Visual Output Pattern
 

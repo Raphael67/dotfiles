@@ -299,10 +299,18 @@
   "enabledPlugins": {
     "pyright-lsp@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "learn@agentskill-sh": true
+  },
+  "extraKnownMarketplaces": {
+    "agentskill-sh": {
+      "source": {
+        "source": "url",
+        "url": "https://agentskill.sh/marketplace.json"
+      }
+    }
   },
   "voiceEnabled": true,
   "autoDreamEnabled": true,
-  "skipDangerousModePermissionPrompt": true,
-  "model": "haiku"
+  "skipDangerousModePermissionPrompt": true
 }

@@ -30,16 +30,33 @@ grep -v '^#' "$SCRIPT_DIR/pacman/packages.txt" | grep -v '^$' | xargs sudo pacma
 success "Pacman packages installed"
 
 # Install oh-my-zsh
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    info "Installing oh-my-zsh..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-    success "oh-my-zsh installed"
+# Support both standard and XDG-compliant install paths
+OMZ_XDG="${XDG_DATA_HOME:-$HOME/.local/share}/oh-my-zsh"
+OMZ_STD="$HOME/.oh-my-zsh"
+
+if [ -d "$OMZ_XDG" ]; then
+    OMZ_DIR="$OMZ_XDG"
+elif [ -d "$OMZ_STD" ]; then
+    OMZ_DIR="$OMZ_STD"
 else
-    success "oh-my-zsh already installed"
+    OMZ_DIR=""
+fi
+
+if [ -n "$OMZ_DIR" ]; then
+    info "Updating oh-my-zsh at $OMZ_DIR..."
+    git -C "$OMZ_DIR" pull --ff-only
+    success "oh-my-zsh updated"
+else
+    info "Installing oh-my-zsh..."
+    # Unset $ZSH so the installer chooses the XDG path via ZDOTDIR/ZSH env, not a stale export
+    unset ZSH
+    ZSH="$OMZ_XDG" sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended --keep-zshrc
+    OMZ_DIR="$OMZ_XDG"
+    success "oh-my-zsh installed at $OMZ_DIR"
 fi
 
 # Install zsh plugins
-ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+ZSH_CUSTOM="${ZSH_CUSTOM:-$OMZ_DIR/custom}"
 
 if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
     info "Installing zsh-autosuggestions..."
@@ -92,12 +109,18 @@ else
 fi
 
 # Install nvm + Node.js LTS
-if [ ! -d "$HOME/.nvm" ] && [ ! -d "$HOME/.config/nvm" ]; then
+# Resolve NVM_DIR: prefer XDG path, fall back to legacy paths
+export NVM_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/nvm"
+[ -d "$HOME/.nvm" ] && export NVM_DIR="$HOME/.nvm"
+[ -d "$HOME/.config/nvm" ] && export NVM_DIR="$HOME/.config/nvm"
+
+if [ ! -d "$NVM_DIR" ]; then
     info "Installing nvm..."
+    # Set XDG-compliant install path before running installer
+    export NVM_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/nvm"
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 
-    export NVM_DIR="$HOME/.nvm"
-    [ -d "$HOME/.config/nvm" ] && export NVM_DIR="$HOME/.config/nvm"
+    # Source nvm in the current shell (installer only adds lines to ~/.zshrc)
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
     info "Installing Node.js LTS..."
@@ -105,8 +128,7 @@ if [ ! -d "$HOME/.nvm" ] && [ ! -d "$HOME/.config/nvm" ]; then
     nvm use --lts
     success "nvm + Node.js LTS installed"
 else
-    export NVM_DIR="$HOME/.nvm"
-    [ -d "$HOME/.config/nvm" ] && export NVM_DIR="$HOME/.config/nvm"
+    # Source nvm in the current shell
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     nvm use --lts --silent 2>/dev/null
     success "nvm already installed"

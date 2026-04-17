@@ -97,8 +97,8 @@ cask "karabiner-elements"
 brew "diff-so-fancy"
 brew "ffmpeg"
 cask "claude"
-# Claude Code CLI (macOS only — installed via AUR on Arch/WSL, see setup_archlinux.sh)
-cask "claude-code"
+# Claude Code CLI — installed via official curl script (cross-platform):
+#   curl -fsSL https://claude.ai/install.sh | bash
 # macOS notifications from terminal
 brew "terminal-notifier"
 

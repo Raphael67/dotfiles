@@ -41,19 +41,14 @@ else
     success "yay already installed"
 fi
 
-# Install AUR packages
-info "Installing claude-code from AUR (unstable)..."
-# Remove orphan files that would cause pacman file conflicts.
-# This happens when a previous install left files on disk that are no longer
-# tracked by any package (e.g. a failed or manually removed claude-code install).
-for conflict_file in /usr/bin/claude /usr/bin/claude-code; do
-    if [[ -e "$conflict_file" ]] && ! pacman -Qo "$conflict_file" &>/dev/null; then
-        warning "Removing unowned file that would conflict: $conflict_file"
-        sudo rm -f "$conflict_file"
-    fi
-done
-yay -S --needed --noconfirm claude-code
-success "claude-code installed"
+# Install Claude Code via official installer
+if ! command -v claude &>/dev/null; then
+    info "Installing Claude Code via official installer..."
+    curl -fsSL https://claude.ai/install.sh | bash
+    success "claude-code installed"
+else
+    success "claude-code already installed"
+fi
 
 # Install oh-my-zsh
 # Support both standard and XDG-compliant install paths

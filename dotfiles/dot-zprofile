@@ -38,3 +38,6 @@ fi
 if [[ -d "/Applications/Obsidian.app/Contents/MacOS" ]]; then
   export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"
 fi
+
+
+eval "$(/opt/homebrew/bin/brew shellenv)"

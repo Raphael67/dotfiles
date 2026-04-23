@@ -37,6 +37,9 @@ invert = false
 # Show help row with version and keymap hints
 show_help = true
 
+# Set the maximum number of lines Atuin's interface should take up.
+inline_height = 20
+
 # ================================
 # History
 # ================================
@@ -86,14 +89,4 @@ common_subcommands = [
 common_prefix = ["sudo"]
 
 # Ignore noise commands from stats
-ignored_commands = [
-    "cd",
-    "ls",
-    "l",
-    "la",
-    "ll",
-    "clear",
-    "c",
-    "exit",
-    "e",
-]
+ignored_commands = ["cd", "ls", "l", "la", "ll", "clear", "c", "exit", "e"]

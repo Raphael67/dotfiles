@@ -148,7 +148,48 @@
       "mcp__context7__query-docs",
       "Bash(python .claude/hooks/validate-write-path.py electron/renderer)",
       "Bash(python .claude/hooks/validate-write-path.py electron/main electron/preload)",
-      "Bash(python .claude/hooks/validate-write-path.py backend)"
+      "Bash(python .claude/hooks/validate-write-path.py backend)",
+      "Bash(bun install *)",
+      "Bash(bun test *)",
+      "Bash(bunx biome *)",
+      "Bash(bunx tsc *)",
+      "Read(//tmp/**)",
+      "Bash(bun add *)",
+      "Bash(bun *)",
+      "Bash(tsc -p packages/core/tsconfig.json --noEmit)",
+      "Bash(tsc -p packages/direct-api/tsconfig.json --noEmit)",
+      "Bash(tsc -p /Users/raphael/Projects/maestro/packages/direct-api/tsconfig.json --noEmit)",
+      "Bash(tsc -p /Users/raphael/Projects/maestro/apps/cli/tsconfig.json --noEmit)",
+      "Bash(tsc *)",
+      "Bash(tmux has-session *)",
+      "Bash(tmux list-sessions *)",
+      "Bash(/usr/bin/tmux new-session *)",
+      "Bash(/opt/homebrew/bin/tmux new-session *)",
+      "Bash(/opt/homebrew/bin/tmux capture-pane *)",
+      "Bash(/opt/homebrew/bin/tmux list-sessions *)",
+      "Bash(/opt/homebrew/bin/tmux list-panes *)",
+      "Bash(/opt/homebrew/bin/tmux display-message *)",
+      "Bash(/opt/homebrew/bin/tmux *)",
+      "Bash(tmux new-session *)",
+      "Bash(open -na Ghostty.app --args --command=\"tmux attach -t maestro-tui-test\")",
+      "Bash(tmux capture-pane *)",
+      "Bash(tmux display-message *)",
+      "Bash(tmux send-keys *)",
+      "Bash(tmux kill-session *)",
+      "Bash(open -na Ghostty.app --args --title=maestro-tui-test --command=\"tmux new-session -A -s maestro-tui-test 'bun run --cwd apps/cli start; exec zsh'\")",
+      "Bash(open -na Ghostty.app --args --title=maestro-tui-test '--command=tmux new-session -A -s maestro-tui-test '\\\\''__TRACKED_VAR__'\\\\''')",
+      "Bash(freeze --help)",
+      "Bash(freeze *)",
+      "Bash(gtimeout 4 bun run --cwd apps/cli start)",
+      "Bash(tmux load-buffer *)",
+      "Bash(tmux paste-buffer *)",
+      "Read(//Users/raphael/Projects/harness/pi-mono/**)",
+      "Read(//Users/raphael/Projects/harness/pi-mono/packages/**)",
+      "Bash(pi --version)",
+      "Bash(cp -r /Users/raphael/Projects/maestro/.claude/worktrees/agent-a5910030/packages/contracts /Users/raphael/Projects/maestro/packages/contracts)",
+      "Bash(cp -r /Users/raphael/Projects/maestro/.claude/worktrees/agent-a6b876be/packages/pi-adapter /Users/raphael/Projects/maestro/packages/pi-adapter)",
+      "Bash(echo \"{\\\\\"ts\\\\\":\\\\\"$\\(date -u +%Y-%m-%dT%H:%M:%SZ\\)\\\\\",\\\\\"taskId\\\\\":\\\\\"C3-agent-pane-jump-to-latest\\\\\",\\\\\"event\\\\\":\\\\\"dropped\\\\\",\\\\\"reason\\\\\":\\\\\"user feedback — no keyboard jump shortcut wanted; mouse wheel scrolling already wired in App.tsx\\\\\"}\")",
+      "Bash(rm -f /Users/raphael/Projects/maestro/.claude/scheduled_tasks.lock)"
     ],
     "deny": [
       "Bash(rm -rf /*:*)",
@@ -161,9 +202,8 @@
       "Bash(git push --force:*)",
       "Bash(git reset --hard:*)"
     ],
-    "defaultMode": "dontAsk"
+    "defaultMode": "acceptEdits"
   },
-  "model": "haiku",
   "hooks": {
     "Notification": [
       {
@@ -183,11 +223,6 @@
             "type": "command",
             "command": "uv run ~/.claude/hooks/damage-control/bash-tool-damage-control.py",
             "timeout": 5
-          },
-          {
-            "type": "prompt",
-            "prompt": "You are a security reviewer evaluating a bash command for destructive potential. Analyze this command: $ARGUMENTS\n\nBLOCK if the command would:\n- Delete, remove, or destroy files/directories recursively or in bulk\n- Overwrite or corrupt critical system files, configs, or data\n- Cause irreversible data loss\n- Execute destructive operations via find, xargs, or loops\n- Wipe, format, or damage filesystems\n\nALLOW if the command is:\n- Read-only (cat, ls, grep, find without -delete/-exec rm)\n- Safe write operations to non-critical paths\n- Standard development commands (git status, npm install, stow, etc.)\n- Stow commands for dotfile management (stow, stow -R, stow -D, stow --adopt)\n- Precise SQL DELETE with a specific ID in WHERE clause\n\nRespond with JSON: {\"decision\": \"approve\" or \"block\", \"reason\": \"[HOOK:security-reviewer] brief explanation\"}",
-            "timeout": 10
           }
         ]
       },
@@ -319,5 +354,6 @@
   "effortLevel": "high",
   "autoDreamEnabled": true,
   "skipDangerousModePermissionPrompt": true,
+  "useAutoModeDuringPlan": false,
   "voiceEnabled": true
 }

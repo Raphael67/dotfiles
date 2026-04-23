@@ -35,13 +35,15 @@ if [[ "$install_apps" == "y" ]]; then
 
     run_brew_bundle
 
-    # Install Claude Code via official installer
+    # Install or update Claude Code via official installer
     if ! command -v claude &>/dev/null; then
         info "Installing Claude Code via official installer..."
         curl -fsSL https://claude.ai/install.sh | bash
         success "claude-code installed"
     else
-        success "claude-code already installed"
+        info "Updating Claude Code to latest version..."
+        claude update
+        success "claude-code updated"
     fi
 
     sed "s/^#auth/auth/" /etc/pam.d/sudo_local.template | sudo tee /etc/pam.d/sudo_local

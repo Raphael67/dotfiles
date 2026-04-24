@@ -46,6 +46,27 @@ if [[ "$install_apps" == "y" ]]; then
         success "claude-code updated"
     fi
 
+    # Install or update rclone via the official installer.
+    # The Homebrew build of rclone explicitly disables FUSE on macOS, so
+    # `rclone mount` fails. The official binary (installed to /usr/local/bin)
+    # ships with FUSE support via macFUSE. Required by keymaging-rag mount.
+    if [[ -x /usr/local/bin/rclone ]]; then
+        info "Updating rclone (official binary) via selfupdate..."
+        sudo /usr/local/bin/rclone selfupdate
+        success "rclone updated"
+    else
+        info "Installing rclone (official binary with FUSE support)..."
+        curl -fsSL https://rclone.org/install.sh | sudo bash
+        success "rclone installed to /usr/local/bin/rclone"
+    fi
+
+    # Remove the brew version if present — it lacks FUSE and would shadow
+    # /usr/local/bin/rclone on PATH (brew prefix comes first).
+    if brew list rclone &>/dev/null; then
+        info "Removing brew rclone (superseded by official binary — FUSE required)..."
+        brew uninstall rclone || true
+    fi
+
     sed "s/^#auth/auth/" /etc/pam.d/sudo_local.template | sudo tee /etc/pam.d/sudo_local
     BREW_PREFIX="${HOMEBREW_PREFIX:-/opt/homebrew}"
     if [[ -f "${BREW_PREFIX}/lib/pam/pam_reattach.so" ]]; then

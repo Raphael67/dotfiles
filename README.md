@@ -99,7 +99,7 @@ Cross-platform dotfiles managed with [GNU Stow](https://www.gnu.org/software/sto
 |------|---------|
 | [Bitwarden CLI](https://bitwarden.com/help/cli/) | Password management |
 | [gitleaks](https://github.com/gitleaks/gitleaks) | Pre-commit secret scanning |
-| [rclone](https://rclone.org) | Cloud storage sync |
+| [rclone](https://rclone.org) | Cloud storage sync (installed from the official binary, not brew — FUSE required for `rclone mount`) |
 
 ## 🎨 Catppuccin Macchiato
 

@@ -133,8 +133,6 @@ brew "nvm"
 brew "ollama"
 # Execute binaries from Python packages in isolated environments
 brew "pipx"
-# Rsync for cloud storage
-brew "rclone"
 # Rust toolchain installer
 brew "rustup"
 # RSS Reader for Digital Minimalists

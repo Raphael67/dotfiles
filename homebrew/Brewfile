@@ -105,8 +105,9 @@ brew "terminal-notifier"
 # ================================
 # CLI Tools & Utilities
 # ================================
-# Secure and free password manager for all of your devices
-brew "bitwarden-cli"
+# Note: bitwarden-cli (bw) is installed via npm (@bitwarden/cli) in npm/packages.txt.
+# Do NOT add brew "bitwarden-cli" here — it conflicts with the npm-managed symlink at
+# /opt/homebrew/bin/bw -> ../lib/node_modules/@bitwarden/cli/build/bw.js.
 # Resource monitor
 brew "btop"
 # Terminal document viewer for .docx files

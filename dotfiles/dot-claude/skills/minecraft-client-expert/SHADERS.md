@@ -125,6 +125,23 @@ Expected on GTX 1060 at 1080p, 12 chunks: ~50–70 FPS.
 
 ---
 
+## Disabling Clouds Properly (Two-Step)
+
+**Vanilla `renderClouds:"false"` in `options.txt` is NOT enough when a shader is active.** Shader packs override Minecraft's cloud renderer with their own cloud system, so you must disable clouds in *both* places:
+
+1. **Vanilla**: `options.txt` → `renderClouds:"false"` (kills the vanilla cloud layer in case the shader ever falls back).
+2. **Shader settings**: open the shader's settings GUI (Options → Video Settings → Shader Pack Settings → Apply changes), or edit the shader's `.txt` config in `shaderpacks/`:
+   - **Complementary Reimagined / Unbound**: `CLOUDS=Off` (or set `CLOUD_STYLE` to the Off value)
+   - **EuphoriaPatches addon**: `CLOUD_QUALITY=0` to minimize, but the base Complementary `CLOUDS=Off` is the actual on/off toggle
+   - **BSL Shaders**: `CLOUDS=false` and `CLOUDS_2D=false`
+   - **Photon / Rethinking Voxels**: `CLOUDS=Off` in the shader settings GUI
+
+If you change only the vanilla setting while a shader is loaded, clouds stay drawn by the shader and you save zero FPS.
+
+The same dual-disable rule applies to other vanilla→shader-overridden effects: **fog, sky color, water visuals, weather effects** — disabling them in `options.txt` does nothing if the active shader replaces them.
+
+---
+
 ## Minecraft Video Settings With Shaders Active
 
 | Setting | Recommendation |

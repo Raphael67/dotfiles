@@ -113,6 +113,34 @@ See [NEOFORGE-MODS.md](../NEOFORGE-MODS.md) for full list.
 
 ---
 
+## Phase 4b — Strip Launcher / Server-List Spam
+
+Many modpacks ship with mods that inject promotional content into the multiplayer screen, the main menu, or the modpack's own "server browser". Always check for and disable these — users virtually never want them, especially on multiplayer-only setups where they only connect to their own server.
+
+### Things to look for
+
+| Source | What it does | How to neutralize |
+|--------|-------------|--------------------|
+| `luna_minecraft-*.jar` (Luna Pixel Studios) | Injects "Luna Pixel Servers" entries into the server list and main menu banners | Rename jar to `*.jar.disabled` |
+| `serverbrowser-*.jar` | Adds a custom multiplayer browser tab; pulls servers from `minecraft.multiplayerservers.net` filtered by `modPackFilter` | Disable jar, or empty `config/serverbrowser.conf` (`officialServers=[]`, `modPackFilter=""`) |
+| `bisecthosting-*.jar` / promotional Bisect/Apex mods | Adds host-specific server entries | Disable jar |
+| `ConfiguredDefaults` + `configureddefaults/servers.dat` | Pre-seeds `servers.dat` with the modpack author's "official" servers on first launch | Delete the file in `configureddefaults/` (not the runtime `servers.dat`) |
+| `fancymenu`-driven main-menu buttons that link to Discord/Patreon | UI clutter | Edit/clear the FancyMenu layouts in `fancymenu_data/` if user wants the menu cleaned |
+
+### Workflow
+
+1. Scan `minecraft/mods/` for jars matching: `luna`, `serverbrowser`, `bisect`, `apex`, anything ending in `_servers` or `*pixelstudios*`.
+2. Inspect any `config/<vendor>.conf` / `.toml` for `officialServers`, `defaultServers`, or `featuredServers` arrays — clear them if they contain hardcoded IPs.
+3. Disable the offending jar(s) by appending `.disabled` (PrismLauncher convention; reversible). Don't delete unless asked.
+4. Inspect `servers.dat` size — anything > ~150 bytes likely contains pre-seeded entries. If it does and the user wants them gone, rewrite the NBT (PyNBT, NBTExplorer, or `nbtlib`) to clear the `servers` list.
+5. **Always back up affected files first** with a `.backup.<YYYYMMDD-HHMMSS>` suffix.
+
+### Default rule
+
+If the user sets up a multiplayer-only instance with their own server, **proactively flag and offer to disable** any promotional / server-list spam you find. Don't wait to be asked.
+
+---
+
 ## Phase 5 — Configure In-Game Video Settings
 
 Launch the instance, enter a world, then apply these settings via Options → Video Settings:

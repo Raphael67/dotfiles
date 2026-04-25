@@ -113,6 +113,22 @@ For any NeoForge 1.21.1 modpack — zero compatibility risk, maximum return:
 
 ---
 
+## Promotional / Server-List Spam Mods (Disable on Sight)
+
+Modpacks frequently bundle mods whose only purpose is to inject the author's, host's, or community's server entries into the multiplayer screen, the main menu, or a custom server-browser tab. These have **zero gameplay value** and should be disabled by default — especially for multiplayer-only setups where the user only connects to their own server.
+
+| Mod | Symptom | Action |
+|-----|---------|--------|
+| **luna_minecraft** (Luna Pixel Studios) | "Luna Pixel Servers" entries appear in multiplayer screen / main menu banners | Rename `*.jar` → `*.jar.disabled` |
+| **serverbrowser** | Custom server browser tab; pre-populated `officialServers=[]` in `config/serverbrowser.conf`; pulls servers from `minecraft.multiplayerservers.net` via `modPackFilter` | Disable jar, **or** empty `officialServers=[]` and `modPackFilter=""` in the conf |
+| **bisecthosting / apex / similar host promo mods** | Adds host-specific server entry to multiplayer screen | Disable jar |
+| **ConfiguredDefaults** (when used for server lists) | Seeds `servers.dat` and other configs from `configureddefaults/` on first launch | Delete the seed `servers.dat` from `configureddefaults/`; don't disable the mod itself unless it's being misused (it has legitimate uses for default options) |
+| **fancymenu** custom layouts pointing to Discord/Patreon | Promotional buttons on the title screen | Edit `fancymenu_data/` layouts if cleanup requested |
+
+**Default behavior**: when scanning a new instance, proactively flag any of the above. Always back up `servers.dat` and the relevant config files with a `.backup.<TS>` suffix before editing or wiping. Use `.disabled` rather than deletion so the change is reversible.
+
+---
+
 ## Compatibility Matrix
 
 | Conflict | Resolution |

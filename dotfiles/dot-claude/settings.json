@@ -204,7 +204,6 @@
     ],
     "defaultMode": "acceptEdits"
   },
-  "model": "sonnet",
   "hooks": {
     "Notification": [
       {
@@ -361,6 +360,7 @@
     }
   },
   "effortLevel": "high",
+  "autoUpdatesChannel": "latest",
   "autoDreamEnabled": true,
   "skipDangerousModePermissionPrompt": true,
   "preferredNotifChannel": "ghostty",
@@ -369,6 +369,5 @@
   "remoteControlAtStartup": false,
   "agentPushNotifEnabled": false,
   "useAutoModeDuringPlan": false,
-  "voiceEnabled": true,
-  "autoUpdatesChannel": "latest"
+  "voiceEnabled": true
 }

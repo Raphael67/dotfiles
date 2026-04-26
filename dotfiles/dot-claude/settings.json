@@ -265,10 +265,6 @@
           {
             "type": "command",
             "command": "__claudebar_hook() { PORT=$(cat \"$HOME/.claude/claudebar-hook-port\" 2>/dev/null || echo 19847); cat | curl -s -X POST \"http://localhost:${PORT}/hook\" -H 'Content-Type: application/json' -d @- > /dev/null 2>&1 & }; __claudebar_hook"
-          },
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/tmux-model-info.sh"
           }
         ]
       }
@@ -299,10 +295,6 @@
           {
             "type": "command",
             "command": "__claudebar_hook() { PORT=$(cat \"$HOME/.claude/claudebar-hook-port\" 2>/dev/null || echo 19847); cat | curl -s -X POST \"http://localhost:${PORT}/hook\" -H 'Content-Type: application/json' -d @- > /dev/null 2>&1 & }; __claudebar_hook"
-          },
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/tmux-model-info.sh"
           }
         ]
       }
@@ -369,5 +361,6 @@
   "remoteControlAtStartup": false,
   "agentPushNotifEnabled": false,
   "useAutoModeDuringPlan": false,
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "model": "sonnet"
 }

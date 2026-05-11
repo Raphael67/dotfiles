@@ -383,9 +383,31 @@ PROMPT: $2
 | `/btw` | Side question that sees full context but has no tools; answer discarded from history |
 | `/powerup` | Interactive lessons with animated feature demos (v2.1.90+) |
 | `/release-notes` | View release notes with interactive version picker (v2.1.92+) |
-| `/cost` | View token cost breakdown. Subscription users see per-model and cache-hit breakdown (v2.1.92+) |
+| `/usage` | Token + cost breakdown — merges deprecated `/cost` and `/stats` (v2.1.118+). Per-model + cache-hit breakdown for subscribers; 5-hour and weekly usage shown immediately (v2.1.116+) |
 | `/permissions` | Show available and denied commands; Auto mode displays recent tab with retry option for denied commands (v2.1.89+) |
-| `/ultrareview` | Dedicated review session identifying bugs and design issues; introduced with Opus 4.7 (Apr 2026) |
+| `/ultrareview` | Dedicated review session identifying bugs and design issues; introduced with Opus 4.7 (Apr 2026). Parallelized checks, diffstat, animation (v2.1.113+) |
+| `/theme` | Create, switch, and customize themes; plugins ship themes (v2.1.118+) |
+| `/color` | Sync session accent color to claude.ai/code (v2.1.118+) |
+| `/skills` | Browse and filter available skills with type-to-filter search box (v2.1.121+) |
+| `/terminal-setup` | Enable iTerm2 clipboard access among other terminal integrations (v2.1.121+) |
+| `/mcp` | Manage MCP servers; shows claude.ai connectors hidden by duplicate manual servers (v2.1.122+) |
+| `/loop [interval] <prompt>` | Run a prompt on a recurring interval (v2.1.71). Esc cancels pending wakeups; "Claude resuming /loop wakeup" displayed on resume (v2.1.113+) |
+| `/resume` | Resume a session; offers to summarize stale large sessions (v2.1.117+); 67% faster on 40MB+ transcripts (v2.1.116+); accepts pasted PR URL to find originating session (v2.1.122+) |
+| `/model` | Persist selection across restarts (v2.1.117+); honors `ANTHROPIC_DEFAULT_*_MODEL_NAME` overrides (v2.1.117+); lists models from gateway `/v1/models` when `ANTHROPIC_BASE_URL` points to compatible gateway (v2.1.126+) |
+| `/color` | Sync accent color to claude.ai/code; bare `/color` (no args) picks a random session color (v2.1.128+) |
+
+## Project Lifecycle
+
+### `claude project purge [path]` (v2.1.126+)
+
+Delete all Claude Code state for a project (transcripts, tasks, file history, config). Useful when a project's state is corrupted or you want a clean slate.
+
+```bash
+claude project purge --dry-run            # Show what would be deleted
+claude project purge -y                   # Skip confirmation
+claude project purge --interactive        # Pick which artifacts to delete
+claude project purge --all                # Purge every tracked project
+```
 
 ## Best Practices
 

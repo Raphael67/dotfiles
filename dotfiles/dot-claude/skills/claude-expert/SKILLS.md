@@ -94,12 +94,18 @@ Instructions and content...
 | `agent` | No | Agent type when `context: fork` (e.g., `Explore`, `Plan`, custom) |
 | `model` | No | Model to use (`sonnet`, `opus`, `haiku`) |
 | `hooks` | No | Lifecycle hooks scoped to skill. See Hooks reference |
-| `effort` | No | Effort level when skill is active. Overrides session effort. Options: `low`, `medium`, `high`, `max` (Opus 4.6 only) (v2.1.80+) |
+| `effort` | No | Effort level when skill is active. Overrides session effort. Options: `low`, `medium`, `high`, `xhigh` (Opus 4.7+), `max` (Opus 4.6 only) |
 | `argument-hint` | No | Hint shown during autocomplete (e.g., `[issue-number]`) |
+| `arguments` | No | Named positional arguments for `$name` substitution. Space-separated string or YAML list (e.g., `[issue, branch]` makes `$issue`/`$branch` available) |
+| `when_to_use` | No | Additional trigger phrases or example requests. Appended to `description` in the skill listing; combined text capped at 1,536 chars |
+| `paths` | No | Glob patterns that gate auto-activation. Skill loads only when Claude works with files matching the patterns. Comma-separated string or YAML list |
+| `shell` | No | `bash` (default) or `powershell`. PowerShell mode requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` |
 
 ## Bundled Skills
 
-Claude Code ships with built-in skills available in every session:
+Bundled skills are listed alongside built-in commands and marked **Skill** in the Purpose column. Invoke any skill — bundled or custom — with `/<name>`. Browse them with `/skills` (v2.1.116+), which has a type-to-filter search box (v2.1.121+).
+
+Claude Code ships with these bundled skills:
 
 | Skill | Description |
 |-------|-------------|
@@ -133,6 +139,7 @@ ALL_ARGS: $ARGUMENTS
 
 ### Session & Skill Variables
 - `${CLAUDE_SESSION_ID}` - Current session ID for logging/tracking
+- `${CLAUDE_EFFORT}` - Current effort level: `low`, `medium`, `high`, `xhigh`, or `max`. Adapt skill instructions to active effort setting (v2.1.133+)
 - `${CLAUDE_SKILL_DIR}` - Absolute path to the skill's directory (v2.1.69+). Use for referencing bundled scripts/files regardless of CWD
 
 ### Dynamic Context Injection
@@ -470,6 +477,17 @@ If your skill isn't being discovered:
 
 Test discovery by asking Claude about a topic your skill covers.
 
+## Skill Content Lifecycle
+
+When a skill is invoked, its rendered content enters the conversation as a single message and stays for the rest of the session. Claude does not re-read the skill file on later turns.
+
+**After `/compact`**: Claude re-attaches invoked skills within a token budget:
+- Up to the first **5,000 tokens** of each invoked skill are re-attached
+- All re-attached skills share a combined budget of **25,000 tokens**
+- Budget fills from most recently invoked skill; older skills may be dropped entirely
+
+If a skill stops influencing behavior after compaction, re-invoke it with `/skill-name`.
+
 ## Sandbox Security (v2.1.38+)
 
 Writes to `.claude/skills` directory are **blocked in sandbox mode**. This prevents skills from self-modifying during sandboxed execution. Skills that need to write files should use a different output directory.
@@ -793,8 +811,11 @@ Verify in `/plugin` → **Installed** tab. If **Errors** tab shows `Executable n
 ## Environment Variables
 
 - `SLASH_COMMAND_TOOL_CHAR_BUDGET` - Character budget for skill descriptions (scales to 2% of context window; fallback minimum 16,000 chars)
+- `skillListingBudgetFraction` - Setting (e.g. `0.02` = 2%) to raise the skill description context budget. Budget fills starting from most-recently-invoked skills
+- `maxSkillDescriptionChars` - Setting to override the 1,536-character cap on description+when_to_use per skill
 - `CLAUDE_CODE_DISABLE_CRON` - Immediately stop scheduled cron jobs mid-session (v2.1.72)
 - `CLAUDE_CODE_PLUGIN_SEED_DIR` - Seed directory for plugins. Supports multiple directories (v2.1.79+)
+- `CLAUDE_CODE_SESSION_ID` - Available in Bash tool subprocesses so scripts can correlate with the parent session (v2.1.132+)
 - `disableSkillShellExecution` - Managed setting (v2.1.91+). Set to `true` to disable inline shell execution in skills and custom commands
 
 ## Advanced Patterns

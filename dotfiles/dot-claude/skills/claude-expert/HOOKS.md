@@ -17,6 +17,7 @@ Hooks are scripts or prompts that execute in response to Claude Code events. The
 | `SubagentStop` | When subagent finishes | Logging results. Input includes `last_assistant_message`, `agent_transcript_path` |
 | `TeammateIdle` | Agent team teammate about to go idle | Quality gates, prevent idle |
 | `TaskCompleted` | Task being marked as completed | Enforce completion criteria |
+| `UserPromptExpansion` | Before slash command expansion | Block or add context to command expansion |
 | `SessionStart` | Session begins/resumes | Environment setup (execution deferred at startup for performance) |
 | `SessionEnd` | Session terminates | Cleanup, logging |
 | `PreCompact` | Before context compaction | Pre-compaction actions |
@@ -259,6 +260,7 @@ Hooks are configured under the `hooks` key:
 | `ConfigChange` | Configuration source | `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills` |
 | `StopFailure` | Error type | `rate_limit`, `authentication_failed`, `server_error` |
 | `PermissionDenied` | Denial type | `auto_deny_rule`, `insufficient_permissions` (v2.1.89+) |
+| `UserPromptExpansion` | Command name | Slash command being expanded |
 | UserPromptSubmit, Stop, TeammateIdle, TaskCompleted, WorktreeCreate, WorktreeRemove, InstructionsLoaded, CwdChanged, FileChanged, TaskCreated | No matcher support | Always fires |
 
 ### Conditional Hook Execution (`if` field, v2.1.85+)
@@ -313,6 +315,7 @@ Hooks can conditionally execute using permission rule syntax. This also fixes is
 |-------|-------------|
 | `command` | Shell command to execute |
 | `async` | If `true`, runs in background without blocking |
+| `asyncRewake` | If `true`, runs in background and wakes Claude when it exits with code 2 |
 
 ### Prompt/Agent Hook Fields
 
@@ -355,6 +358,21 @@ Spawns a subagent with tool access (Read, Grep, Glob) for up to 50 turns:
   "timeout": 120
 }
 ```
+
+### MCP Tool Hook
+
+Call a tool on an already-connected MCP server:
+
+```json
+{
+  "type": "mcp_tool",
+  "server": "my-server",
+  "tool": "security_scan",
+  "input": { "file_path": "${tool_input.file_path}" }
+}
+```
+
+Fields: `server` (configured MCP server name), `tool` (tool name), `input` (optional, with `${path}` substitution).
 
 ### HTTP Hook (v2.1.63+)
 
@@ -732,17 +750,19 @@ with open(config_path) as f:
     config = yaml.safe_load(f)
 ```
 
-### PostToolUse MCP Tool Output Override
+### PostToolUse Tool Output Override (v2.1.121+)
 
-For MCP tools only, PostToolUse hooks can replace the tool's output:
+PostToolUse hooks can replace the tool's output via `updatedToolOutput`:
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "PostToolUse",
-    "updatedMCPToolOutput": "Replacement output for the MCP tool"
+    "updatedToolOutput": "Replacement output for the tool"
   }
 }
 ```
+
+This works for any tool, not just MCP tools.
 
 ## CLI Auth Commands (v2.1.41+)
 
@@ -842,6 +862,20 @@ state_file = f"~/.claude/security_warnings_state_{session_id}.json"
 }
 ```
 
+### Auto Mode Classifier Rules (v2.1.136+)
+
+The `settings.autoMode.hard_deny` setting adds classifier rules that block unconditionally in auto permission mode:
+
+```json
+{
+  "autoMode": {
+    "hard_deny": ["Bash(rm -rf *)"]
+  }
+}
+```
+
+Unlike standard deny rules, `hard_deny` rules apply even when Claude is operating in auto mode.
+
 ## Best Practices
 
 1. **Keep hooks fast**: Use `timeout` to prevent hangs
@@ -864,6 +898,7 @@ state_file = f"~/.claude/security_warnings_state_{session_id}.json"
 | `CLAUDE_PLUGIN_DATA` | Persistent data directory for plugin state (survives updates) (v2.1.78+) |
 | `CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS` | Configurable timeout for SessionEnd hooks (v2.1.74). Previously hardcoded at 1.5s |
 | `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` | Set to `1` to strip credentials from subprocess environments (v2.1.83+) |
+| `CLAUDE_EFFORT` | Current effort level, also available in hook JSON input as `effort.level` (v2.1.133+) |
 
 ## Advanced Hook Output
 

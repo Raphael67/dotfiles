@@ -169,7 +169,7 @@ Start Claude's response to guide format:
 
 ## Claude 4+ Specifics
 
-### Available Models (Apr 2026)
+### Available Models (May 2026)
 
 | Model | ID | Best For |
 |-------|-----|----------|
@@ -203,7 +203,7 @@ Opus 4.6 with:
 
 ### Effort Levels & "ultrathink" (v2.1.68+)
 
-Opus 4.6 defaults to **medium effort** for Max and Team subscribers. Use "ultrathink" keyword to enable **high effort** for the next turn:
+Opus/Sonnet 4.6 default to **high effort** for Pro/Max subscribers (changed from medium in v2.1.117+, 2026-04-22). Use "ultrathink" keyword to escalate to **xhigh** or **max** for the next turn on Opus 4.7:
 
 ```
 ultrathink

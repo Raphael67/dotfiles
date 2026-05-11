@@ -487,6 +487,50 @@ Disable via `disallowedTools` setting:
 
 MCP servers can send `list_changed` notifications to dynamically update their available tools without reconnecting.
 
+### Reserved Server Names (v2.1.128+)
+
+`workspace` is a reserved MCP server name. Do not use it for custom server configurations.
+
+### `alwaysLoad` Server Option (v2.1.121+)
+
+Set `alwaysLoad: true` on an MCP server config to skip ToolSearch deferral. Tools from that server are loaded directly into the toolset rather than fetched on-demand by `ToolSearch`. Use for small servers where the latency of search-then-load isn't worth the context savings, or for servers whose tools you want callable without the model first having to search for them.
+
+```json
+{
+  "mcpServers": {
+    "fast-server": {
+      "command": "node",
+      "args": ["server.js"],
+      "alwaysLoad": true
+    }
+  }
+}
+```
+
+### Transient Error Auto-Retry (v2.1.121+)
+
+MCP servers that fail with transient errors (network blips, brief service outages) auto-retry up to 3 times before reporting failure. No configuration required — automatic. Reduces flake from servers that briefly drop connections.
+
+### Concurrent Server Startup (v2.1.117+)
+
+MCP servers now start concurrently by default rather than sequentially. Reduces session startup time, especially with many servers configured. `resources/templates/list` is deferred to further accelerate startup (v2.1.116+).
+
+### `${ENV_VAR}` Substitution in Headers (v2.1.119+)
+
+`${ENV_VAR}` placeholders in MCP server headers and config are substituted before server startup. Useful for dynamic credentials and proxy headers:
+
+```json
+{
+  "mcpServers": {
+    "api": {
+      "transport": "http",
+      "url": "https://api.example.com/mcp",
+      "headers": { "Authorization": "Bearer ${API_TOKEN}" }
+    }
+  }
+}
+```
+
 ## MCP Tool Descriptions (v2.1.84+)
 
 Tool descriptions and instructions are capped at 2KB. Longer descriptions are truncated to prevent context bloat. Ensure descriptions are concise and informative within this limit.

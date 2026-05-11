@@ -156,11 +156,11 @@ Always respond with:
 | `model` | No | Default model (`sonnet`, `opus`, `haiku`, `inherit`) |
 | `allowed-tools` | No | Restrict available tools |
 | `disallowedTools` | No | Tools to deny (removed from inherited list) |
-| `permissionMode` | No | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan` |
+| `permissionMode` | No | `default`, `plan`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`. Honored by `--agent <name>` since v2.1.119 |
 | `skills` | No | Preload skills into agent context |
 | `hooks` | No | Lifecycle hooks: PreToolUse, PostToolUse, Stop (converted to SubagentStop) |
 | `memory` | No | Persistent memory scope: `user`, `project`, or `local` |
-| `mcpServers` | No | MCP servers: reference configured names or define inline |
+| `mcpServers` | No | MCP servers: reference configured names or define inline. Loaded for main-thread when invoked via `--agent <name>` (v2.1.117+) |
 | `maxTurns` | No | Limit conversation turns |
 | `background` | No | Set to `true` to always run as background task. Default: `false` |
 | `isolation` | No | Set to `worktree` to run in a temporary git worktree (isolated repo copy). Auto-cleaned if no changes |
@@ -173,6 +173,7 @@ Always respond with:
 |------|----------|
 | `default` | Standard permission prompts |
 | `acceptEdits` | Auto-accept file edits |
+| `auto` | Auto-mode classifier decides per-call (with `PermissionDenied` hook event firing on denials) |
 | `delegate` | Coordination-only for team leads (team management tools only) |
 | `dontAsk` | Auto-deny permission prompts |
 | `bypassPermissions` | Skip all permission checks |
@@ -710,6 +711,26 @@ Or per-session: `claude --teammate-mode in-process`
 - Split panes not supported in VS Code terminal, Windows Terminal, or Ghostty
 - Permissions set at spawn (all teammates inherit lead's mode)
 - Team agents inherit the leader's model (v2.1.72)
+
+## Worktree Base Branch (v2.1.133+)
+
+The `worktree.baseRef` setting controls where worktree-isolated agents branch from:
+
+| Value | Behavior |
+|-------|----------|
+| `fresh` (default since v2.1.133) | Branch from `origin/<default-branch>` — unpushed commits do NOT carry forward |
+| `head` | Branch from local HEAD (old behavior) — unpushed commits carry forward |
+
+Set in settings:
+```json
+{ "worktree.baseRef": "head" }
+```
+
+**Breaking change**: If your agents relied on unpushed local commits being available in worktree-isolated runs, add `"worktree.baseRef": "head"` to your settings.
+
+## Subagent Skill Discovery Fix (v2.1.133+)
+
+Subagents now correctly discover skills from project, user, and plugin skill directories. Previously, subagents would only see bundled skills in some configurations.
 
 ## TaskOutput Deprecation (v2.1.83+)
 

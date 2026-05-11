@@ -104,7 +104,7 @@ Auto memory is Claude's persistent note-taking system. Claude automatically reco
 
 ```
 ~/.claude/projects/<project>/memory/
-├── MEMORY.md          # Concise index (first 200 lines loaded at startup)
+├── MEMORY.md          # Concise index (first 200 lines OR 25KB, whichever is smaller, loaded at startup)
 ├── debugging.md       # Detailed notes on debugging patterns
 ├── api-conventions.md # API design decisions
 └── ...                # Any topic files Claude creates
@@ -112,8 +112,8 @@ Auto memory is Claude's persistent note-taking system. Claude automatically reco
 
 ### Loading Behavior
 
-- First **200 lines** of `MEMORY.md` loaded into system prompt at session start
-- Content beyond 200 lines is NOT loaded automatically
+- First **200 lines OR 25KB** of `MEMORY.md` (whichever is smaller) loaded into system prompt at session start
+- Content beyond that threshold is NOT loaded automatically (only applies to `MEMORY.md` — CLAUDE.md files load in full)
 - Topic files (e.g., `debugging.md`) loaded on-demand via file tools
 - Claude reads and writes memory files during sessions
 
@@ -185,7 +185,35 @@ Patterns match against absolute file paths using glob syntax. Configurable at an
 
 ### CLAUDE.md HTML Comments (v2.1.72+)
 
-HTML comments (`<!-- ... -->`) in CLAUDE.md are now hidden from Claude when auto-injected at session start. Comments remain visible when read with the Read tool. Useful for metadata or notes that shouldn't consume context.
+Block-level HTML comments (`<!-- ... -->`) in CLAUDE.md are stripped before content is injected into Claude's context. Comments inside code blocks are preserved. Comments remain visible when read with the Read tool. Useful for maintainer notes that shouldn't consume context.
+
+### AGENTS.md Bridge
+
+Claude Code reads `CLAUDE.md`, not `AGENTS.md`. If your repository already uses `AGENTS.md` for other coding agents, create a `CLAUDE.md` that imports it so both tools share instructions:
+
+```markdown
+@AGENTS.md
+
+## Claude Code
+
+Claude-specific overrides go below the import.
+```
+
+### `/init` Command (Multi-Phase, v2.1.83+)
+
+`/init` generates a starting `CLAUDE.md` from codebase analysis. Set `CLAUDE_CODE_NEW_INIT=1` to enable an interactive multi-phase flow: it asks which artifacts to set up (CLAUDE.md, skills, hooks), explores the codebase via subagent, asks follow-up questions, and shows a reviewable proposal before writing files. If a CLAUDE.md already exists, `/init` suggests improvements rather than overwriting.
+
+### Debug Loading with `InstructionsLoaded` Hook
+
+Configure an `InstructionsLoaded` hook to log exactly which instruction files are loaded, when, and why. Matchers: `session_start`, `nested_traversal`, `path_glob_match`. Useful when path-scoped rules or lazy-loaded subdirectory CLAUDE.md files aren't behaving as expected.
+
+### What Survives `/compact`
+
+- **Project-root CLAUDE.md**: re-injected after the summary
+- **Nested CLAUDE.md** in subdirectories: NOT re-injected automatically — reload on next subdirectory file read
+- **Auto memory**: not re-attached after compaction; `MEMORY.md` is read again on the next memory-relevant decision
+
+If an instruction "vanishes" after `/compact`, it was either conversation-only or in a nested CLAUDE.md not yet reloaded.
 
 ## Agent Memory
 
@@ -207,7 +235,7 @@ memory: user    # Scope: user, project, or local
 When memory is enabled:
 - Read, Write, Edit tools auto-enabled for memory access
 - Agent maintains `MEMORY.md` automatically
-- First 200 lines of `MEMORY.md` in system prompt each session
+- First 200 lines (or 25KB, whichever is smaller) of `MEMORY.md` in system prompt each session
 
 ## Managed Settings Drop-In Directory (v2.1.83+)
 

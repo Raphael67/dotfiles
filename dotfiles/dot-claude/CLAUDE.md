@@ -193,6 +193,18 @@ Allowed languages: Python, Bash, TypeScript, Rust
 - No repetition: don't echo the question back
 - Examples when useful, not for padding
 
+## Asking the User Questions
+
+**Applies to the main agent and every spawned subagent.** When you need information from the user:
+
+1. **Always use the `AskUserQuestion` tool** — never ask in plain prose when the tool is available. It renders a proper interactive prompt with structured options.
+2. **Ask exactly ONE question at a time.** Send the question, wait for the user's answer, then ask the next one based on the reply.
+3. **Never batch questions** — no numbered lists ("1. ... 2. ... 3. ..."), no multi-part prompts, no "while we're at it, also..." follow-ups in the same turn.
+4. **Sequential, not parallel.** Even if you have five things you want to clarify, ask the first, get the answer, then decide whether the next question is still needed (often the first answer makes later ones obsolete).
+5. **If `AskUserQuestion` is not loaded** (e.g., a constrained subagent), fetch it via `ToolSearch` first, or fall back to a single plain-text question — still one at a time.
+
+Rationale: batched questions force the user to context-switch across unrelated decisions, and earlier answers usually reshape later questions. Sequential asking is faster end-to-end and produces better answers.
+
 ## Available Tools
 
 ### context7 MCP (Library Documentation)

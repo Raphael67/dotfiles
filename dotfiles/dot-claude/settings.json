@@ -361,6 +361,5 @@
   "remoteControlAtStartup": false,
   "agentPushNotifEnabled": false,
   "useAutoModeDuringPlan": false,
-  "voiceEnabled": true,
-  "model": "sonnet"
+  "voiceEnabled": true
 }

@@ -251,22 +251,26 @@ def main() -> None:
 
     if decision == "block":
         output = {
-            "decision": "block",
-            "reason": f"[HOOK:damage-control] {reason}"
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "deny",
+                "permissionDecisionReason": f"[HOOK:damage-control] {reason}",
+            }
         }
         print(json.dumps(output))
         sys.exit(0)
     elif decision == "confirm":
         output = {
-            "decision": "confirm",
-            "reason": f"[HOOK:damage-control] {reason}"
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "ask",
+                "permissionDecisionReason": f"[HOOK:damage-control] {reason}",
+            }
         }
         print(json.dumps(output))
         sys.exit(0)
     else:
-        # Allow silently
-        output = {"decision": "allow"}
-        print(json.dumps(output))
+        # Allow silently — exit 0 with no output defers to normal permission flow.
         sys.exit(0)
 
 

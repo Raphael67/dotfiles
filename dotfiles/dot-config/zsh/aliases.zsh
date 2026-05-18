@@ -110,6 +110,20 @@ alias ccr='claude --agent router --dangerously-skip-permissions'
 # ask: quick factual questions answered by Haiku (one-shot, no session)
 ask() { claude -p --model haiku --dangerously-skip-permissions "$*" }
 
+# cowork-skills: sync ~/.claude/skills/ into the Cowork plugin so they appear
+# inside Cowork sessions as `claude-code-skills-bridge:<skill-name>`.
+# Run this once at install time, and again whenever you add/edit a skill.
+# After running, restart Claude Desktop for new Cowork sessions to see changes.
+# No daemon, no port — Cowork mounts the plugin's skills/ directory directly.
+cowork-skills() {
+    local dir="$HOME/.config/cowork-skills"
+    if [[ ! -f "$dir/sync.py" ]]; then
+        echo "cowork-skills: $dir/sync.py not found. Run $dir/install.sh first." >&2
+        return 1
+    fi
+    python3 "$dir/sync.py" "$@"
+}
+
 # Shell profiling
 zsh-startuptime() {
     local total=0

@@ -1,0 +1,8 @@
+{
+  "name": "claude-code-skills-bridge",
+  "version": "0.2.0",
+  "description": "Exposes your host machine's Claude Code skills (~/.claude/skills/) inside Claude Cowork sessions. Skills are synced into this plugin via the `cowork-skills` host command; Cowork mounts them read-only into the VM at session boot, where they appear as `claude-code-skills-bridge:<skill-name>`.",
+  "author": {
+    "name": "Raphaël Antoine"
+  }
+}

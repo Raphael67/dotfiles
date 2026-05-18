@@ -1,0 +1,9 @@
+[project]
+name = "cowork-skills"
+version = "0.2.0"
+description = "Syncs ~/.claude/skills/ into the claude-code-skills-bridge Cowork plugin"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv]
+package = false

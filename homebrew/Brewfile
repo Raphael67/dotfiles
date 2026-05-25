@@ -43,6 +43,8 @@ brew "television"
 brew "glow"
 # Simple terminal UI for git commands
 brew "lazygit"
+# CLI proxy that filters command output to minimize LLM token consumption
+brew "rtk"
 # Enable alt-tab window switching
 cask "alt-tab"
 # Notch customization utility

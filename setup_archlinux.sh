@@ -50,6 +50,17 @@ else
     success "claude-code already installed"
 fi
 
+# Install RTK (LLM token-optimizing CLI proxy) via official installer
+# Drops a single static binary into ~/.local/bin (already on PATH via dot-zprofile).
+# Hook integration into ~/.claude/ is shipped via stow from dotfiles/dot-claude/.
+if ! command -v rtk &>/dev/null; then
+    info "Installing RTK via official installer..."
+    curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/master/install.sh | sh
+    success "rtk installed to ~/.local/bin"
+else
+    success "rtk already installed"
+fi
+
 # Install oh-my-zsh
 # Support both standard and XDG-compliant install paths
 OMZ_XDG="${XDG_DATA_HOME:-$HOME/.local/share}/oh-my-zsh"

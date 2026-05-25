@@ -1,4 +1,4 @@
- Global Claude Configuration
+Global Claude Configuration
 
 ## Personal Development Environment
 
@@ -221,3 +221,5 @@ Fetch up-to-date documentation for libraries:
 - Self-documenting via `--list`, `--describe`, `--search`
 - JSON output by default (pipe to `jq` for processing)
 - Semantic exit codes for error handling
+
+@RTK.md

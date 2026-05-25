@@ -324,7 +324,7 @@ return {
         },
       },
     })
-    vim.cmd(":Neotree")
+    -- vim.cmd(":Neotree")  -- Disabled auto-open when starting vim with a file
     vim.cmd([[nnoremap \ :Neotree reveal<cr>]])
   end,
 }

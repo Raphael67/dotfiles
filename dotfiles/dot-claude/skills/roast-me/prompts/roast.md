@@ -8,7 +8,7 @@ You will receive:
 1. **Aggregated analysis**: classified prompt issues with impact, techniques, and rewrites
 2. **Raw prompt examples**: selected prompts with their issues and context
 3. **Stats**: metadata about prompting patterns (effective error rate, correction rate, etc.)
-4. **Compute stats**: model distribution, cost data, thinking usage rates from extraction
+4. **Compute stats**: model distribution, cost data, thinking usage rates from extraction, plus `compute_stats.rtk` (realized + missed token savings from the rtk-ai/rtk CLI proxy, or `{available: false}` if rtk is not installed)
 5. **Compute analysis**: overuse cases, thinking overuse cases, correctly used opus examples, and summary from the compute efficiency analysis phase
 
 ## Important: Be Fair About Errors
@@ -44,6 +44,10 @@ Compute **two independent scores**:
 - Subtract: `(thinking_overuse_count / total_prompts) * 20` (lighter for reasoning overuse)
 - +10 if any non-opus model was used in the period (bonus for trying cheaper models)
 - +10 if compute_efficiency_pct > 0.5 (optimal_cost / actual_cost)
+- **RTK adjustments** (only if `compute_stats.rtk.available` is true):
+  - +10 if `rtk.adoption_rate >= 0.5` (you actually route commands through rtk)
+  - +5 if `0.15 <= rtk.adoption_rate < 0.5` (partial adoption)
+  - Subtract: `min(15, rtk.missed_tokens / 10000)` (1 point per ~10k tokens you mailed straight to Anthropic, capped at -15)
 - Clamp to 0-100
 
 Map both to grade: A (90+), B (80-89), C (70-79), D (60-69), F (<60)
@@ -123,6 +127,33 @@ Show 2-3 cases where Opus was genuinely the right choice from the `correctly_use
 **Tone for this section**: The humor should be about burning money. "You used a nuclear reactor to toast bread" energy. Compare costs to real things ("That $0.31 for reading a file could have bought you 3 Haiku responses that do the exact same thing"). Make fun of the absurdity, not the person.
 
 If the user already uses varied models, praise that! If they're 100% Opus, lean harder on the roast.
+
+#### 4e. RTK Token Savings
+
+You will receive `compute_stats.rtk` from the extraction metadata. RTK (https://github.com/rtk-ai/rtk) is a Rust CLI proxy that compresses Bash tool outputs *before* they enter Claude's input context — directly attacking a cost line item the rest of the compute analysis can't see.
+
+**If `rtk.available` is true**, generate a subsection like this:
+
+| Metric | Value |
+|--------|-------|
+| Realized savings (this period) | `realized_tokens_saved` tokens (~$`estimated_realized_usd` at the period's model mix) |
+| Avg compression on RTK'd commands | `realized_avg_savings_pct`% |
+| Adoption rate | `already_rtk_count` / `total_commands_in_period` (`adoption_rate * 100`%) |
+| **Missed savings** | `missed_tokens` tokens (~$`estimated_missed_usd`) across `missed_commands` raw commands |
+| Top leak | `top_missed[0].command` ran `top_missed[0].count`× — `top_missed[0].tokens` tokens, `top_missed[0].savings_pct`% recoverable via `top_missed[0].rtk_equivalent` |
+
+Then write a short roast paragraph using the `top_missed` list. For each of the top 3 missed commands, say *what* they ran, *how many times*, *how many tokens it leaked*, and *which `rtk <cmd>` would have caught it*. Be concrete — quote the command verbatim. The pricing rate used is `rtk.pricing_rate_per_mtok_usd` per Mtok (weighted by the user's actual model mix).
+
+End with a one-line verdict on adoption:
+- `adoption_rate < 0.10`: "Bro you have rtk installed and you're still mailing tool outputs straight to Anthropic. The hook is *right there*."
+- `0.10 <= adoption_rate < 0.50`: "Partial credit — the hook is firing sometimes. Push the adoption higher."
+- `adoption_rate >= 0.50`: Praise loudly. Mention the realized $ savings as if it's rent money.
+
+**If `rtk.available` is false**, replace the entire 4e subsection with one block:
+
+> 💡 **Missed channel: RTK** — You're not running rtk yet. It's a Rust CLI proxy (https://github.com/rtk-ai/rtk) that compresses Bash tool outputs by 60-90% *before* they enter Claude's context. On the kinds of commands you ran this period (`git status`, `ls -la`, `grep`, `find`, `gh`, `glab`, `kubectl`...), realistic savings sit in the tens of thousands of tokens per week. Install + add the hook and run `/roast-me` again to see real numbers.
+
+**Tone**: praise realized savings like rent money saved; roast missed ones with the literal `head -10` / `ls -la` / `grep -n` commands they ran. The humor should land because the numbers are uncomfortably specific.
 
 ### 5. Technique Toolbox
 

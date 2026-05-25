@@ -11,6 +11,8 @@ import argparse
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
 import time
 from collections import defaultdict
@@ -149,6 +151,104 @@ def load_pricing() -> dict[str, dict]:
         return data
     except (OSError, json.JSONDecodeError):
         return {}
+
+
+def load_rtk_stats(days: int) -> dict:
+    """Pull realized + missed token savings from rtk-ai/rtk.
+
+    Returns a dict with `available: bool` plus, if available, realized stats
+    from `rtk gain --format json` and missed-opportunity stats from
+    `rtk discover -s <days> -a --format json`. Gracefully degrades if rtk
+    is not installed or either command fails.
+    """
+    if not shutil.which("rtk"):
+        return {"available": False, "reason": "rtk binary not on PATH"}
+
+    realized: dict = {}
+    try:
+        r = subprocess.run(
+            ["rtk", "gain", "--format", "json"],
+            capture_output=True, text=True, timeout=10,
+        )
+        if r.returncode == 0 and r.stdout.strip():
+            realized = json.loads(r.stdout).get("summary", {}) or {}
+    except (subprocess.SubprocessError, json.JSONDecodeError, OSError):
+        pass
+
+    missed: dict = {}
+    try:
+        r = subprocess.run(
+            ["rtk", "discover", "-s", str(days), "-a", "--format", "json"],
+            capture_output=True, text=True, timeout=30,
+        )
+        if r.returncode == 0 and r.stdout.strip():
+            missed = json.loads(r.stdout) or {}
+    except (subprocess.SubprocessError, json.JSONDecodeError, OSError):
+        pass
+
+    if not realized and not missed:
+        return {"available": False, "reason": "rtk commands returned no data"}
+
+    supported = missed.get("supported", []) or []
+    missed_tokens = sum(c.get("estimated_savings_tokens", 0) for c in supported)
+    missed_commands = sum(c.get("count", 0) for c in supported)
+    total_commands = missed.get("total_commands", 0)
+    already_rtk = missed.get("already_rtk", 0)
+    adoption_rate = round(already_rtk / total_commands, 3) if total_commands else 0
+
+    top_missed = [
+        {
+            "command": c.get("command"),
+            "count": c.get("count", 0),
+            "tokens": c.get("estimated_savings_tokens", 0),
+            "savings_pct": round(c.get("estimated_savings_pct", 0), 1),
+            "rtk_equivalent": c.get("rtk_equivalent"),
+            "category": c.get("category"),
+        }
+        for c in sorted(
+            supported,
+            key=lambda c: c.get("estimated_savings_tokens", 0),
+            reverse=True,
+        )[:5]
+    ]
+
+    return {
+        "available": True,
+        "realized_tokens_saved": int(realized.get("total_saved", 0)),
+        "realized_input_tokens": int(realized.get("total_input", 0)),
+        "realized_output_tokens": int(realized.get("total_output", 0)),
+        "realized_commands": int(realized.get("total_commands", 0)),
+        "realized_avg_savings_pct": round(realized.get("avg_savings_pct", 0), 1),
+        "missed_tokens": int(missed_tokens),
+        "missed_commands": int(missed_commands),
+        "missed_sessions_scanned": int(missed.get("sessions_scanned", 0)),
+        "missed_since_days": int(missed.get("since_days", days)),
+        "already_rtk_count": int(already_rtk),
+        "total_commands_in_period": int(total_commands),
+        "adoption_rate": adoption_rate,
+        "top_missed": top_missed,
+    }
+
+
+def weighted_input_rate_per_mtok(model_dist: dict, fallback_tier: str = "sonnet") -> float:
+    """Blend per-Mtok input price across the observed model mix.
+
+    RTK savings are tool-output bytes that would have been billed as INPUT on
+    the assistant's next turn. Using the user's actual model mix keeps the $
+    estimate consistent with the rest of the compute analysis.
+    """
+    total_pct = 0.0
+    blended = 0.0
+    for tier, td in model_dist.items():
+        rate = TIER_FALLBACK_PRICING.get(
+            tier, TIER_FALLBACK_PRICING[fallback_tier]
+        )["input"]
+        pct = td.get("pct", 0)
+        blended += rate * pct
+        total_pct += pct
+    if total_pct <= 0:
+        return TIER_FALLBACK_PRICING[fallback_tier]["input"]
+    return blended / total_pct
 
 
 def get_model_tier(model_name: str) -> str:
@@ -584,6 +684,17 @@ def main():
         tier_data["pct"] = round(tier_data["count"] / total, 3) if total else 0
         tier_data["total_cost"] = round(tier_data["total_cost"], 4)
 
+    rtk_stats = load_rtk_stats(args.days)
+    if rtk_stats.get("available"):
+        rate_per_mtok = weighted_input_rate_per_mtok(model_dist)
+        rtk_stats["pricing_rate_per_mtok_usd"] = round(rate_per_mtok, 3)
+        rtk_stats["estimated_realized_usd"] = round(
+            rtk_stats["realized_tokens_saved"] * rate_per_mtok / 1_000_000, 4
+        )
+        rtk_stats["estimated_missed_usd"] = round(
+            rtk_stats["missed_tokens"] * rate_per_mtok / 1_000_000, 4
+        )
+
     compute_stats = {
         "model_distribution": model_dist,
         "thinking_usage_rate": round(thinking_count / total, 3) if total else 0,
@@ -594,6 +705,7 @@ def main():
         "heuristic_overuse_count": overkill_count,
         "heuristic_overuse_rate": round(overkill_count / total, 3) if total else 0,
         "heuristic_savings_usd": round(saveable_cost, 4),
+        "rtk": rtk_stats,
     }
 
     result = {
@@ -623,6 +735,17 @@ def main():
     print(f"Corrections: {corrections} | Avg length: {avg_length:.0f} chars | XML: {xml_count}/{total}")
     print(f"Compute: ${total_cost:.2f} total | ${saveable_cost:.2f} potential savings | {overkill_count} overkill | {thinking_count} with thinking")
     print(f"Models: {', '.join(f'{t}: {d['count']}' for t, d in sorted(model_dist.items()))}")
+    if rtk_stats.get("available"):
+        adoption_pct = rtk_stats["adoption_rate"] * 100
+        print(
+            f"RTK: {rtk_stats['realized_tokens_saved']:,} tokens saved "
+            f"(~${rtk_stats.get('estimated_realized_usd', 0):.2f}) | "
+            f"{rtk_stats['missed_tokens']:,} tokens missed "
+            f"(~${rtk_stats.get('estimated_missed_usd', 0):.2f}) | "
+            f"adoption {adoption_pct:.0f}%"
+        )
+    else:
+        print(f"RTK: unavailable ({rtk_stats.get('reason', 'unknown')})")
     print(f"Output: {args.output}")
 
 

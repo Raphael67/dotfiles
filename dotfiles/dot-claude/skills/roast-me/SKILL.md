@@ -56,6 +56,14 @@ Read the prompts from `/tmp/roast-me-extracted.json`. Also read the `compute_sta
 Compute overview: $X.XX total spend | Y% on Opus | Z prompts flagged as potential overkill
 ```
 
+If `compute_stats.rtk.available` is true, also report:
+
+```
+RTK overview: N tokens already saved (~$X.XX) | M tokens missed (~$Y.YY) | adoption A%
+```
+
+If `available` is false, mention that rtk is not installed / unavailable so the roast section will fall back to the install pitch.
+
 Batch the prompts into groups of ~30 (same batching as Phase 2). For each batch, spawn a **parallel Task subagent** with the compute analysis prompt from `prompts/compute.md`.
 
 Each subagent receives:
@@ -86,7 +94,7 @@ The subagent receives:
 - The top ~15 worst prompt examples (highest severity + real impact, with their analysis including `impact` and `technique` fields)
 - The stats metadata from the extraction (including `effective_error_rate`)
 - A sample of ~10 good prompts (no issues flagged) for the "What You Do Well" section
-- The `compute_stats` from the extraction metadata
+- The `compute_stats` from the extraction metadata (including `compute_stats.rtk` if available — realized + missed RTK token savings)
 - Aggregated compute analysis from Phase 2.5: overuse cases (top ~10 worst), thinking overuse cases, correctly used opus examples, and summary totals
 
 **Tone instruction**: Be funny and use humor throughout. Comedy roast style — every joke should teach something. Pop culture references welcome.
@@ -116,9 +124,17 @@ Read existing history (if any). Append a new entry:
   "compute_efficiency_pct": 0.73,
   "compute_overuse_count": 45,
   "compute_thinking_overuse_count": 12,
-  "model_distribution": {"opus": 0.93, "sonnet": 0.05, "haiku": 0.02}
+  "model_distribution": {"opus": 0.93, "sonnet": 0.05, "haiku": 0.02},
+  "rtk_available": true,
+  "rtk_realized_tokens": 232346,
+  "rtk_missed_tokens": 59794,
+  "rtk_adoption_rate": 0.018,
+  "rtk_estimated_realized_usd": 0.52,
+  "rtk_estimated_missed_usd": 0.13
 }
 ```
+
+If `compute_stats.rtk.available` is false, store `"rtk_available": false` and omit the other rtk fields.
 
 If there are previous entries, show a trend line after the report:
 

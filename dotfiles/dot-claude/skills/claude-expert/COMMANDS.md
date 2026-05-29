@@ -385,6 +385,7 @@ PROMPT: $2
 | `/release-notes` | View release notes with interactive version picker (v2.1.92+) |
 | `/usage` | Token + cost breakdown — merges deprecated `/cost` and `/stats` (v2.1.118+). Per-model + cache-hit breakdown for subscribers; 5-hour and weekly usage shown immediately (v2.1.116+) |
 | `/permissions` | Show available and denied commands; Auto mode displays recent tab with retry option for denied commands (v2.1.89+) |
+| `/code-review [effort]` | Renamed from `/simplify` (v2.1.147). Reports correctness bugs and cleanup opportunities at the chosen effort level. `--fix` flag applies findings to the working tree (v2.1.152). In v2.1.154, `/simplify` was re-introduced as cleanup-only |
 | `/ultrareview` | Dedicated review session identifying bugs and design issues; introduced with Opus 4.7 (Apr 2026). Parallelized checks, diffstat, animation (v2.1.113+) |
 | `/theme` | Create, switch, and customize themes; plugins ship themes (v2.1.118+) |
 | `/color` | Sync session accent color to claude.ai/code (v2.1.118+) |
@@ -393,6 +394,8 @@ PROMPT: $2
 | `/mcp` | Manage MCP servers; shows claude.ai connectors hidden by duplicate manual servers (v2.1.122+) |
 | `/loop [interval] <prompt>` | Run a prompt on a recurring interval (v2.1.71). Esc cancels pending wakeups; "Claude resuming /loop wakeup" displayed on resume (v2.1.113+) |
 | `/resume` | Resume a session; offers to summarize stale large sessions (v2.1.117+); 67% faster on 40MB+ transcripts (v2.1.116+); accepts pasted PR URL to find originating session (v2.1.122+) |
+| `/reload-skills` | Re-scan skill directories without restarting Claude Code (v2.1.152) |
+| `/chrome` | Select which connected browser to use; includes "Select browser…" option for multi-browser setups (v2.1.154) |
 | `/model` | Persist selection across restarts (v2.1.117+); honors `ANTHROPIC_DEFAULT_*_MODEL_NAME` overrides (v2.1.117+); lists models from gateway `/v1/models` when `ANTHROPIC_BASE_URL` points to compatible gateway (v2.1.126+) |
 | `/color` | Sync accent color to claude.ai/code; bare `/color` (no args) picks a random session color (v2.1.128+) |
 

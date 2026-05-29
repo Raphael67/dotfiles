@@ -80,6 +80,16 @@ Custom agents are defined as markdown files with YAML frontmatter.
 
 When multiple agents share the same name, higher-priority location wins.
 
+### `claude agents --json` (v2.1.145)
+
+Output agent status as JSON for scripting (tmux-resurrect, status bars, automation):
+
+```bash
+claude agents --json
+```
+
+Returns a JSON array of active agents with their state, useful for external monitoring tools.
+
 ### /agents Command
 
 Run `/agents` in Claude Code to interactively:
@@ -580,6 +590,8 @@ Stop and SubagentStop hooks now include additional fields:
 | `agent_transcript_path` | (SubagentStop only) Path to subagent transcript file |
 | `agent_id` | (SubagentStop only) Unique subagent identifier |
 | `agent_type` | (SubagentStop only) Agent type name (used for matcher) |
+| `background_tasks` | List of active background tasks at stop time (v2.1.145) |
+| `session_crons` | List of scheduled cron tasks in the session (v2.1.145) |
 
 ## Subagent Hook Events
 

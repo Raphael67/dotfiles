@@ -225,6 +225,7 @@ Notable preference keys observed in production configs:
 | 2026-05-05 | Agents for financial services | Specialized agent offering |
 | 2026-05-06 | Higher usage limits | Increased for subscribers |
 | 2026-05-06 | SpaceX compute deal | Compute infrastructure partnership |
+| 2026-05-28 | Claude Opus 4.8 released | Enhanced agentic tasks, defaults to xhigh effort. Fast mode at 2x rate. Model ID `claude-opus-4-8` |
 
 ## Sources
 

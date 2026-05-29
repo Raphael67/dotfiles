@@ -173,12 +173,20 @@ Start Claude's response to guide format:
 
 | Model | ID | Best For |
 |-------|-----|----------|
+| Opus 4.8 | `claude-opus-4-8` | Hardest agentic tasks; defaults to xhigh effort; fast mode at 2x rate for 2.5x speed |
 | Opus 4.7 | `claude-opus-4-7` | Hardest coding tasks, vision, agentic work requiring top accuracy |
 | Opus 4.6 | `claude-opus-4-6` | Complex reasoning, large codebases, agentic tasks |
 | Sonnet 4.6 | `claude-sonnet-4-6` | Frontier performance for coding, agents, and professional work at scale |
 | Haiku 4.5 | `claude-haiku-4-5-20251001` | Fast, simple tasks |
 
 > **Note**: Opus 4.0 and 4.1 have been removed from Claude Code (v2.1.68). Users are automatically migrated to Opus 4.6. Default Opus model on Bedrock, Vertex, and Microsoft Foundry is now Opus 4.6 (v2.1.73).
+
+### Claude Opus 4.8 (Released May 28, 2026)
+
+- **Defaults to xhigh effort** — best for challenging, long-horizon tasks
+- **Fast mode** — available at 2x standard rate for 2.5x speed; toggle with `/fast`
+- **Lean system prompt** — now default for 4.8 (and all models except Haiku, Sonnet, Opus 4.7 and earlier)
+- **Dynamic Workflows** — ask Claude to create workflows orchestrating 10s–100s of background agents
 
 ### Claude Opus 4.7 Capabilities (Released Apr 16, 2026)
 
@@ -216,6 +224,8 @@ This is re-introduced as a per-turn effort override.
 **Effort level changes (v2.1.72+)**: Simplified to `low`/`medium`/`high` (removed `max` from general use; `max` still available for Opus 4.6 only). Symbols: `○` low, `◐` medium, `●` high. Use `/effort auto` to reset to default. `/effort` works while Claude is responding (v2.1.73+). `/effort` also available as a slash command (v2.1.76+).
 
 **Opus 4.7 effort levels**: Adds `xhigh` (extra high) between `high` and `max` for finer-grained reasoning vs latency tradeoffs.
+
+**Opus 4.8 effort levels**: Defaults to `xhigh` for challenging tasks. `/effort` slider labels changed from "Speed"/"Intelligence" to "Faster"/"Smarter" (v2.1.154).
 
 ### Model Overrides (v2.1.73+)
 

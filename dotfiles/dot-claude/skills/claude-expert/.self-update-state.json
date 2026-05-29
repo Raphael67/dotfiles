@@ -1,7 +1,43 @@
 {
-  "lastUpdateTimestamp": "2026-05-11T12:00:00Z",
-  "lastVersion": "2.1.138",
+  "lastUpdateTimestamp": "2026-05-29T12:00:00Z",
+  "lastVersion": "2.1.156",
   "updateHistory": [
+    {
+      "timestamp": "2026-05-29T12:00:00Z",
+      "version": "2.1.156",
+      "filesUpdated": [
+        "PROMPTING.md",
+        "COMMANDS.md",
+        "SKILLS.md",
+        "HOOKS.md",
+        "SUBAGENTS.md",
+        "MCP.md",
+        "DESKTOP.md"
+      ],
+      "changesApplied": 18,
+      "newFeatures": [
+        "Claude Opus 4.8 launch (v2.1.154) — defaults to xhigh effort, fast mode at 2x rate",
+        "/code-review --fix applies findings to working tree (v2.1.152)",
+        "/code-review renamed from /simplify (v2.1.147); /simplify re-introduced as cleanup-only (v2.1.154)",
+        "/reload-skills re-scans skill directories without restart (v2.1.152)",
+        "MessageDisplay hook event: transform/hide assistant message text (v2.1.152)",
+        "SessionStart hook: reloadSkills: true + sessionTitle fields (v2.1.152)",
+        "disallowed-tools frontmatter field in skills: remove tools during skill execution (v2.1.152)",
+        "defaultEnabled: false in plugin.json (v2.1.154)",
+        "Plugin Discovery tab: shows components before install (v2.1.154)",
+        "pluginSuggestionMarketplaces managed setting (v2.1.152)",
+        "skipLfs plugin option for GitHub/Git plugins (v2.1.153)",
+        "claude agents --json for scripting/status bars (v2.1.145)",
+        "background_tasks and session_crons fields in Stop/SubagentStop hooks (v2.1.145)",
+        "COLUMNS and LINES env vars for status line commands (v2.1.153)",
+        "allowAllClaudeAiMcps managed setting (v2.1.149)",
+        "MCP headersHelper: dynamic auth headers for non-OAuth schemes",
+        "MCP oauth.scopes: pin OAuth scopes to a subset",
+        "MCP streamable-http type alias for http transport",
+        "CLAUDE_PROJECT_DIR set in stdio MCP server environment",
+        "Automatic MCP HTTP/SSE reconnection with exponential backoff"
+      ]
+    },
     {
       "timestamp": "2026-05-11T12:00:00Z",
       "version": "2.1.138",

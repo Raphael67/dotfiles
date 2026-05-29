@@ -90,6 +90,7 @@ Instructions and content...
 | `user-invocable` | No | Set to `false` to hide from `/` menu. Default: `true` |
 | `disable-model-invocation` | No | `true` to prevent Claude from auto-loading. Default: `false` |
 | `allowed-tools` | No | Restrict available tools (e.g., `Read, Grep, Glob`) |
+| `disallowed-tools` | No | Tools to remove/deny while skill is active. Lets skills reduce the available toolset (v2.1.152) |
 | `context` | No | Set to `fork` to run in forked subagent context |
 | `agent` | No | Agent type when `context: fork` (e.g., `Explore`, `Plan`, custom) |
 | `model` | No | Model to use (`sonnet`, `opus`, `haiku`) |
@@ -109,7 +110,8 @@ Claude Code ships with these bundled skills:
 
 | Skill | Description |
 |-------|-------------|
-| `/simplify` | Reviews recently changed files for code reuse, quality, and efficiency. Spawns 3 parallel review agents |
+| `/simplify` | Cleanup-only review: runs quality/efficiency checks and applies fixes. Redesigned in v2.1.154 |
+| `/code-review [effort]` | Reports correctness bugs and cleanup at chosen effort level. `--fix` applies findings to working tree (v2.1.152) |
 | `/batch <instruction>` | Orchestrates large-scale parallel changes across a codebase. Decomposes into 5-30 units, each in an isolated git worktree |
 | `/debug [description]` | Troubleshoots current Claude Code session by reading debug logs. Toggles debug logging on mid-session (v2.1.71) |
 | `/loop [interval] <prompt>` | Runs a prompt repeatedly on an interval (e.g., `/loop 5m check the deploy`). Schedules recurring cron tasks within the session (v2.1.71) |
@@ -743,6 +745,10 @@ my-plugin/
 - Plugin cache at `~/.claude/plugins/cache`
 - Reload after changes: `/reload-plugins`
 - **Plugin executables** (v2.1.91+): Plugins can ship executables under `bin/` that are invoked as bare commands (e.g., `my-plugin` runs `<plugin-root>/bin/my-plugin`)
+- **`defaultEnabled: false`** in `plugin.json` (v2.1.154): Plugin starts disabled by default; user must explicitly enable it
+- **Plugin Discovery tab** (v2.1.154): Shows commands, agents, skills, hooks, MCP/LSP servers before installing
+- **`pluginSuggestionMarketplaces`** managed setting (v2.1.152): Org-level allowlist for suggested plugins
+- **`skipLfs`** option (v2.1.153): Skip Git LFS downloads for GitHub/Git plugins
 
 ### LSP Servers in Plugins (Code Intelligence)
 

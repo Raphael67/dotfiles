@@ -35,6 +35,7 @@ Hooks are scripts or prompts that execute in response to Claude Code events. The
 | `PermissionDenied` | Permission auto-denied by classifier (v2.1.89+) | React to denied operations, logging, recovery |
 | `TaskCreated` | Task created via TaskCreate (v2.1.84+) | Task validation, logging |
 | `Notification` | Claude sends notification | Desktop notifications |
+| `MessageDisplay` | Assistant message about to be displayed (v2.1.152) | Transform or hide assistant message text during display |
 
 ## Setup Hook (claude --init)
 
@@ -168,6 +169,21 @@ env_file = os.environ.get('CLAUDE_ENV_FILE')
 if env_file:
     with open(env_file, 'a') as f:
         f.write('export MY_VAR="value"\n')
+```
+
+### SessionStart: reloadSkills and session title (v2.1.152)
+
+SessionStart hooks can return `reloadSkills: true` to trigger a skills re-scan, and can set the session title:
+
+```python
+output = {
+    "hookSpecificOutput": {
+        "hookEventName": "SessionStart",
+        "reloadSkills": True,
+        "sessionTitle": "My Project — main branch"
+    }
+}
+print(json.dumps(output))
 ```
 
 ### SessionStart Context Injection

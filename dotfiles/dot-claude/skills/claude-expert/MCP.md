@@ -491,6 +491,60 @@ MCP servers can send `list_changed` notifications to dynamically update their av
 
 `workspace` is a reserved MCP server name. Do not use it for custom server configurations.
 
+### `streamable-http` Transport Alias
+
+When configuring servers via JSON (`.mcp.json`, `~/.claude.json`, or `claude mcp add-json`), `"type": "streamable-http"` is accepted as an alias for `"type": "http"`. The MCP spec uses `streamable-http`; Claude Code accepts both so configs copied from server docs work without modification.
+
+### `headersHelper` — Dynamic Authentication Headers
+
+For auth schemes other than OAuth (Kerberos, short-lived tokens, internal SSO), use `headersHelper` to generate headers at connection time:
+
+```json
+{
+  "mcpServers": {
+    "internal-api": {
+      "type": "http",
+      "url": "https://mcp.internal.example.com",
+      "headersHelper": "/opt/bin/get-mcp-auth-headers.sh"
+    }
+  }
+}
+```
+
+The helper runs in a shell with a 10-second timeout. It must write a JSON object of string key-value pairs to stdout. Dynamic headers override static `headers` with the same name. Claude Code sets `CLAUDE_CODE_MCP_SERVER_NAME` and `CLAUDE_CODE_MCP_SERVER_URL` env vars so a single helper script can serve multiple servers.
+
+### `oauth.scopes` — Restrict OAuth Scope
+
+Pin the OAuth scopes Claude Code requests, overriding what the server advertises:
+
+```json
+{
+  "mcpServers": {
+    "slack": {
+      "type": "http",
+      "url": "https://mcp.slack.com/mcp",
+      "oauth": {
+        "scopes": "channels:read chat:write search:read"
+      }
+    }
+  }
+}
+```
+
+Space-separated string (RFC 6749 §3.3 format). Takes precedence over `authServerMetadataUrl` and server-advertised scopes.
+
+### `CLAUDE_PROJECT_DIR` in Stdio Server Environment
+
+Claude Code sets `CLAUDE_PROJECT_DIR` in the spawned stdio server's environment to the project root. Servers can read `process.env.CLAUDE_PROJECT_DIR` (Node) or `os.environ["CLAUDE_PROJECT_DIR"]` (Python) to resolve project-relative paths without depending on the working directory. In `.mcp.json` `command`/`args`, reference it as `${CLAUDE_PROJECT_DIR:-.}` (with fallback) since it's set in the server's environment, not Claude Code's own env.
+
+### Automatic Reconnection for HTTP/SSE Servers
+
+If an HTTP or SSE server disconnects mid-session, Claude Code automatically reconnects with exponential backoff: up to five attempts, starting at 1 second and doubling each time. Server appears as pending in `/mcp` during reconnection; marked failed after five attempts. The same backoff applies at initial startup for transient errors (5xx, connection refused, timeout). Authentication and 404 errors are not retried.
+
+### `allowAllClaudeAiMcps` Managed Setting (v2.1.149)
+
+Enterprise managed setting that allows all claude.ai MCP connectors to be available in Claude Code for org users.
+
 ### `alwaysLoad` Server Option (v2.1.121+)
 
 Set `alwaysLoad: true` on an MCP server config to skip ToolSearch deferral. Tools from that server are loaded directly into the toolset rather than fetched on-demand by `ToolSearch`. Use for small servers where the latency of search-then-load isn't worth the context savings, or for servers whose tools you want callable without the model first having to search for them.

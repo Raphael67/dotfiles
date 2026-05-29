@@ -4,7 +4,7 @@ description: >
   Lightweight Haiku agent for simple questions and shell commands.
   Handles read-only queries, git operations, test runs, and lookups.
   Spawned by the router for tasks that need no file edits.
-model: haiku
+model: claude-haiku-4-5
 effort: low
 allowed-tools:
   - Read

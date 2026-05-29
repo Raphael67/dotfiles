@@ -4,7 +4,7 @@ description: >
   Opus planning agent. Explores codebase, designs implementation plans,
   saves as markdown with model recommendation. Returns plan path to
   the router when done. Spawned by the router agent for planning tasks.
-model: opus
+model: claude-opus-4-8
 reasoning: high
 allowed-tools: Read, Grep, Glob, Bash, Write, AskUserQuestion,
   WebSearch, WebFetch, ToolSearch, Skill
@@ -45,7 +45,7 @@ Write the plan to `.claude/plans/<slug>.md` using this format:
 
 ```markdown
 ---
-model-recommendation: sonnet | opus
+model-recommendation: claude-sonnet-4-7 | claude-opus-4-8
 estimated-complexity: low | medium | high
 created: <ISO 8601 timestamp>
 ---
@@ -79,8 +79,8 @@ created: <ISO 8601 timestamp>
 ```
 
 **Model recommendation guidelines:**
-- `sonnet` — for plans with clear steps, moderate complexity, well-understood patterns
-- `opus` — for plans requiring deep architectural reasoning, complex refactoring, or unfamiliar territory
+- `claude-sonnet-4-7` — for plans with clear steps, moderate complexity, well-understood patterns
+- `claude-opus-4-8` — for plans requiring deep architectural reasoning, complex refactoring, or unfamiliar territory
 
 ### 6. Return Results to the Router
 
@@ -88,7 +88,7 @@ After saving the plan, your final output message MUST include these exact lines 
 
 ```
 PLAN_PATH: .claude/plans/<slug>.md
-MODEL_RECOMMENDATION: sonnet|opus
+MODEL_RECOMMENDATION: claude-sonnet-4-7|claude-opus-4-8
 COMPLEXITY: low|medium|high
 ```
 

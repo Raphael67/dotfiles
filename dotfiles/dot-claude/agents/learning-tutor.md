@@ -6,7 +6,7 @@ description: >
   Tracks progress and writes a summary at completion.
   Use when: continue learning, resume study, practice exercises, review module,
   tutoring session, teach me, next lesson.
-model: sonnet
+model: claude-sonnet-4-7
 reasoning: medium
 tools: Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch, AskUserQuestion,
   mcp__context7__resolve-library-id, mcp__context7__query-docs

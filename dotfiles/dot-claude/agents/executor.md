@@ -4,7 +4,7 @@ description: >
   Implementation executor. Receives a task or plan path and implements it.
   Model is set dynamically by the router based on complexity.
   Spawned by the router agent.
-model: sonnet
+model: claude-sonnet-4-7
 reasoning: medium
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, AskUserQuestion,
   WebSearch, WebFetch, ToolSearch, Skill, LSP

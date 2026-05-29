@@ -75,6 +75,7 @@ cask "zen"
 cask "bitwarden"
 cask "google-chrome"
 brew "neovim"
+brew "tree-sitter-cli" # required by nvim-treesitter (main branch) to compile parsers
 brew "stow"
 cask "bambu-studio"
 cask "google-drive"

@@ -1,7 +1,10 @@
 -- Fuzzy Finder (files, lsp, etc)
 return {
 	"nvim-telescope/telescope.nvim",
-	branch = "0.1.x",
+	-- master (not 0.1.x): the 0.1.x branch is stale (last updated 2024) and its
+	-- previewer calls nvim-treesitter.parsers.ft_to_lang(), which the treesitter
+	-- `main` rewrite removed. master uses the built-in vim.treesitter.language.get_lang().
+	branch = "master",
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 		-- Fuzzy Finder Algorithm which requires local dependencies to be built.

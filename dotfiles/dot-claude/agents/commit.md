@@ -8,7 +8,7 @@ description: >
   Use when: committing changes, splitting commits, staging files, writing
   commit messages, "commit and push", "fais des commits", "commite ces
   modifications", "ship it", grouping changes by feature.
-model: claude-haiku-4-5
+model: haiku
 reasoning: low
 tools: Read, Glob, Grep, Bash
 ---

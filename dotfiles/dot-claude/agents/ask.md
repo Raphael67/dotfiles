@@ -9,7 +9,7 @@ description: >
   "comment marche", "explique", "est-ce que", "comment faire". Do NOT use
   for tasks requiring code changes, debugging real issues, or multi-file
   analysis — those belong to the main session.
-model: claude-haiku-4-5
+model: haiku
 reasoning: low
 tools: Read, Glob, Grep, WebFetch, WebSearch
 ---

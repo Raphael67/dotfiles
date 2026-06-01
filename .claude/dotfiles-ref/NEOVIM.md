@@ -163,18 +163,25 @@ return {
 
 ### LSP Keymaps (on attach)
 
+Navigation keymaps (`gd`, `gr`, `gI`, `<leader>D`, `<leader>ds`, `<leader>ws`) are routed through **Telescope builtins** so results open in a picker; rename/code-action/hover use `vim.lsp.buf.*` directly:
+
 ```lua
 vim.api.nvim_create_autocmd("LspAttach", {
     callback = function(event)
         local opts = { buffer = event.buf }
-        vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-        vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+        local tb = require("telescope.builtin")
+        vim.keymap.set("n", "gd", tb.lsp_definitions, opts)       -- Telescope picker
+        vim.keymap.set("n", "gr", tb.lsp_references, opts)        -- Telescope picker
+        vim.keymap.set("n", "gI", tb.lsp_implementations, opts)   -- Telescope picker
+        vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
         vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
         vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
         vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
     end,
 })
 ```
+
+> **Neovim 0.12 LSP API:** Use the **method-call form** `client:supports_method("textDocument/formatting")` (colon). The old dot-call `client.supports_method(...)` is deprecated in 0.12. Also: `vim.lsp.semantic_tokens.start()/stop()` were renamed to `enable()`, and JSON `null` in LSP messages is now `vim.NIL` (not `nil`).
 
 ### Adding a New Language Server
 
@@ -197,42 +204,63 @@ vim.api.nvim_create_autocmd("LspAttach", {
    })
    ```
 
-## Treesitter Configuration
+## Treesitter Configuration (`main` branch — Neovim 0.12+)
+
+> **Important:** `nvim-treesitter` was archived (read-only) on **2026-04-03**. This repo migrated to the `main` branch (pinned to a known-good commit, `pin = true`), which has a **completely different API** from the old `master` branch. The legacy `require("nvim-treesitter.configs").setup({...})` module **no longer exists** — using it throws a `require` error.
+
+Key differences on `main`:
+
+| `master` (old) | `main` (current) |
+|----------------|------------------|
+| `require("nvim-treesitter.configs").setup{}` | `require("nvim-treesitter").setup()` |
+| `ensure_installed` / `auto_install` options | manual `require("nvim-treesitter").install({...})` |
+| `highlight = { enable = true }` | `pcall(vim.treesitter.start)` in a `FileType` autocmd |
+| `indent = { enable = true }` | `vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"` |
+| `incremental_selection` module | **no replacement** (dropped) |
+| supports lazy-loading | `lazy = false` required |
 
 ```lua
 -- lua/plugins/treesitter.lua
+local ensure_installed = { "lua", "python", "javascript", "typescript", "json", "yaml", "markdown", "bash" }
+
 return {
     "nvim-treesitter/nvim-treesitter",
+    branch = "main",
+    commit = "<pinned-sha>",
+    pin = true,        -- archived upstream; never auto-update
+    lazy = false,      -- the `main` branch does not support lazy-loading
     build = ":TSUpdate",
     config = function()
-        require("nvim-treesitter.configs").setup({
-            ensure_installed = {
-                "lua", "python", "javascript", "typescript",
-                "json", "yaml", "markdown", "bash",
-            },
-            auto_install = true,
-            highlight = { enable = true },
-            indent = { enable = true },
-            incremental_selection = {
-                enable = true,
-                keymaps = {
-                    init_selection = "<C-space>",
-                    node_incremental = "<C-space>",
-                    node_decremental = "<M-space>",
-                },
-            },
+        require("nvim-treesitter").setup()
+
+        -- Install missing parsers (replaces ensure_installed / auto_install)
+        local installed = require("nvim-treesitter.config").get_installed()
+        local to_install = vim.iter(ensure_installed)
+            :filter(function(p) return not vim.tbl_contains(installed, p) end)
+            :totable()
+        if #to_install > 0 then require("nvim-treesitter").install(to_install) end
+
+        -- Enable highlight + indent per-buffer on FileType
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = ensure_installed,
+            callback = function()
+                pcall(vim.treesitter.start)   -- highlighting (Neovim built-in)
+                vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+            end,
         })
     end,
 }
 ```
 
+> `nvim-treesitter-textobjects` also migrated to its `main` branch with a new imperative API (`require("nvim-treesitter-textobjects.select/swap/move")`) — see `treesitter.lua` for the full keymap set.
+
 ### Adding Language Support
+
+Add the parser name to the `ensure_installed` table (it installs on next launch), or install ad-hoc:
 
 ```vim
 :TSInstall <language>
 ```
-
-Or add to `ensure_installed` list.
 
 ## Catppuccin Theme
 
@@ -365,7 +393,7 @@ vim.diagnostic.config({
         },
     },
     underline = true,
-    update_in_insert = false,
+    update_in_insert = true,   -- show diagnostics while typing (this repo's setting)
     severity_sort = true,
     float = {
         border = "rounded",

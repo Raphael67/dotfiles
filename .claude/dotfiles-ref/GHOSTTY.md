@@ -8,6 +8,8 @@ dotfiles/dot-config/ghostty/config -> ~/.config/ghostty/config
 
 macOS alternative: `~/Library/Application Support/com.mitchellh.ghostty/config`
 
+> **Filename (1.2.3+):** The preferred config filename is now `config.ghostty`. The plain `config` name (used by this repo) remains supported for backward compatibility; if both exist, `config.ghostty` takes precedence.
+
 ## Configuration Syntax
 
 ```ini
@@ -131,6 +133,18 @@ macos-icon = official    # official, blueprint, xray, custom, etc.
 macos-secure-input-indication = true
 ```
 
+### Background Blur
+
+```ini
+# Requires background-opacity < 1
+background-opacity = 0.9
+background-blur = 20                  # false = 0, true = 20, or an integer intensity
+background-blur = macos-glass-regular # macOS 26.0+ native "liquid glass" effect
+background-blur = macos-glass-clear   # macOS 26.0+ highly transparent glass
+```
+
+> The key is `background-blur` (boolean or integer). There is **no** `background-blur-radius` key — older configs using it should migrate. On Linux, blur works only on KDE Plasma (Wayland/X11), using the compositor's global intensity.
+
 ## Shell Integration
 
 ### Supported Shells
@@ -141,7 +155,7 @@ macos-secure-input-indication = true
 | zsh | Yes |
 | fish | Yes |
 | elvish | Yes |
-| nushell | Built-in support |
+| nushell | Yes (auto-injected like bash/zsh) |
 
 ### Configuration
 
@@ -182,14 +196,14 @@ command = /opt/homebrew/bin/nu
 shell-integration = detect
 ```
 
-Nushell has built-in Ghostty shell integration — no manual sourcing needed.
+Nushell is auto-injected by Ghostty just like bash/zsh — no manual sourcing needed.
 
 ### Features Enabled
 
 - Prompt awareness (no close confirmation at prompt)
 - Directory persistence (new terminals open in current dir)
 - Smart prompt resize
-- Command output selection (`Ctrl/Cmd + click`)
+- Command output selection (`Ctrl+Triple-click`, `Cmd` on macOS)
 - Prompt navigation in scrollback
 - `Alt + click` cursor positioning
 
@@ -349,13 +363,22 @@ ghostty +show-config --default --docs
 
 ## Remote Server Setup
 
-When Ghostty renders incorrectly on remote servers, export terminfo:
+When Ghostty renders incorrectly on remote servers, use the built-in SSH wrapper (1.3.0+):
+
+```bash
+ghostty +ssh user@host
+```
+
+- Drop-in `ssh` replacement that prepares the remote session
+- `--forward-env` (default): forwards `COLORTERM`, `TERM_PROGRAM`, `TERM_PROGRAM_VERSION`
+- `--terminfo` (default): auto-installs `xterm-ghostty` terminfo on the remote, cached per `user@hostname`; falls back to `xterm-256color` if install fails
+- Limitation: not inherited by child processes (scripts, AWS/gcloud CLIs, cron)
+
+Manual fallback (older approach) — export terminfo directly:
 
 ```bash
 infocmp -x | ssh user@host -- tic -x -
 ```
-
-This installs Ghostty's terminfo on the remote server.
 
 ## New Features (1.1.0 - 1.3.0)
 
@@ -398,15 +421,15 @@ link-previews = true
 
 ### Shell Integration Features
 
-Granular control over shell integration features:
+Granular control over shell integration features. List features to enable, or prefix with `no-` to disable a default (`no-cursor`, `no-sudo`, `no-wait-for-prompt`):
 
 ```ini
-shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo,path
+shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo
 ```
 
 **SSH Integration (Ghostty 1.3.0+):**
-- `ssh-env`: Sets TERM to xterm-256color on remote hosts, forwards environment variables
-- `ssh-terminfo`: Auto-installs Ghostty's terminfo on remote hosts (replaces manual `infocmp` export)
+- `ssh-env`: Forwards `COLORTERM`, `TERM_PROGRAM`, and `TERM_PROGRAM_VERSION` so remote shells can detect Ghostty
+- `ssh-terminfo`: Auto-installs Ghostty's `xterm-ghostty` terminfo on remote hosts (replaces manual `infocmp` export)
 
 ### Palette Generation (Ghostty 1.3.0+)
 

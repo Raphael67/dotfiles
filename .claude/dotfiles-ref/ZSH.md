@@ -30,13 +30,13 @@ Zsh loads files in this order:
 
 ## XDG Environment Variables
 
-Set early in `dot-zshrc` to ensure all tools respect XDG paths:
+Set in `dot-zprofile` (lines 2–5) so they're available to login shells and GUI apps before `dot-zshrc` runs. `dot-zshrc` then derives tool-specific paths from them (HISTFILE, CARGO_HOME, etc.):
 
 ```zsh
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
-export XDG_STATE_HOME="$HOME/.local/state"
 export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_STATE_HOME="$HOME/.local/state"
 ```
 
 Tools that use these:
@@ -300,8 +300,8 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main cursor)
 typeset -A ZSH_HIGHLIGHT_STYLES
 ZSH_HIGHLIGHT_STYLES[command]='fg=#8aadf4'        # blue
 ZSH_HIGHLIGHT_STYLES[alias]='fg=#a6da95'           # green
-ZSH_HIGHLIGHT_STYLES[builtin]='fg=#ed8796'         # red
-ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=#ed8796'   # red
+ZSH_HIGHLIGHT_STYLES[builtin]='fg=#8aadf4'         # blue
+ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=#8aadf4'   # blue
 ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=#a6da95'
 ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=#a6da95'
 ZSH_HIGHLIGHT_STYLES[path]=none
@@ -400,7 +400,9 @@ Replaces zsh's default tab completion with fzf. Configured via zstyle in `dot-zs
 
 ### eza (ls replacement)
 ```zsh
-alias ls="eza --all --icons=always"
+# aliases.zsh defines a simple form, but dot-zshrc (line 330) redefines `ls`
+# afterwards, so this richer alias is what actually runs:
+alias ls="eza -g -s Name --group-directories-first --time-style long-iso --icons=auto --git"
 ```
 
 ### bat (cat replacement)
@@ -463,6 +465,23 @@ fi
 
 ```zsh
 fpath=($HOME/.docker/completions $fpath)
+```
+
+### rclone Config Decryption
+
+```zsh
+if type rclone &>/dev/null; then
+  export RCLONE_PASSWORD_COMMAND="security find-generic-password -a rclone -s rclone-config -w"
+fi
+```
+
+Decrypts the rclone config on use via the macOS Keychain — no plaintext password on disk.
+
+### Claude Code Feature Flags
+
+```zsh
+export CLAUDE_CODE_NEW_INIT=1       # Multi-phase interactive /init flow
+export CLAUDE_CODE_FORK_SUBAGENT=1  # Forked subagents for context isolation
 ```
 
 ### Bun JavaScript Runtime

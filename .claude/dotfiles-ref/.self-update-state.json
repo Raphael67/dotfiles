@@ -1,0 +1,46 @@
+{
+  "lastUpdateTimestamp": "2026-05-31T00:00:00Z",
+  "updateHistory": [
+    {
+      "timestamp": "2026-05-31T00:00:00Z",
+      "filesUpdated": [
+        "GHOSTTY.md",
+        "STARSHIP.md",
+        "TOOLS.md",
+        "ZSH.md",
+        "TMUX.md",
+        "NEOVIM.md",
+        "STOW.md"
+      ],
+      "changesApplied": 30,
+      "configBugsFlagged": [
+        "dot-zprofile: 3 duplicate unguarded `brew shellenv` lines (42,44,46)",
+        "dot-config/ghostty/config: `background-blur-radius` is not a valid Ghostty key"
+      ]
+    },
+    {
+      "timestamp": "2026-04-14T00:00:00Z",
+      "filesUpdated": [
+        "GHOSTTY.md",
+        "STOW.md",
+        "TMUX.md",
+        "NEOVIM.md",
+        "ZSH.md",
+        "TOOLS.md",
+        "STARSHIP.md"
+      ],
+      "changesApplied": 17
+    },
+    {
+      "timestamp": "2026-03-09T00:00:00Z",
+      "filesUpdated": [
+        "GHOSTTY.md",
+        "STARSHIP.md",
+        "ZSH.md",
+        "TMUX.md",
+        "NEOVIM.md"
+      ],
+      "changesApplied": 22
+    }
+  ]
+}

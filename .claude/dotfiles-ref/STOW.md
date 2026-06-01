@@ -34,6 +34,7 @@ dotfiles/
 --target=~/
 --dotfiles
 --ignore='\.DS_Store'
+--ignore='cli-plugins'
 ```
 
 | Option | Effect |
@@ -41,7 +42,10 @@ dotfiles/
 | `--dir=./dotfiles` | Stow directory is `./dotfiles/` |
 | `--target=~/` | Symlinks go to home directory |
 | `--dotfiles` | `dot-` prefix converts to `.` |
-| `--ignore` | Patterns to skip |
+| `--ignore='\.DS_Store'` | Skip macOS Finder metadata files |
+| `--ignore='cli-plugins'` | Skip Docker CLI plugins dir (not stow-managed) |
+
+> `.stowrc` values support variable expansion (`$VAR` / `${VAR}`); escape with a backslash to keep a literal `$`.
 
 ### The --dotfiles Flag
 
@@ -99,10 +103,21 @@ stow -vv .
 | `-S` | `--stow` | Stow packages (default) |
 | `-D` | `--delete` | Unstow packages |
 | `-R` | `--restow` | Restow (unstow then stow) |
-| `-n` | `--simulate` | Dry run |
+| `-n` | `--no` / `--simulate` | Dry run (both long forms are aliases) |
 | `-v` | `--verbose` | Increase verbosity |
 | `-d` | `--dir=DIR` | Set stow directory |
 | `-t` | `--target=DIR` | Set target directory |
+
+### Mixing Actions in One Invocation
+
+Action flags can be combined in a single call to swap packages atomically:
+
+```bash
+# Unstow old-package and stow new-package in one pass
+stow -D old-package -S new-package .
+```
+
+Stow scans all actions together (two-phase), so the swap aborts cleanly if it would conflict.
 
 ## Adding New Dotfiles
 
@@ -387,6 +402,16 @@ ls -la ~ | grep "^l"
 
 # Find all symlinks pointing to dotfiles
 find ~ -maxdepth 2 -type l -ls 2>/dev/null | grep dotfiles
+```
+
+### Auditing with chkstow
+
+`chkstow` ships with stow and audits the **target** directory:
+
+```bash
+chkstow --badlinks   # Symlinks that don't point into a stow dir (dangling)
+chkstow --aliens     # Files in the target NOT managed by stow
+chkstow --list       # Packages currently stowed into the target
 ```
 
 ## Best Practices

@@ -26,6 +26,7 @@ format = "..."              # Overall prompt layout
 right_format = "..."        # Right-aligned elements
 add_newline = true          # Blank line before prompt
 palette = "name"            # Active color palette
+follow_symlinks = true      # Follow symlinks for git/dir detection (default true)
 
 # Module configuration
 [module_name]
@@ -50,7 +51,7 @@ Starship format strings use three core elements:
 ### Disabled-by-Default Modules
 
 These modules must be explicitly enabled in your config:
-- Azure, CPP, Direnv, Fossil Branch, Fossil Metrics, Git Metrics, Kubernetes
+- Azure, CPP, Direnv, Fossil Branch, Fossil Metrics, Git Metrics, Guix Shell, Kubernetes, Nix Shell, OpenStack
 
 ## Current Prompt Format
 
@@ -359,6 +360,10 @@ disabled = false
 ssh_only = false
 style = "fg:#cad3f5 bg:#494d64"
 format = "[ $hostname ]($style)"
+# Show hostname when any of these env vars is set (e.g. inside a container)
+detect_env_vars = ['SSH_CONNECTION']
+# Rename hostnames in the prompt
+aliases = { "my-long-hostname" = "mlh" }
 ```
 
 ### Username
@@ -471,18 +476,24 @@ Starship includes built-in presets:
 starship preset --list
 
 # Apply a preset (overwrites config!)
-starship preset nerd-font-symbols -o ~/.config/starship.toml
+starship preset nerd-font-symbols -o ~/.config/starship/starship.toml
 ```
+
+> Note the target is `~/.config/starship/starship.toml` (this repo's `STARSHIP_CONFIG`), **not** `~/.config/starship.toml`.
 
 **Available presets:**
 - nerd-font-symbols
 - no-nerd-font
+- no-empty-icons
 - bracketed-segments
 - plain-text-symbols
 - no-runtime-versions
 - pastel-powerline
 - tokyo-night
 - gruvbox-rainbow
+- catppuccin-powerline
+- jetpack
+- pure-preset
 
 ## Troubleshooting
 

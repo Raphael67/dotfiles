@@ -97,15 +97,19 @@ Gitleaks runs automatically on every commit via a global pre-commit hook:
 
 ## Detailed Documentation
 
-The **dotfiles skill** (source: `dotfiles/dot-claude/skills/dotfiles/`, deployed: `~/.claude/skills/dotfiles/`) provides comprehensive documentation:
+Guidance is delivered through **path-scoped rules** in `./.claude/rules/` (project-local). Each rule has `paths:` frontmatter, so Claude Code auto-loads it on demand when you edit a matching config file — no need to invoke anything.
 
-- **ZSH.md** - Shell config, aliases, Oh-My-Zsh, lazy loading
-- **NEOVIM.md** - Editor config, plugins, LSP
-- **TMUX.md** - Multiplexer, TPM plugins, keybindings
-- **STARSHIP.md** - Prompt configuration
-- **GHOSTTY.md** - Terminal settings
-- **STOW.md** - Symlink management
-- **TOOLS.md** - CLI tools (bat, eza, fzf, zoxide, lazygit, bitwarden)
-- **TROUBLESHOOTING.md** - Common issues and fixes
+| Rule | Auto-loads when editing | Full reference |
+|------|-------------------------|----------------|
+| `rules/nvim.md` | `dotfiles/dot-config/nvim/**` | `dotfiles-ref/NEOVIM.md` |
+| `rules/tmux.md` | `dotfiles/dot-config/tmux/**` | `dotfiles-ref/TMUX.md` |
+| `rules/zsh.md` | `dot-zshrc`, `dot-zprofile`, `dot-config/zsh/**` | `dotfiles-ref/ZSH.md` |
+| `rules/starship.md` | `dotfiles/dot-config/starship/**` | `dotfiles-ref/STARSHIP.md` |
+| `rules/ghostty.md` | `dotfiles/dot-config/ghostty/**` | `dotfiles-ref/GHOSTTY.md` |
+| `rules/nushell.md` | `dotfiles/dot-config/nushell/**` | `dotfiles-ref/TOOLS.md` |
+| `rules/cli-tools.md` | `dot-config/{bat,lazygit,atuin,direnv,television,glow}/**` | `dotfiles-ref/TOOLS.md` |
+| `rules/stow.md` | `.stowrc`, `**/.stow-local-ignore` | `dotfiles-ref/STOW.md` |
 
-The skill auto-loads when working with shell, editor, terminal, or config topics.
+- **Lean rules** (`./.claude/rules/`) hold the key conventions and gotchas; they auto-inject.
+- **Full reference docs** (`./.claude/dotfiles-ref/`) are read on demand — also `TROUBLESHOOTING.md`, `WINDOWS.md`, and `THEME-XDG.md` (Catppuccin palette + XDG tables), which have no single file glob.
+- **`/dotfiles-selfupdate`** (`./.claude/commands/`) refreshes the reference docs against upstream documentation and flags any rule that drifted.

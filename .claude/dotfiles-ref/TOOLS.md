@@ -292,6 +292,8 @@ dotfiles/dot-config/nushell/config.nu -> $XDG_CONFIG_HOME/nushell/config.nu
 dotfiles/dot-config/nushell/env.nu -> $XDG_CONFIG_HOME/nushell/env.nu
 ```
 
+> **macOS path caveat:** Nushell's default config dir on macOS is `~/Library/Application Support/nushell/`. It only uses `~/.config/nushell/` when `XDG_CONFIG_HOME` is set (which this repo does, in `dot-zprofile`). Verify with `$nu.default-config-dir`.
+
 ### Key Differences from Bash/Zsh
 
 | Concept | Bash/Zsh | Nushell |
@@ -347,7 +349,20 @@ $env.PROMPT_COMMAND = { create_left_prompt }
 
 **Config loading order:** env.nu → config.nu → vendor autoload → user autoload → login.nu
 
-> **Note:** Modern Nushell practice consolidates environment setup into `config.nu` rather than maintaining a separate `env.nu`.
+> **Note:** Current best-practice recommendation is to consolidate environment setup into `config.nu`. `env.nu` still exists and loads first, but it is no longer required for most setups.
+
+**Modular config (user autoload):** to split config across files, drop `.nu` files into a dir on `$nu.user-autoload-dirs` (they load alphabetically after `config.nu`):
+
+```nushell
+$env.config.user_autoload_dirs ++= [($nu.default-config-dir | path join 'scripts')]
+```
+
+**Path management:** prefer the stdlib helper over mutating `$env.PATH` directly:
+
+```nushell
+use std/util "path add"
+path add "~/.local/bin"
+```
 
 **Important behaviors:**
 - `$env.config` settings are **not inherited** by child processes — export variables if they need to persist
@@ -360,6 +375,7 @@ $env.PROMPT_COMMAND = { create_left_prompt }
 | `nu -n` | Skip all config file loading |
 | `nu --no-std-lib` | Standard library unavailable |
 | `nu -l` | Login shell (runs login.nu) |
+| `nu -c "cmd"` | Run a command then exit (skips REPL and most config) |
 | `nu -n --no-std-lib` | Fastest startup (scripts) |
 
 ---

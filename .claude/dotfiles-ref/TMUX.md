@@ -8,7 +8,8 @@ dotfiles/dot-config/tmux/
 ├── tmux.reset.conf        # Reset to defaults
 ├── tmux.catppuccin.conf   # Catppuccin theme configuration
 ├── tmux.custom.conf       # Custom settings, keybindings
-├── scripts/               # Helper scripts
+├── scripts/               # Helper scripts (claude-info.sh: reads ~/.claude/tmux-model-info,
+│                          #   written by a SessionStart hook, to show the Claude model/agent; cal.sh)
 └── plugins/               # TPM plugins directory
     ├── tpm/               # Plugin manager
     ├── tmux-sensible/
@@ -122,7 +123,7 @@ Configured in `tmux.custom.conf` with `is_vim` shell check — detects nvim/vim/
 | Key | Action |
 |-----|--------|
 | `prefix + v` | Split horizontal (right) |
-| `prefix + %` | Split vertical (down) |
+| `prefix + %` | Split vertical/down (remapped — standard tmux `%` is horizontal) |
 | `prefix + b` | Break pane to new window |
 | `prefix + j` | Join pane from another window (horizontal) |
 | `prefix + J` | Join pane from another window (vertical) |
@@ -171,11 +172,11 @@ Manual save/restore:
 
 ### tmux-continuum
 
-Auto-saves every 15 minutes. Configure in tmux.conf:
+Auto-saves every 15 minutes (the default). This repo's `tmux.conf` only enables restore:
 
 ```tmux
-set -g @continuum-restore 'on'      # Auto-restore on tmux start
-set -g @continuum-save-interval '15' # Save interval (minutes)
+set -g @continuum-restore 'on'       # Auto-restore on tmux start
+# set -g @continuum-save-interval '15' # Optional override (minutes); default is 15
 ```
 
 ## Catppuccin Theme Configuration
@@ -190,9 +191,11 @@ set -g @catppuccin_status_left_separator ""
 set -g @catppuccin_status_right_separator " "
 set -g @catppuccin_status_connect_separator "no"
 
-# Window text (current window shows zoom indicator)
-set -g @catppuccin_window_text " #W"
-set -g @catppuccin_window_current_text "#W#{?window_zoomed_flag,(),}"
+# Window text uses pane_title so Claude Code agent names (e.g. "✳ router") show
+# correctly — Claude Code sets the terminal title via OSC, surfaced as pane_title.
+# Falls back to the process name when pane_title is empty.
+set -g @catppuccin_window_text " #{?pane_title,#{pane_title},#{pane_current_command}}"
+set -g @catppuccin_window_current_text "#{?pane_title,#{pane_title},#{pane_current_command}}#{?window_zoomed_flag,(),}"
 set -g @catppuccin_window_number_position "right"
 
 # Status bar layout
@@ -212,9 +215,14 @@ set -agF status-right "#{?#{battery_status},#{E:@catppuccin_status_battery},}"
 
 ```tmux
 set -g default-terminal "tmux-256color"
-set -ga terminal-features ",*:RGB"
+set -sag terminal-features ",*:RGB"      # true color
+set -sag terminal-features ",*:usstyle"  # styled/colored underlines (undercurl)
 set -g escape-time 10
 set -g focus-events on
+
+# Extended (CSI u) key encoding — needed for some keybindings (e.g. Claude Code, Pi)
+set -g extended-keys on
+set -g extended-keys-format csi-u
 ```
 
 ### Window/Pane Options
@@ -225,6 +233,10 @@ set -g pane-base-index 1     # Start panes at 1
 set -g renumber-windows on   # Renumber on close
 set -g mouse on              # Enable mouse
 set -g history-limit 1000000 # Scrollback buffer
+set -g allow-passthrough on  # Let pane programs bypass tmux (e.g. image preview)
+set -g detach-on-destroy off # Stay in tmux when closing a session
+set -g repeat-time 1000      # Window for repeatable (-r) keys
+set -g display-time 1500     # How long status messages stay up (ms)
 ```
 
 ### Status Bar

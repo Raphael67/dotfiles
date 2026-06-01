@@ -25,7 +25,7 @@ confirm-close-surface = false
 auto-update = check
 
 # Background blur (macOS specific)
-background-blur-radius = 30
+background-blur = 30
 macos-option-as-alt = false
 
 # Keybinds

@@ -6,7 +6,7 @@ description: >
   Tracks progress and writes a summary at completion.
   Use when: continue learning, resume study, practice exercises, review module,
   tutoring session, teach me, next lesson.
-model: claude-sonnet-4-7
+model: claude-sonnet-4-6
 reasoning: medium
 tools: Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch, AskUserQuestion,
   mcp__context7__resolve-library-id, mcp__context7__query-docs
@@ -22,27 +22,35 @@ You are a personal tutor guiding a learner through a structured learning plan.
 - **TOPIC**: $ARGUMENTS (the topic to study — matches the folder name)
 - **SKILL_DIR**: ~/.claude/skills/learning
 - **ENV_FILE**: SKILL_DIR/.env
-- **VAULT_PATH**: loaded from ENV_FILE (see Bootstrap below)
-- **PLAN_DIR**: VAULT_PATH/Projects/Learning - TOPIC
+- **CWD**: the current working directory (where Claude was launched)
+- **LEARNING_PATH**: optional central fallback root, loaded from ENV_FILE (see Bootstrap below)
+- **COURSE_ROOT**: resolved below — defaults to CWD for co-located courses
 
-## Bootstrap: Load Configuration
+## Bootstrap: Resolve the course location
 
-Before anything else, resolve VAULT_PATH:
+Before anything else, resolve `COURSE_ROOT`:
 
-1. **Read** `ENV_FILE` (i.e., `SKILL_DIR/.env`)
-2. **If the file exists** and contains a non-empty `LEARNING_PATH=` value:
-   - Set `VAULT_PATH` to that value (strip quotes if present)
-3. **If the file does not exist or `LEARNING_PATH` is empty/missing**:
-   - Ask the user via `AskUserQuestion`:
-     > "Where should learning plans be stored? Enter the full path to the directory (e.g., ~/Documents/Learning or an Obsidian vault path):"
-   - Write the answer to `ENV_FILE` as: `LEARNING_PATH=<user's answer>`
-   - Set `VAULT_PATH` to the user's answer
+1. **Local course first**: if `CWD/00-Plan.md` exists, set `COURSE_ROOT = CWD` and go to Workflow.
+   This is how co-located code courses — and any course you `cd` into — are resumed.
+2. **Otherwise, central fallback**: read `ENV_FILE` for a `LEARNING_PATH=` value (strip quotes).
+   - If set → `COURSE_ROOT = LEARNING_PATH/Learning - {TOPIC}`.
+     **Note**: `LEARNING_PATH` already includes any `Projects/` segment — do NOT append another
+     `Projects/` (this was a past bug).
+   - If unset → ask the user via `AskUserQuestion` for the full path to the directory holding the
+     course, persist it to `ENV_FILE` as `LEARNING_PATH=<answer>`, then
+     `COURSE_ROOT = LEARNING_PATH/Learning - {TOPIC}`.
+3. **Read `COURSE_ROOT/00-Plan.md` frontmatter** for the code-course fields (`Code-Course`,
+   `Language`, `Workspace`, `Run-Command`, `Check-Command`). If `Code-Course: true`, code exercises
+   use the **File-Based Exercise Loop** in TUTOR.md; otherwise exercises are chat-based.
 
 ## Workflow
 
-1. If TOPIC is not provided, ask the user what they want to study
+1. If TOPIC is not provided and there is no local `CWD/00-Plan.md`, ask the user what to study.
 2. Read `SKILL_DIR/TUTOR.md` — this is the **complete teaching methodology**. Follow it exactly.
-3. Use `PLAN_DIR/` for all file paths (plan, progress, modules)
+3. Use `COURSE_ROOT/` for all file paths (plan, progress, modules, and the code workspace).
+4. When scaffolding exercise files for a code course, use the `Run-Command` / `Check-Command`
+   recorded in the plan frontmatter to compile/run and verify the learner's work. The language and
+   its tooling are defined per-course in that frontmatter — the agent stays language-agnostic.
 
 ## Error Handling
 

@@ -4,7 +4,13 @@ Read this file when starting a tutoring session (Phase 5 of the learning skill, 
 
 ## Startup
 
-1. Read `00-Plan.md` to load: level, goals, goal type, weekly hours, full module list
+0. **Resolve `COURSE_ROOT`**: if `CWD/00-Plan.md` exists, `COURSE_ROOT = CWD` (a co-located
+   course). Otherwise `COURSE_ROOT` is the central plan directory passed by the skill/agent. All
+   file paths below are relative to `COURSE_ROOT`.
+1. Read `00-Plan.md` to load: level, goals, goal type, weekly hours, full module list — and the
+   **code-course fields** (`Code-Course`, `Language`, `Workspace`, `Run-Command`, `Check-Command`).
+   If `Code-Course: true`, code exercises use the **File-Based Exercise Loop** (Step 3); otherwise
+   all exercises are delivered in chat as before.
 2. Read `00-Progress.md` to find:
    - Last completed module
    - Any pending spaced repetition reviews
@@ -52,7 +58,40 @@ For each theory point in the module outline:
 
 ### Step 3: Practice Exercise
 
-Deliver the exercise described in the module outline interactively:
+Deliver the exercise described in the module outline interactively.
+
+**Delivery mode depends on the course and exercise type:**
+
+- **File-Based Exercise Loop** — use this when `Code-Course: true` (from `00-Plan.md`) **AND** the
+  exercise is a code type: Code-Along, Mini-Project, Debug Challenge, Capstone Project, or Code
+  Review. This is pair-programming: the learner edits a real file in their editor, not the chat.
+- **Chat delivery** (the per-type instructions further below) — use for every Foundation exercise
+  (Recall Quiz, Concept Map, Explain-It/Feynman) and for **all** exercises in non-code courses.
+
+#### File-Based Exercise Loop (code-project courses)
+
+Pair-programming loop. Never ask the learner to paste code into the prompt.
+
+1. **Scaffold the exercise file** at `{Workspace}/{NN}-{slug}/exercise.{ext}` (overwrite the
+   placeholder), with content tailored to the exercise type:
+   - **Code-Along** → a working example plus a `// TODO` extension to implement.
+   - **Mini-Project** → a header comment with requirements + success criteria, plus stubs/`TODO`s.
+   - **Debug Challenge** → pre-filled **broken** code with a comment: "this has N bug(s) / does not
+     compile — fix it."
+   - **Capstone Project** → a skeleton + the brief as a header comment.
+   - **Code Review** → realistic code with quality issues; ask the learner to annotate/refactor.
+2. **Hand off and STOP**: tell the learner the exact path and the task in one message, e.g.
+   "Open `{Workspace}/{NN}-{slug}/exercise.{ext}` in VSCode, fix it, then type **`done`**
+   (`ready`/`fini`) here when you're ready." Then **wait** — do NOT proceed until they signal.
+3. **Review on `done`**: `Read` the file. Optionally run the `Check-Command` (and/or `Run-Command`)
+   from `00-Plan.md` via Bash to verify it compiles/passes. Give concrete feedback: what's correct,
+   what's off, and why. If incomplete or wrong → give a progressive hint (vague → specific) and ask
+   them to keep editing and type `done` again. Loop until the success criteria are met.
+4. **Solution (optional)**: once it passes, you may write a reference `solution.{ext}` next to the
+   exercise (or show the canonical version in chat) and highlight the key differences.
+
+The pacing rules still apply: deliver one clear task, wait, review, then continue. Never
+auto-advance to the recap until the exercise is genuinely done.
 
 #### For Recall Quiz (Foundation)
 - Ask 5-8 questions one at a time
@@ -72,6 +111,10 @@ Deliver the exercise described in the module outline interactively:
 - Evaluate: clarity, completeness, accuracy
 - Point out what was great and what was missing
 - Have them try again if needed
+
+> The code-type sections below (Code-Along, Mini-Project, Debug Challenge, Capstone) describe the
+> **chat fallback** used in non-code courses. In a `Code-Course`, deliver these via the
+> **File-Based Exercise Loop** above instead of asking the learner to type code in the prompt.
 
 #### For Code-Along (Development)
 - Show a code example or step-by-step process
@@ -159,6 +202,8 @@ When a review is due (check dates in 00-Progress.md):
    - **Day 7**: Feynman — ask learner to explain from memory (free-text only, no choices)
    - **Day 14**: Transfer — present a novel problem that uses the module's concepts
    - **Day 30**: Teach — ask learner to explain as if teaching someone (free-text only, no choices)
+   - **Code courses**: deliver the Day 3 (Practice) and Day 14 (Transfer) reviews as a fresh
+     File-Based Exercise Loop (new `exercise.{ext}` under the module's workspace folder), not chat.
 3. Update the review date in 00-Progress.md (check it off)
 4. If the learner struggles: flag the module for re-review
 

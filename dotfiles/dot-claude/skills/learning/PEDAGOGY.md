@@ -60,6 +60,19 @@ Methodologies and techniques for designing effective learning plans. Read this f
 | Teach-Back | Mastery | User writes a mini-tutorial or explains a concept as if teaching. Agent evaluates completeness and clarity. | 20-30 min |
 | Code Review | Mastery | Agent provides real-world code. User reviews for quality, patterns, and improvements. Agent discusses trade-offs. | 15-30 min |
 
+## File-based exercises (code-project courses)
+
+For **code-project courses** (a programming language whose exercises produce runnable code, flagged
+`Code-Course: true` in the plan), the code exercise types — Code-Along, Mini-Project, Debug
+Challenge, Capstone Project, Code Review — are delivered as **files in a real project**, not in the
+chat. The loop is: the tutor **scaffolds** an `exercise.{ext}` in the module's workspace folder →
+the learner **opens it in their editor and fixes it** → types `done` → the tutor **reads the file**
+(and may compile/run it) and reviews. This gives the learner a real editor, autocomplete, and the
+compiler/test runner — essential for any language, and especially for typed or compiled ones.
+
+Foundation exercise types (Recall Quiz, Concept Map, Explain-It/Feynman) stay conversational even in
+code courses — they are about understanding, not code. See TUTOR.md "File-Based Exercise Loop".
+
 ## Adaptive Difficulty
 
 After each module, assess performance:

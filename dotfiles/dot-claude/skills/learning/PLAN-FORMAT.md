@@ -1,11 +1,13 @@
 # Plan Format Reference
 
-Templates for the Obsidian files generated in Phase 4. All files use YAML frontmatter and Obsidian wiki-links.
+Templates for the files generated in Phase 4. All files use YAML frontmatter and Obsidian wiki-links.
+The course is created at `COURSE_ROOT` (the folder where Claude was launched; see SKILL.md).
 
 ## Directory Structure
 
+**Non-code course** (markdown only, e.g. created in a notes vault):
 ```
-Learning - {TOPIC}/
+{COURSE_ROOT}/
 ├── 00-Plan.md              # Full plan with metadata
 ├── 00-Progress.md          # Progress tracker with checkboxes
 ├── Resources.md            # Curated links from research
@@ -14,6 +16,26 @@ Learning - {TOPIC}/
     ├── 02-{slug}.md
     └── ...
 ```
+
+**Code course** (`Code-Course: true`) — the same markdown tree **plus** a scaffolded project:
+```
+{COURSE_ROOT}/
+├── 00-Plan.md              # includes Code-Course / Language / Workspace / Run/Check commands
+├── 00-Progress.md
+├── Resources.md
+├── Modules/                # module outlines (markdown)
+│   └── ...
+├── README.md               # how to resume + run/check commands
+├── .gitignore              # language's standard ignores (from research)
+├── {language config file(s)}   # e.g. the project manifest, build/type-check config
+└── {Workspace}/            # default: src/  — one folder per module
+    ├── 01-{slug}/exercise.{ext}
+    ├── 02-{slug}/exercise.{ext}
+    └── ...
+```
+(`git init` is run in `COURSE_ROOT` if it is not already a repo. All language-specific details —
+config files, layout, extension, run/check commands — are gathered during Phase 2 research, not
+baked into the skill.)
 
 ## 00-Plan.md Template
 
@@ -32,6 +54,12 @@ Total-Modules: {N}
 Created: {YYYY-MM-DD}
 Status: Not Started
 tags: [learning, {topic-slug}]
+# --- Code courses only (omit for non-code courses; values come from Phase 2 research) ---
+Code-Course: true
+Language: {the language/runtime — the course topic}
+Workspace: src
+Run-Command: {command that runs a single source file}
+Check-Command: {command that type-checks or builds the project}
 ---
 
 # Learning Plan: {TOPIC}
@@ -165,6 +193,14 @@ Key concepts the tutor should cover interactively:
 **Description**: {What the exercise involves — the tutor will deliver this interactively}
 
 **Success criteria**: {How to know the exercise is completed successfully}
+
+<!-- Code courses only: include this section for code-type exercises (Code-Along, Mini-Project,
+     Debug Challenge, Capstone, Code Review). The tutor scaffolds the file when the exercise starts. -->
+## Exercise Workspace
+
+- **Folder**: `{Workspace}/{NN}-{slug}/`
+- **File**: `exercise.{ext}` (scaffolded by the tutor when the exercise starts)
+- **Check**: `{Check-Command}`  ·  **Run**: `{Run-Command} {Workspace}/{NN}-{slug}/exercise.{ext}`
 
 ## Reflection Checklist
 

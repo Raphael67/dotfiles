@@ -9,7 +9,7 @@ description: >
   how to learn, formation, apprendre, study, training.
 user-invocable: true
 argument-hint: [topic]
-version: 1.0.0
+version: 1.1.0
 model: opus
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Agent, WebSearch, WebFetch,
   AskUserQuestion, TaskCreate, TaskGet, TaskList, TaskOutput, TaskStop, TaskUpdate,
@@ -33,21 +33,37 @@ Create personalized, structured learning plans for any topic and store them in O
 - **TOPIC**: $ARGUMENTS
 - **SKILL_DIR**: directory containing this SKILL.md
 - **ENV_FILE**: SKILL_DIR/.env
-- **LEARNING_PATH**: loaded from ENV_FILE (see Bootstrap below)
-- **OUTPUT_DIR**: LEARNING_PATH/Learning - TOPIC
+- **CWD**: the current working directory (where Claude was launched)
+- **COURSE_ROOT**: where this course lives — resolved per the rule below (defaults to CWD)
+- **LEARNING_PATH**: optional central fallback root, loaded from ENV_FILE (see Bootstrap below)
+
+### Course location (COURSE_ROOT)
+
+`COURSE_ROOT` is the folder holding the course's `00-Plan.md`, `00-Progress.md` and `Modules/`.
+
+- **Default — `COURSE_ROOT = CWD`.** The course is created in the folder where Claude was launched.
+  - **Non-code subjects** → only the markdown tree is written there (run it from your notes vault
+    and it lands in your notes vault, so you can revisit it anytime).
+  - **Code subjects** (a programming language with runnable exercises: TS, JS, Rust, Go, Python,
+    C, C++, Java, …) → the markdown tree **plus** a scaffolded language project (config +
+    `Workspace/` + git) right next to it, so the course and its code are self-contained.
+    Recommended flow: create a dedicated folder, `cd` into it, then run `/learning <language>`.
+- **Fallback — `LEARNING_PATH/Learning - {TOPIC}`.** Used only when the user prefers central
+  storage, or when resuming a course that already lives there.
 
 ## Bootstrap: Load Configuration
 
-Before anything else (including Argument Routing), resolve LEARNING_PATH:
+`COURSE_ROOT` defaults to `CWD` (see "Course location" above) — no configuration is required to
+create a course in the current folder. `LEARNING_PATH` is only the **optional central fallback**
+used for the Phase 0 listing and for users who want a single shared location.
+
+Resolve `LEARNING_PATH` (non-blocking):
 
 1. **Read** `ENV_FILE` (i.e., `SKILL_DIR/.env`)
-2. **If the file exists** and contains a non-empty `LEARNING_PATH=` value:
-   - Set `LEARNING_PATH` to that value (strip quotes if present)
-3. **If the file does not exist or `LEARNING_PATH` is empty/missing**:
-   - Ask the user via `AskUserQuestion`:
-     > "Where should learning plans be stored? Enter the full path to the directory where `Learning - {topic}` folders will be created (e.g., ~/Documents/Projects):"
-   - Write the answer to `ENV_FILE` as: `LEARNING_PATH=<user's answer>`
-   - Set `LEARNING_PATH` to the user's answer
+2. **If** it contains a non-empty `LEARNING_PATH=` value → set `LEARNING_PATH` (strip quotes).
+3. **If absent/empty** → leave `LEARNING_PATH` unset. Do **not** prompt for it here; only ask
+   (and offer to persist it to `ENV_FILE`) if the user explicitly chooses central storage over
+   the current folder in Phase 1.
 
 **`.env` format example:**
 ```
@@ -87,7 +103,12 @@ If $ARGUMENTS is "self-update", read **cookbook/self-update.md** and follow its 
 
 Scan for existing learning plans and let the user choose one to continue.
 
-1. **Scan** for all `Learning - *` directories in LEARNING_PATH/:
+0. **Local course first**: if `CWD/00-Plan.md` exists, this folder *is* a course → set
+   `COURSE_ROOT = CWD` and **start tutoring directly** (read `SKILL_DIR/TUTOR.md`, read
+   `CWD/00-Progress.md` to find the next uncompleted module, teach it). **Stop here** — skip the
+   central scan below.
+
+1. **Scan** for all `Learning - *` directories in LEARNING_PATH/ (only if `LEARNING_PATH` is set):
    ```
    # Primary: find plans with 00-Plan.md
    Glob pattern: LEARNING_PATH/Learning - */00-Plan.md
@@ -111,11 +132,12 @@ Scan for existing learning plans and let the user choose one to continue.
 
 5. **Based on user choice**:
    - If they pick an existing plan → **start tutoring directly**:
-     1. Read `SKILL_DIR/TUTOR.md` for tutor instructions
-     2. Read the selected plan's `00-Progress.md` to find the next uncompleted module
-     3. Read the module outline from `Modules/{NN}-{slug}.md`
-     4. Follow the tutor instructions to teach the module interactively
-     5. **Stop here** — do NOT continue to Phase 1
+     1. Set `COURSE_ROOT` to the selected plan's directory
+     2. Read `SKILL_DIR/TUTOR.md` for tutor instructions
+     3. Read the selected plan's `00-Progress.md` to find the next uncompleted module
+     4. Read the module outline from `Modules/{NN}-{slug}.md`
+     5. Follow the tutor instructions to teach the module interactively
+     6. **Stop here** — do NOT continue to Phase 1
    - If they pick "Create a new plan" → ask for a topic via `AskUserQuestion`, set TOPIC, then continue to Phase 1
 
 ---
@@ -129,6 +151,23 @@ Read `ASSESSMENT.md` for rubric templates and calibration questions.
    - If found → **tech** domain (language, framework, tool, library)
    - If not found → **non-tech** domain (creative, theoretical, practical)
    - Store as DOMAIN_TYPE
+
+1b. **Classify course type and confirm location**:
+   - **Code course?** If DOMAIN_TYPE is tech AND TOPIC is a programming language / runtime whose
+     exercises produce runnable code (TS, JS, Rust, Go, Python, C, C++, Java, Kotlin, Swift, …)
+     → `CODE_COURSE = true`; otherwise `CODE_COURSE = false`.
+   - **Confirm `COURSE_ROOT`** via `AskUserQuestion`:
+     - If `CODE_COURSE`: "Set up this course as a self-contained project in the current folder
+       `{CWD}`? (recommended) — or store it centrally?" If `CWD` already contains unrelated files,
+       warn and offer a subfolder (e.g. `{CWD}/learn-{slug}`).
+     - If not a code course: default `COURSE_ROOT = CWD` silently (markdown lands where Claude was
+       launched); only ask if the current folder seems wrong.
+   - If the user picks central storage and `LEARNING_PATH` is unset, ask for it now, persist it to
+     `ENV_FILE` as `LEARNING_PATH=<answer>`, and set `COURSE_ROOT = LEARNING_PATH/Learning - {TOPIC}`.
+   - For code courses, set `LANGUAGE` (the topic) and `WORKSPACE` (default `src`). The concrete
+     toolchain — init command, config files, idiomatic layout, run command, type-check/build
+     command, `.gitignore` essentials — is **not assumed here**; it is gathered in Phase 2 research
+     and applied in Phase 4. The skill stays language-agnostic.
 
 2. Ask the user 3-5 calibration questions via `AskUserQuestion`:
    - **Q1**: Self-assessment on a 0-10 scale (with level descriptions from ASSESSMENT.md)
@@ -168,6 +207,12 @@ Launch 3 parallel Task subagents to research TOPIC. Each receives: TOPIC, LEVEL,
 - WebFetch learn-anything.xyz for curated learning paths
 - WebSearch for exercises, project ideas, common mistakes, best practices
 - Collect practice resources ranked by difficulty
+
+**For code courses, also gather project-setup facts** (add to Agent 1's brief, or ask context7 /
+WebSearch directly): the standard way to initialise a project in this language, its config
+file(s), the idiomatic source layout, the command to run a single source file, the command to
+type-check or build, the source file extension, and `.gitignore` essentials. These feed the
+Phase 4 scaffolding so no language details are hard-coded in the skill.
 
 Collect all results. Merge and deduplicate resources.
 
@@ -215,26 +260,47 @@ Read `PEDAGOGY.md` for methodology reference.
 
 ---
 
-### Phase 4: Save to Obsidian
+### Phase 4: Save the Course
 
 Read `PLAN-FORMAT.md` for file templates.
 
-1. Create OUTPUT_DIR directory structure:
+1. Create the markdown tree at `COURSE_ROOT`:
    ```
-   Learning - {TOPIC}/
+   {COURSE_ROOT}/
    ├── 00-Plan.md
    ├── 00-Progress.md
    ├── Resources.md
    └── Modules/
-       ├── 01-{title}.md
-       ├── 02-{title}.md
+       ├── 01-{slug}.md
+       ├── 02-{slug}.md
        └── ...
    ```
+   (For central storage, `COURSE_ROOT = LEARNING_PATH/Learning - {TOPIC}`.)
 
-2. Write `00-Plan.md` — Full plan with metadata (topic, level, goals, hours, module list)
-3. Write `00-Progress.md` — Progress tracker with checkboxes for each module and spaced repetition dates
-4. Write `Resources.md` — Curated links organized by type (docs, tutorials, courses, exercises)
-5. Write module outlines — One file per module with: objective, theory points, exercise description, resources
+2. Write `00-Plan.md` — full plan with metadata (topic, level, goals, hours, module list).
+   **For code courses**, also set the frontmatter fields: `Code-Course: true`, `Language`,
+   `Workspace`, `Run-Command`, `Check-Command`.
+3. Write `00-Progress.md` — progress tracker with checkboxes for each module and spaced repetition dates.
+4. Write `Resources.md` — curated links organized by type (docs, tutorials, courses, exercises).
+5. Write module outlines — one file per module with: objective, theory points, exercise
+   description, resources. **For code courses**, include the "Exercise Workspace" section
+   (see PLAN-FORMAT.md) pointing at `{WORKSPACE}/{NN}-{slug}/`.
+
+6. **Code courses only — scaffold the project** in `COURSE_ROOT` (this runs here, on the skill's
+   Opus session — the tutor never has to do the heavy setup). Use **only** the project-setup facts
+   gathered in Phase 2 for this language — the skill itself stays language-agnostic:
+   - Initialise the project with the language's standard tooling/init command and write its config
+     file(s), as discovered in research. Prefer the user's package managers when relevant
+     (their global preferences may favour one toolchain over another).
+   - Create `{WORKSPACE}/` (default `src`) with one folder per module: `{WORKSPACE}/{NN}-{slug}/`,
+     each containing a placeholder `exercise.{ext}` (a stub comment — the tutor fills the real
+     exercise content when that module's exercise begins). Use the file extension from research.
+   - `git init` if `COURSE_ROOT` is not already a git repo; add a `.gitignore` with the language's
+     standard ignores (from research).
+   - Write `README.md`: course title, how to resume (`cd {COURSE_ROOT} && claude`, then
+     `@learning-tutor`), and the run/check commands.
+   - Record the resolved `Language`, `Workspace`, `Run-Command`, `Check-Command` in `00-Plan.md`
+     frontmatter so the tutor can compile/run the learner's work without re-researching.
 
 ---
 
@@ -246,7 +312,7 @@ Read `PLAN-FORMAT.md` for file templates.
 
    **Topic**: {TOPIC} | **Level**: {LEVEL}
    **Modules**: {N} across 3 phases | **Est. Duration**: {hours}h over {weeks} weeks
-   **Files**: {OUTPUT_DIR}/
+   **Files**: {COURSE_ROOT}/
 
    | Phase | Modules | Hours |
    |-------|---------|-------|
@@ -258,8 +324,8 @@ Read `PLAN-FORMAT.md` for file templates.
 2. Ask the user: "Do you want to start learning now?"
    - If yes → **start tutoring directly in the current conversation** (do NOT spawn a subagent):
      1. Read the tutor instructions from `SKILL_DIR/TUTOR.md`
-     2. Read `OUTPUT_DIR/00-Progress.md` to find the next uncompleted module
-     3. Read the module outline from `OUTPUT_DIR/Modules/{NN}-{slug}.md`
+     2. Read `COURSE_ROOT/00-Progress.md` to find the next uncompleted module
+     3. Read the module outline from `COURSE_ROOT/Modules/{NN}-{slug}.md`
      4. Follow the tutor instructions to teach the module interactively
      5. Use `AskUserQuestion` for comprehension checks and exercises
      6. Update progress files after each module

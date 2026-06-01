@@ -11,7 +11,7 @@ return { -- LSP Configuration & Plugins
     -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
     {
       'j-hui/fidget.nvim',
-      tag = 'v1.4.0',
+      version = 'v1.*', -- track latest 1.x release (auto-updates with :Lazy update)
       opts = {
         progress = {
           display = {
@@ -203,10 +203,15 @@ return { -- LSP Configuration & Plugins
           cargo = {
             features = 'all',
           },
-          checkOnSave = true,
           check = {
             command = 'clippy',
           },
+          diagnostics = {
+            experimental = {
+              enable = true,
+            },
+          },
+          checkOnSave = true,
         },
       },
       tailwindcss = {},

@@ -50,7 +50,10 @@ return {
 	},
 	{
 		-- high-performance color highlighter
-		"norcalli/nvim-colorizer.lua",
+		-- maintained fork of the abandoned norcalli/nvim-colorizer.lua
+		-- (the original's final commit still calls deprecated vim.tbl_flatten on nvim 0.11+)
+		"catgoose/nvim-colorizer.lua",
+		event = "BufReadPre",
 		config = function()
 			require("colorizer").setup()
 		end,

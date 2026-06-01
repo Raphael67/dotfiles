@@ -370,6 +370,5 @@
   "remoteControlAtStartup": false,
   "agentPushNotifEnabled": false,
   "useAutoModeDuringPlan": false,
-  "voiceEnabled": true,
-  "model": "haiku"
+  "voiceEnabled": true
 }

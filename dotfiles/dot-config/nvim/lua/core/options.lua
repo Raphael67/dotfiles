@@ -47,3 +47,24 @@ vim.opt.shortmess:append("c")                         -- don't give |ins-complet
 vim.opt.iskeyword:append("-")                         -- hyphenated words recognized by searches
 vim.opt.formatoptions:remove({ "c", "r", "o" })       -- don't insert the current comment leader automatically for auto-wrapping comments using 'textwidth', hitting <Enter> in insert mode, or hitting 'o' or 'O' in normal mode.
 vim.opt.runtimepath:remove("/usr/share/vim/vimfiles") -- separate vim plugins from neovim in case vim still in use
+
+-- Diagnostics: show errors in near real-time, including in insert mode
+vim.diagnostic.config({
+  virtual_text = false,      -- inline text can't wrap; it runs off-screen on long (e.g. Rust) errors
+  virtual_lines = true,      -- render diagnostics on wrapped lines below the code instead
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = " ",
+      [vim.diagnostic.severity.WARN] = " ",
+      [vim.diagnostic.severity.INFO] = " ",
+      [vim.diagnostic.severity.HINT] = "󰌵",
+    },
+  },
+  underline = true,
+  update_in_insert = true,  -- show diagnostics while typing
+  severity_sort = true,
+  float = {
+    border = "rounded",
+    source = true,
+  },
+})

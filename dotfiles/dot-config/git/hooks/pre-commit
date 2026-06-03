@@ -7,7 +7,7 @@
 
 # --- Gitleaks ---
 if command -v gitleaks >/dev/null 2>&1; then
-    gitleaks git . -v
+    gitleaks git --staged . -v
     if [ $? -ne 0 ]; then
         exit 1
     fi

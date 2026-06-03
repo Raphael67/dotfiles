@@ -36,12 +36,14 @@ return {
 		config = function()
 			require("nvim-treesitter").setup()
 
-			-- Install any parsers that aren't present yet (replaces the old
-			-- `ensure_installed` / `auto_install` options, which `main` dropped).
-			local installed = require("nvim-treesitter.config").get_installed()
+			-- Install any parsers that aren't present yet. We check the full
+			-- runtime path (not just `get_installed()`) so parsers shipped by
+			-- the system (e.g. Arch's `tree-sitter-*` packages, Neovim's
+			-- bundled lua/markdown/vimdoc parsers) are recognized and we
+			-- don't trigger spurious reinstalls each startup.
 			local to_install = vim.iter(ensure_installed)
 				:filter(function(parser)
-					return not vim.tbl_contains(installed, parser)
+					return #vim.api.nvim_get_runtime_file("parser/" .. parser .. ".so", false) == 0
 				end)
 				:totable()
 			if #to_install > 0 then

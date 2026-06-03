@@ -238,6 +238,12 @@ return { -- LSP Configuration & Plugins
     require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
     require('mason-lspconfig').setup {
+      -- Restrict auto-enable to the servers we actually configure above.
+      -- Without this, mason-lspconfig v2 auto-enables every installed Mason
+      -- package that has a matching lspconfig entry — including tools like
+      -- `stylua` (launched with `--lsp`, which stylua doesn't support).
+      ensure_installed = vim.tbl_keys(servers),
+      automatic_enable = vim.tbl_keys(servers),
       handlers = {
         function(server_name)
           local server = servers[server_name] or {}

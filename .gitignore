@@ -9,7 +9,7 @@ dotfiles/dot-config/menus/applications-merged.mcp.json
 dotfiles/dot-config/menus/
 dotfiles/dot-claude/ccnotify/*.db
 dotfiles/dot-claude/ccnotify/*.log*
-
+dotfiles/dot-config/karabiner/automatic_backups
 
 # Skills - ignore all, then whitelist published ones
 dotfiles/dot-claude/skills/**

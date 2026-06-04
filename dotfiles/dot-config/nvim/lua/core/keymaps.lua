@@ -9,7 +9,7 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", opts)
 -- Set leader key
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-vim.opt.timeoutlen = 1000
+-- timeoutlen is set in core/options.lua (300ms); do not override here.
 vim.opt.ttimeoutlen = 0
 
 -- Allow moving the cursor through wrapped lines with j, k
@@ -62,7 +62,7 @@ vim.keymap.set("n", "<leader>-", "<C-x>", opts) -- decrement
 vim.keymap.set("n", "<leader>v", "<C-w>v", opts)      -- split window vertically
 vim.keymap.set("n", "<leader>h", "<C-w>s", opts)      -- split window horizontally
 vim.keymap.set("n", "<leader>se", "<C-w>=", opts)     -- make split windows equal width & height
-vim.keymap.set("n", "<leader>xs", ":close<CR>", opts) -- close current split window
+vim.keymap.set("n", "<leader>cs", ":close<CR>", opts) -- close current split window
 
 -- Navigate between splits
 vim.keymap.set("n", "<C-k>", ":wincmd k<CR>", opts)
@@ -88,8 +88,8 @@ vim.keymap.set("v", "<", "<gv", opts)
 vim.keymap.set("v", ">", ">gv", opts)
 
 -- Move text up and down
-vim.keymap.set("v", "<A-j>", ":m .+1<CR>==", opts)
-vim.keymap.set("v", "<A-k>", ":m .-2<CR>==", opts)
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", opts)
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", opts)
 
 -- Keep last yanked when pasting
 vim.keymap.set("v", "p", '"_dP', opts)

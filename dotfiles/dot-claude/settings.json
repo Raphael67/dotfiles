@@ -198,7 +198,10 @@
       "Bash(mkfs:*)",
       "Bash(dd if=* of=/dev/*:*)"
     ],
-    "ask": ["Bash(git push --force:*)", "Bash(git reset --hard:*)"],
+    "ask": [
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)"
+    ],
     "defaultMode": "acceptEdits"
   },
   "hooks": {
@@ -361,11 +364,11 @@
   "autoUpdatesChannel": "latest",
   "autoDreamEnabled": true,
   "skipDangerousModePermissionPrompt": true,
-  "useAutoModeDuringPlan": false,
-  "voiceEnabled": true,
   "preferredNotifChannel": "ghostty",
   "autoCompactEnabled": false,
   "teammateMode": "auto",
   "remoteControlAtStartup": false,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "useAutoModeDuringPlan": false,
+  "voiceEnabled": true
 }

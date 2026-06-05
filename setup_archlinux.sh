@@ -41,14 +41,16 @@ else
     success "yay already installed"
 fi
 
-# Install Claude Code via official installer
-if ! command -v claude &>/dev/null; then
-    info "Installing Claude Code via official installer..."
-    curl -fsSL https://claude.ai/install.sh | bash
-    success "claude-code installed"
-else
-    success "claude-code already installed"
+# Install/upgrade Claude Code to the latest version via the official installer.
+# Always re-run: the installer is idempotent and upgrades in place to bleeding edge.
+info "Installing/upgrading Claude Code to latest via official installer..."
+curl -fsSL https://claude.ai/install.sh | bash -s latest
+# Best-effort second pass: if the binary is already on PATH, ask it to self-update.
+# Some install methods (npm-based) won't pick up new releases via install.sh alone.
+if command -v claude &>/dev/null; then
+    claude update 2>/dev/null || true
 fi
+success "claude-code installed/updated to latest"
 
 # Install RTK (LLM token-optimizing CLI proxy) via official installer
 # Drops a single static binary into ~/.local/bin (already on PATH via dot-zprofile).

@@ -46,6 +46,18 @@ if [[ "$install_apps" == "y" ]]; then
         success "claude-code updated"
     fi
 
+    # Install or update bun via the official installer (not via Homebrew)
+    export BUN_INSTALL="$HOME/.bun"
+    if ! command -v bun &>/dev/null && [[ ! -x "$BUN_INSTALL/bin/bun" ]]; then
+        info "Installing bun..."
+        curl -fsSL https://bun.sh/install | bash
+        success "bun installed"
+    else
+        info "Updating bun..."
+        "$BUN_INSTALL/bin/bun" upgrade 2>/dev/null || true
+        success "bun updated"
+    fi
+
     # Install or update rclone via the official installer.
     # The Homebrew build of rclone explicitly disables FUSE on macOS, so
     # `rclone mount` fails. The official binary (installed to /usr/local/bin)

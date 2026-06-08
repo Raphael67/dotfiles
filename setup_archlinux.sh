@@ -151,6 +151,18 @@ if [ -f "$SCRIPT_DIR/rust/packages.txt" ] && command -v cargo &>/dev/null; then
     success "cargo crates installed"
 fi
 
+# Install bun (official installer — not in Arch repos)
+export BUN_INSTALL="$HOME/.bun"
+if ! command -v bun &>/dev/null && [ ! -x "$BUN_INSTALL/bin/bun" ]; then
+    info "Installing bun..."
+    curl -fsSL https://bun.sh/install | bash
+    success "bun installed"
+else
+    info "bun already installed, upgrading..."
+    "$BUN_INSTALL/bin/bun" upgrade 2>/dev/null || true
+    success "bun up to date"
+fi
+
 # Install nvm + Node.js LTS
 # Resolve NVM_DIR: prefer XDG path, fall back to legacy paths
 export NVM_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/nvm"

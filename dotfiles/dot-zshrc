@@ -426,7 +426,7 @@ type compdef >/dev/null 2>&1 || { autoload -Uz compinit && compinit; }
 # End of Docker CLI completions
 
 # bun completions
-[ -s "/Users/raphael/.bun/_bun" ] && source "/Users/raphael/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"

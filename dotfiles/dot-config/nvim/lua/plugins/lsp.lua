@@ -141,12 +141,11 @@ return { -- LSP Configuration & Plugins
 			"tailwindcss",
 			"jsonls",
 			"sqlls",
-			"terraformls",
 			"yamlls",
 			"bashls",
 			"graphql",
 			"cssls",
-			"ltex",
+			"ltex_plus",
 			"texlab",
 		}
 
@@ -169,7 +168,8 @@ return { -- LSP Configuration & Plugins
 		-- for you, so that they are available from within Neovim.
 		local ensure_installed = vim.deepcopy(servers)
 		vim.list_extend(ensure_installed, {
-			"stylua", -- Used to format lua code
+			"stylua",          -- Used to format lua code
+			"tree-sitter-cli", -- treesitter grammar compilation + :checkhealth
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 

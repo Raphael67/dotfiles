@@ -33,6 +33,12 @@
                 "mcp-remote",
                 "https://mcp.data.gouv.fr/mcp"
             ]
+        },
+        "sem": {
+            "command": "sem",
+            "args": [
+                "mcp"
+            ]
         }
     }
 }

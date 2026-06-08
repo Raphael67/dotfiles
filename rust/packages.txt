@@ -1,12 +1,12 @@
-# Cross-shell prompt for astronauts
-starship
-# Search tool like grep and The Silver Searcher
-ripgrep
-# A simple, fast and user-friendly alternative to 'find'
-fd-find
-# A cat clone with wings
-bat
-# A modern, maintained replacement for ls
-eza
-# A smarter cd command
-zoxide
+# Cargo-installed crates (`cargo install <name>`).
+#
+# Only list tools that are NOT available from the platform package managers
+# (pacman / Homebrew / winget). Tools like starship, ripgrep, fd, bat, eza and
+# zoxide are intentionally installed via those instead — keep them out of here
+# to avoid slow source rebuilds and duplicate binaries.
+#
+# Consumed by setup_archlinux.sh, setup_macos.sh and setup_windows.ps1.
+
+# Entity-level semantic git diff & blast-radius analysis (provides the `sem` binary;
+# `sem mcp` runs the MCP server)
+sem-cli

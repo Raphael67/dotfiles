@@ -95,6 +95,19 @@ if [[ "$install_apps" == "y" ]]; then
         info "Warning: uv not found, skipping Python tools"
     fi
 
+    # Install cargo crates from rust/packages.txt (tools not in Homebrew)
+    if command -v cargo &>/dev/null; then
+        info "Installing cargo crates..."
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            # Skip empty lines and comments
+            if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
+                cargo install "$line"
+            fi
+        done <rust/packages.txt
+    else
+        info "Warning: cargo not found, skipping cargo crates"
+    fi
+
     # oh-my-zsh
     if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
         sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended

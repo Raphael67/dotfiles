@@ -17,6 +17,7 @@ Global Claude Configuration
 | New Python project | uv init, uv add |
 | Browser debugging | bdg CLI |
 | Library docs lookup | context7 MCP |
+| Code change impact / what functions changed | `sem` (entity diff, blast radius) — see below |
 | Run tests | Project-specific (check CLAUDE.md) |
 | Fetch secrets/passwords | `bw-fetch` (Touch ID per request) |
 
@@ -222,5 +223,34 @@ Fetch up-to-date documentation for libraries:
 - Self-documenting via `--list`, `--describe`, `--search`
 - JSON output by default (pipe to `jq` for processing)
 - Semantic exit codes for error handling
+
+### sem — Semantic Code Analysis (entity-level diff & blast radius)
+
+`sem` parses code with tree-sitter and diffs at the **entity level** (functions, classes,
+methods) instead of lines. Use it whenever you need to reason about *what code units changed*
+or *what a change might break* — far more precise than `git diff` for impact reasoning.
+
+**Prefer `sem` over `git diff` when** answering "what functions changed?", "what does this
+change affect?", or building context about a specific entity before editing it.
+
+```bash
+sem diff --staged              # Entity-level diff of staged changes (the pre-commit hook)
+sem diff                       # Working-tree changes
+sem diff --commit <sha>        # Changes in a specific commit
+sem impact <entity>            # Blast radius: everything depending on <entity>
+sem impact <entity> --deps     # Direct dependencies only
+sem impact <entity> --tests    # Affected tests
+sem blame <file>               # Who last changed each function/class
+sem log <entity>               # How a single entity evolved over time
+sem entities <file>            # List all code units in a file
+sem context <entity> --budget 4000   # Token-budgeted LLM context for an entity
+```
+
+- **For agents/automation, add `--format json`** (or `--json`) — e.g. `sem diff --staged --format json`.
+- **MCP**: the `sem` server (`sem mcp`, registered in `~/.mcp.json`) exposes 6 tools —
+  `sem_entities`, `sem_diff`, `sem_blame`, `sem_impact`, `sem_log`, `sem_context`. Use these
+  directly when available.
+- Installed via cargo on every platform (listed in `rust/packages.txt` in the dotfiles repo):
+  `cargo install sem-cli` — provides the `sem` binary.
 
 @RTK.md

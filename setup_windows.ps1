@@ -99,6 +99,32 @@ if ($psrl.Version -lt [version]"2.3.0") {
 }
 #endregion
 
+#region Cargo Crates
+if (!$SkipApps) {
+    Write-Host "`n--- Installing cargo crates ---" -ForegroundColor Cyan
+    $cargoManifest = "$ScriptDir\rust\packages.txt"
+
+    # rustup (installed via WinGet) drops cargo here; ensure it's on PATH for this session.
+    $cargoBin = Join-Path $env:USERPROFILE ".cargo\bin"
+    if (Test-Path $cargoBin) { $env:Path = "$cargoBin;$env:Path" }
+
+    if (!(Get-Command cargo -ErrorAction SilentlyContinue)) {
+        Write-Host "  cargo not found (install Rustlang.Rustup, then re-run). Skipping." -ForegroundColor Yellow
+    } elseif (!(Test-Path $cargoManifest)) {
+        Write-Host "  Manifest not found: $cargoManifest" -ForegroundColor Red
+    } else {
+        Get-Content $cargoManifest | ForEach-Object {
+            $pkg = $_.Trim()
+            if ($pkg -and !$pkg.StartsWith("#")) {
+                Write-Host "  cargo install $pkg" -ForegroundColor Gray
+                cargo install $pkg
+            }
+        }
+        Write-Host "Cargo crates installed." -ForegroundColor Green
+    }
+}
+#endregion
+
 #region WSL
 if (!$SkipWSL) {
     Write-Host "`n--- Configuring WSL ---" -ForegroundColor Cyan

@@ -89,11 +89,17 @@ Before committing changes to `dot-zprofile`, `dot-zshrc`, or any shell config:
 
 ## Global Git Hooks
 
-Gitleaks runs automatically on every commit via a global pre-commit hook:
-- Hook location: `dotfiles/dot-config/git/hooks/pre-commit` (stowed to `~/.config/git/hooks/`)
-- Enabled by `core.hooksPath` in `dotfiles/dot-config/git/config`
-- Chains to repo-local hooks (husky, lefthook, etc.) if they exist
-- Skip with `--no-verify` when needed
+The global pre-commit hook (`dotfiles/dot-config/git/hooks/pre-commit`, stowed to
+`~/.config/git/hooks/`, enabled by `core.hooksPath` in `dotfiles/dot-config/git/config`)
+runs in order:
+1. **Gitleaks** — secret scan; **blocks** the commit on failure.
+2. **sem diff --staged** — entity-level blast radius of staged changes; **informational only**,
+   never blocks (skipped silently if `sem` is not installed).
+3. **Repo-local hook** (husky, lefthook, etc.) if present — chained via `exec`.
+
+- Skip the whole chain with `--no-verify` when needed.
+- `sem` is installed via cargo on all platforms (listed in `rust/packages.txt`, consumed by the
+  setup scripts); see the global `dot-claude/CLAUDE.md` for usage.
 
 ## Detailed Documentation
 

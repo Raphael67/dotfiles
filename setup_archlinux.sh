@@ -142,6 +142,15 @@ else
     fi
 fi
 
+# Install cargo crates from rust/packages.txt (tools not in pacman)
+if [ -f "$SCRIPT_DIR/rust/packages.txt" ] && command -v cargo &>/dev/null; then
+    info "Installing cargo crates..."
+    grep -v '^#' "$SCRIPT_DIR/rust/packages.txt" | grep -v '^$' | while read -r package; do
+        cargo install "$package"
+    done
+    success "cargo crates installed"
+fi
+
 # Install nvm + Node.js LTS
 # Resolve NVM_DIR: prefer XDG path, fall back to legacy paths
 export NVM_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/nvm"

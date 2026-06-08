@@ -1,7 +1,8 @@
 #!/bin/sh
 #
-# Global pre-commit hook: runs gitleaks to prevent secrets from being committed.
-# Installed via core.hooksPath in ~/.config/git/config.
+# Global pre-commit hook. Installed via core.hooksPath in ~/.config/git/config.
+#   1. gitleaks      - blocks the commit if secrets are detected
+#   2. sem diff      - prints entity-level blast radius of staged changes (informational)
 #
 # Chain to repo-local hooks (husky, lefthook, etc.) if they exist.
 
@@ -14,6 +15,12 @@ if command -v gitleaks >/dev/null 2>&1; then
 else
     echo "Warning: gitleaks not found. Skipping secret scan."
     echo "Install it with: brew install gitleaks (macOS) or pacman -S gitleaks (Arch)"
+fi
+
+# --- sem: entity-level blast radius of staged changes (informational, never blocks) ---
+# Shows which functions/classes/methods changed instead of raw line diffs.
+if command -v sem >/dev/null 2>&1; then
+    sem diff --staged 2>/dev/null
 fi
 
 # --- Chain to repo-local hook ---

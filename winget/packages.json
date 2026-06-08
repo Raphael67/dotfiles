@@ -24,6 +24,7 @@
                 { "PackageIdentifier": "WiresharkFoundation.Wireshark" },
                 { "PackageIdentifier": "Microsoft.VisualStudioCode" },
                 { "PackageIdentifier": "Gitleaks.Gitleaks" },
+                { "PackageIdentifier": "Rustlang.Rustup" },
                 { "PackageIdentifier": "Starship.Starship" },
                 { "PackageIdentifier": "sharkdp.bat" },
                 { "PackageIdentifier": "eza-community.eza" },

@@ -106,12 +106,7 @@ local diagnostics_active = true
 
 vim.keymap.set("n", "<leader>do", function()
   diagnostics_active = not diagnostics_active
-
-  if diagnostics_active then
-    vim.diagnostic.enable(false)
-  else
-    vim.diagnostic.enable(true)
-  end
+  vim.diagnostic.enable(diagnostics_active)
 end)
 
 -- Diagnostic keymaps

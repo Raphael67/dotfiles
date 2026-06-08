@@ -17,3 +17,5 @@ export PATH="$HOME/.local/bin:$PATH"
 if [ -n "$BASH_VERSION" ] && [ -f "$HOME/.bashrc" ]; then
     . "$HOME/.bashrc"
 fi
+
+export PATH="/home/raphael/.local/bin:$PATH"  # keymaging-setup

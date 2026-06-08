@@ -124,6 +124,10 @@ if file_exists(session_file) then
   vim.cmd("source " .. session_file)
 end
 
+-- Persistent, rolling error/warning log + longer-lived error messages.
+-- Required after lazy.setup so the vim.notify wrapper wraps noice's replacement.
+require("core.logging")
+
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
 require("plugins.bufferline")

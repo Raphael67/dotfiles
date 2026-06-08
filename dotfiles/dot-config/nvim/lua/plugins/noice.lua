@@ -23,12 +23,23 @@ return {
 			long_message_to_split = true, -- long messages go to a split
 			lsp_doc_border = true, -- border on hover docs and signature help
 		},
+		cmdline = {
+			format = {
+				filter = false, -- disable filter format to allow normal :! shell commands
+			},
+		},
 		-- Routes to reduce noise
 		routes = {
 			-- Skip "written" messages
 			{ filter = { event = "msg_show", kind = "", find = "written" }, opts = { skip = true } },
 			-- Skip search count messages
 			{ filter = { event = "msg_show", kind = "search_count" }, opts = { skip = true } },
+			-- Keep error messages on screen longer (~10s) so they can actually be read
+			{
+				filter = { event = "msg_show", kind = { "emsg", "echoerr", "lua_error", "rpc_error" } },
+				view = "notify",
+				opts = { timeout = 10000 },
+			},
 		},
 	},
 	keys = {

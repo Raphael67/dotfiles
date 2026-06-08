@@ -1,3 +1,21 @@
+-- Language host providers: disable the ones we never use (silences :checkhealth),
+-- and pin the Python host to a dedicated venv that has pynvim installed.
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_perl_provider = 0
+vim.g.python3_host_prog = vim.fn.expand("~/.local/share/nvim/py-provider/bin/python")
+
+-- Node host: the system `node` nvim resolves at runtime lacks the `neovim` npm package,
+-- but our nvm-managed node has it. Point at that host, picking the highest installed
+-- version via glob so it survives nvm node upgrades. No-op if no nvm node is present.
+local node_hosts = vim.fn.glob(
+    vim.fn.expand("~/.local/share/nvm/versions/node/*/bin/neovim-node-host"),
+    false,
+    true
+)
+if #node_hosts > 0 then
+    vim.g.node_host_prog = node_hosts[#node_hosts]
+end
+
 vim.o.hlsearch = true                  -- Set highlight on search
 vim.o.incsearch = true
 vim.wo.number = true                   -- Make line numbers default

@@ -1,15 +1,20 @@
 -- Persistent, rolling log for error/warning messages.
 --
--- Why this exists: noice.nvim shows messages in a transient view that auto-dismisses,
--- and Neovim's own `~/.local/state/nvim/log` only records core C-level warnings -- never
--- the Lua/LSP/command-error text that flashes red on screen. This module captures those
--- error/warn messages to a real on-disk file that survives across sessions and self-rotates.
+-- Why this exists: notifications (snacks.notifier and friends) are transient and
+-- auto-dismiss, and Neovim's own `~/.local/state/nvim/log` only records core C-level
+-- warnings -- never the Lua/LSP/plugin text that flashes on screen. This module captures
+-- warn/error notifications to a real on-disk file that survives across sessions and
+-- self-rotates.
 --
--- Two capture sources, both filtered to ERROR/WARN only:
---   1. vim.ui_attach(ext_messages)  -> the hard red errors (E### errors, Lua errors, ...)
---   2. a vim.notify wrapper         -> programmatic notifications (most LSP/plugin warnings)
--- noice replaces vim.notify on VeryLazy and renders notifications itself (bypassing msg_show),
--- so both sources are needed for full coverage.
+-- Capture source: a `vim.notify` wrapper (warn/error only). snacks.notifier replaces
+-- vim.notify with its own implementation; we wrap *that* so every notification it renders
+-- is also logged. This is the path the vast majority of LSP/plugin warnings and errors
+-- take.
+--
+-- NOTE: a previous version also hooked `vim.ui_attach(ext_messages)` to capture raw E###
+-- errors. That mechanism suppresses the default on-screen message grid unless a UI renders
+-- the messages (noice did). Since noice was removed in favor of the vanilla cmdline, that
+-- source was dropped -- enabling it again would make ordinary messages disappear.
 
 local uv = vim.uv or vim.loop
 
@@ -37,17 +42,6 @@ local function level_name(level)
     if level >= vim.log.levels.ERROR then
         return "ERROR"
     elseif level >= vim.log.levels.WARN then
-        return "WARN"
-    end
-    return nil
-end
-
--- msg_show `kind` -> label. Only error/warning kinds are logged; everything else is ignored.
-local function kind_label(kind)
-    if kind == "emsg" or kind == "echoerr" or kind == "lua_error"
-        or kind == "rpc_error" or kind == "shell_err" then
-        return "ERROR"
-    elseif kind == "wmsg" then
         return "WARN"
     end
     return nil
@@ -87,72 +81,33 @@ local function write(label, msg)
     f:close()
 end
 
--- ui callbacks run in a restricted/fast context: defer the actual file write.
+-- Defer the actual file write so we never touch the filesystem in a fast/restricted context.
 local function log(label, msg)
     vim.schedule(function()
         write(label, msg)
     end)
 end
 
--- Concatenate the text out of an ext_messages `content` chunk list ({ {attr, text, hl}, ... }).
-local function chunks_to_text(content)
-    local parts = {}
-    for _, chunk in ipairs(content or {}) do
-        parts[#parts + 1] = chunk[2] or ""
-    end
-    return table.concat(parts)
-end
-
--- Source 1: observe every on-screen message. Passive -- never returns true (which would
--- suppress the message) and coexists with noice's own ext_messages handler.
-local function attach_messages()
-    local ns = vim.api.nvim_create_namespace("core_logging_messages")
-    vim.ui_attach(ns, { ext_messages = true }, function(event, ...)
-        if event ~= "msg_show" then
-            return
-        end
-        local kind, content = ...
-        local label = kind_label(kind)
-        if label then
-            log(label, chunks_to_text(content))
-        end
-    end)
-end
-
 -- Build a logging wrapper around an existing notify function. Logs warn/error then delegates.
--- Skips logging while in a fast event: noice reschedules those onto the main loop, where the
--- wrapper runs again -- gating here keeps each notification logged exactly once.
 local function make_notify_wrapper(orig)
     return function(msg, level, opts)
-        if not vim.in_fast_event() then
-            local label = level_name(level_value(level))
-            if label then
-                log(label, type(msg) == "string" and msg or tostring(msg))
-            end
+        local label = level_name(level_value(level))
+        if label then
+            log(label, type(msg) == "string" and msg or tostring(msg))
         end
         return orig(msg, level, opts)
     end
 end
 
--- Source 2: capture vim.notify warn/error too (noice renders these itself, bypassing msg_show).
--- Deferred to after VeryLazy + a scheduled tick so noice has already installed its handler.
--- When noice owns vim.notify, wrap its source *in place* so both `vim.notify` and noice's own
--- reference stay identical -- otherwise noice's health checker flags a spurious
--- "vim.notify has been overwritten" error. Falls back to a plain wrapper if noice is absent.
+-- Capture vim.notify warn/error. Deferred to after VeryLazy + a scheduled tick so snacks
+-- has already installed its notifier; we then wrap whatever vim.notify currently is.
 local function wrap_notify()
     vim.api.nvim_create_autocmd("User", {
         pattern = "VeryLazy",
         once = true,
         callback = function()
             vim.schedule(function()
-                local ok, src = pcall(require, "noice.source.notify")
-                if ok and type(src) == "table" and src.notify == vim.notify then
-                    local wrapper = make_notify_wrapper(src.notify)
-                    src.notify = wrapper -- keep noice's health check (want == handler) satisfied
-                    vim.notify = wrapper
-                else
-                    vim.notify = make_notify_wrapper(vim.notify)
-                end
+                vim.notify = make_notify_wrapper(vim.notify)
             end)
         end,
     })
@@ -175,7 +130,6 @@ end
 function M.setup()
     -- Keep the native LSP log meaningful without flooding it.
     vim.lsp.log.set_level(vim.log.levels.WARN)
-    attach_messages()
     wrap_notify()
     create_commands()
 end

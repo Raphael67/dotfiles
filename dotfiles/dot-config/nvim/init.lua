@@ -29,18 +29,17 @@ require("lazy").setup({
   require("plugins.treesitter"),
   require("plugins.lsp"),
   require("plugins.autocompletion"),
-  require("plugins.none-ls"),
+  require("plugins.conform"),
+  require("plugins.lint"),
   require("plugins.lualine"),
   {
     "akinsho/bufferline.nvim",
     dependencies = {
-      "moll/vim-bbye",
       "nvim-tree/nvim-web-devicons",
     },
   },
   require("plugins.neotree"),
-  require("plugins.indent-blankline"),
-  require("plugins.lazygit"),
+  require("plugins.snacks"),
   require("plugins.comment"),
   require("plugins.debug"),
   require("plugins.gitsigns"),
@@ -48,9 +47,14 @@ require("lazy").setup({
   require("plugins.misc"),
   require("plugins.harpoon"),
   require("plugins.aerial"),
-  require("plugins.noice"),
   require("plugins.flash"),
   require("plugins.vim-tmux-navigator"),
+  require("plugins.rust"),
+  require("plugins.trouble"),
+  require("plugins.grug-far"),
+  require("plugins.oil"),
+  require("plugins.render-markdown"),
+  require("plugins.persistence"),
   require("plugins.claude"),
   {
     "catppuccin/nvim",
@@ -69,6 +73,9 @@ require("lazy").setup({
           nvimtree = true,
           treesitter = true,
           notify = true,
+          snacks = true,
+          render_markdown = true,
+          grug_far = true,
           telescope = true,
           bufferline = true,
           mini = {
@@ -104,28 +111,11 @@ require("lazy").setup({
   },
 })
 
--- Function to check if a file exists
-local function file_exists(file)
-  local f = io.open(file, "r")
-  if f then
-    f:close()
-    return true
-  else
-    return false
-  end
-end
+-- Session management is handled by persistence.nvim (see plugins/persistence.lua);
+-- the old manual `.session.vim` source block was removed in favor of it.
 
--- Path to the session file
-local session_file = ".session.vim"
-
--- Check if the session file exists in the current directory
-if file_exists(session_file) then
-  -- Source the session file
-  vim.cmd("source " .. session_file)
-end
-
--- Persistent, rolling error/warning log + longer-lived error messages.
--- Required after lazy.setup so the vim.notify wrapper wraps noice's replacement.
+-- Persistent, rolling error/warning log.
+-- Required after lazy.setup so the vim.notify wrapper wraps snacks.notifier's replacement.
 require("core.logging")
 
 -- The line beneath this is called `modeline`. See `:help modeline`

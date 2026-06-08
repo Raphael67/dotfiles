@@ -137,7 +137,7 @@ return { -- LSP Configuration & Plugins
 			"docker_compose_language_service",
 			"pylsp",
 			"ruff",
-			"rust_analyzer",
+			-- rust_analyzer is driven by rustaceanvim (see plugins/rust.lua), not enabled here.
 			"tailwindcss",
 			"jsonls",
 			"sqlls",
@@ -168,7 +168,14 @@ return { -- LSP Configuration & Plugins
 		-- for you, so that they are available from within Neovim.
 		local ensure_installed = vim.deepcopy(servers)
 		vim.list_extend(ensure_installed, {
-			"stylua",          -- Used to format lua code
+			"rust_analyzer",   -- installed for rustaceanvim (which drives it), not vim.lsp.enable'd
+			"stylua",          -- lua formatter (conform)
+			"shfmt",           -- shell formatter (conform)
+			"prettier",        -- html/json/yaml/md/ts/js/css formatter (conform)
+			"goimports",       -- go imports formatter (conform)
+			"gofumpt",         -- go formatter (conform)
+			"eslint_d",        -- ts/js linter (nvim-lint)
+			"checkmake",       -- makefile linter (nvim-lint)
 			"tree-sitter-cli", -- treesitter grammar compilation + :checkhealth
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })

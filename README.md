@@ -221,20 +221,26 @@ Zsh loads fast thanks to lazy loading of version managers:
 Plugin manager: [lazy.nvim](https://github.com/folke/lazy.nvim) — plugins load on demand.
 
 **Highlights:**
-- **LSP + blink.cmp** — language servers with ghost text completion, fuzzy matching
+- **LSP + blink.cmp** — language servers with ghost text completion, fuzzy matching, signature help
+- **conform.nvim + nvim-lint** — async format-on-save (stylua, prettier, ruff, gofumpt, shfmt) and linting (eslint_d, checkmake)
 - **DAP** — debug adapter protocol
 - **Telescope** — fuzzy finder for files, grep, buffers
 - **Treesitter** — syntax highlighting and code objects
-- **Neo-tree** — file explorer
+- **snacks.nvim** — QoL toolkit: notifier, dashboard, indent guides, lazygit, scratch buffers, gitbrowse
+- **Neo-tree + oil.nvim** — sidebar file tree plus buffer-based filesystem editing (bulk renames)
 - **Harpoon** — quick file navigation
 - **Aerial** — symbol outline
+- **trouble.nvim** — aggregated diagnostics / quickfix / references panel
+- **grug-far.nvim** — project-wide find & replace with live preview
 - **Gitsigns** — inline git blame/hunks
 - **Bufferline** — tab-style buffer management
 - **Lualine** — statusline
+- **persistence.nvim** — per-directory session save/restore
 - **vim-tmux-navigator** — seamless tmux/nvim pane switching
-- **mini.surround** — add/delete/replace surroundings (quotes, brackets, tags)
+- **mini.surround / mini.ai / mini.pairs** — surroundings, enhanced text objects, autopairs
 - **flash.nvim** — label-based motions and jumps
-- **noice.nvim** — floating cmdline, notifications, LSP UI
+- **render-markdown.nvim** — in-buffer markdown rendering
+- **rustaceanvim + crates.nvim** — rich Rust tooling and Cargo.toml dependency management
 - **Claude + Copilot** — AI code assistance
 
 ## tmux

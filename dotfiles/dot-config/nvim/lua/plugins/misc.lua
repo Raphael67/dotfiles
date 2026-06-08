@@ -35,10 +35,17 @@ return {
 		},
 	},
 	{
-		-- Autoclose parentheses, brackets, quotes, etc.
-		"windwp/nvim-autopairs",
+		-- Autoclose parentheses, brackets, quotes, etc. (mini.* ecosystem, replaces nvim-autopairs)
+		"echasnovski/mini.pairs",
+		version = "*",
 		event = "InsertEnter",
-		config = true,
+		opts = {},
+	},
+	{
+		-- Treesitter-aware commentstring for embedded languages (JSX/Vue/etc.).
+		-- Comment.nvim still provides the toggle keymaps; this fixes the comment string.
+		"folke/ts-comments.nvim",
+		event = "VeryLazy",
 		opts = {},
 	},
 	{
@@ -77,6 +84,23 @@ return {
 		"echasnovski/mini.surround",
 		version = "*",
 		opts = {},
+	},
+	{
+		-- Enhanced a/i text objects (treesitter-backed function/argument objects)
+		"echasnovski/mini.ai",
+		version = "*",
+		event = "VeryLazy",
+		opts = function()
+			local ai = require("mini.ai")
+			return {
+				n_lines = 500,
+				custom_textobjects = {
+					-- treesitter-powered: af/if functions, ac/ic classes
+					f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }),
+					c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }),
+				},
+			}
+		end,
 	},
 	{
 		"ThePrimeagen/vim-be-good",

@@ -44,6 +44,9 @@ return {
 			default = { "lsp", "path", "snippets", "buffer" },
 		},
 
+		-- LSP signature help while typing function args (previously provided by noice).
+		signature = { enabled = true },
+
 		fuzzy = { implementation = "prefer_rust_with_warning" },
 	},
 

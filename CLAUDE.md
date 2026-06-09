@@ -119,3 +119,14 @@ Guidance is delivered through **path-scoped rules** in `./.claude/rules/` (proje
 - **Lean rules** (`./.claude/rules/`) hold the key conventions and gotchas; they auto-inject.
 - **Full reference docs** (`./.claude/dotfiles-ref/`) are read on demand — also `TROUBLESHOOTING.md`, `WINDOWS.md`, and `THEME-XDG.md` (Catppuccin palette + XDG tables), which have no single file glob.
 - **`/dotfiles-selfupdate`** (`./.claude/commands/`) refreshes the reference docs against upstream documentation and flags any rule that drifted.
+
+<!-- rtk-instructions v2 -->
+# RTK (Rust Token Killer)
+
+RTK is installed and applied **automatically** — a `PreToolUse` Bash hook (`rtk hook claude`
+in `~/.claude/settings.json`) transparently rewrites commands (e.g. `git status` →
+`rtk git status`) for 60–90% token savings. No need to prefix commands manually.
+
+Meta commands to run directly: `rtk gain` (savings stats), `rtk discover` (missed
+opportunities), `rtk proxy <cmd>` (run unfiltered for debugging).
+<!-- /rtk-instructions -->

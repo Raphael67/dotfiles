@@ -1,6 +1,11 @@
 # less
 alias less="less -iR"
 
+# bat
+if type bat > /dev/null; then
+  alias cat="bat --paging=auto"
+fi
+
 # System
 alias shutdown='sudo shutdown now'
 alias restart='sudo reboot'

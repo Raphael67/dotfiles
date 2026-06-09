@@ -78,12 +78,20 @@ export CLAUDE_CODE_FORK_SUBAGENT=1
 
 # Plugin config
 
-# tmux integration (manual start - use `tmux attach -t main || tmux new -s main`)
-# Disabled auto-start to allow manual decision
-# if [[ -z "$TMUX" && "$TERM_PROGRAM" != "vscode" && -z "$NO_TMUX" && "$CLAUDECODE" != "1" ]]; then
-#   ZSH_TMUX_AUTOSTART=true
-#   tmux attach -t main 2>/dev/null || tmux new -s main
-# fi
+# tmux auto-start for Ghostty on macOS and WSL
+# Skips if: already in tmux, Claude Code, NO_TMUX set, or not macOS/WSL
+_is_wsl() { [[ -r /proc/version ]] && grep -qi microsoft /proc/version 2>/dev/null; }
+_is_mac() { [[ "$(uname)" == "Darwin" ]]; }
+if  [[ -z "$TMUX" ]] && \
+    [[ "$TERM_PROGRAM" == "ghostty" ]] && \
+    [[ "$CLAUDECODE" != "1" ]] && \
+    [[ -z "$NO_TMUX" ]] && \
+    ( _is_mac || _is_wsl ) && \
+    command -v tmux &>/dev/null
+then
+  exec tmux new-session -A -s scratchpad
+fi
+unset -f _is_wsl _is_mac
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
@@ -360,10 +368,8 @@ if type tv > /dev/null; then
   _evalcache tv init zsh
 fi
 
-# bat
+# bat setup (alias moved to aliases.zsh)
 if type bat > /dev/null; then
-  alias cat="bat --style=plain --paging=auto"
-
   export MANPAGER="sh -c 'col -bx | bat -l man -p'"
   export MANROFFOPT="-c"
 

@@ -29,9 +29,10 @@ background-blur = 30
 macos-option-as-alt = false
 
 # Keybinds
-# Note: To open Ghostty window without tmux, use:
+# Note: tmux auto-starts when Ghostty opens on macOS and WSL.
+# To open Ghostty without tmux:
 # - From tmux: prefix + N (Ctrl+x N)
-# - From shell: notmux (alias)
+# - From shell: notmux (alias) — sets NO_TMUX=1 before launching zsh
 # - From anywhere: global shortcut via macOS Shortcuts app
 
 # Alternative shell: Nushell

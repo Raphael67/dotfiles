@@ -39,6 +39,14 @@
             "args": [
                 "mcp"
             ]
+        },
+        "gitnexus": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "gitnexus@latest",
+                "mcp"
+            ]
         }
     }
 }

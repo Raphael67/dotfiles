@@ -253,4 +253,78 @@ sem context <entity> --budget 4000   # Token-budgeted LLM context for an entity
 - Installed via cargo on every platform (listed in `rust/packages.txt` in the dotfiles repo):
   `cargo install sem-cli` — provides the `sem` binary.
 
+### GitNexus — Code Intelligence Platform
+
+GitNexus indexes any codebase into a knowledge graph with 16 MCP tools for agents. Use it to understand unfamiliar code, analyze impact before changes, and trace execution flows.
+
+**Installation & MCP:**
+```bash
+npm install -g gitnexus@latest
+gitnexus setup          # Register MCP server with Claude Code (one-time)
+```
+
+**On new machines, auto-index key repos:**
+```bash
+bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh
+```
+
+**Core Commands:**
+
+| Command | Purpose |
+|---------|---------|
+| `gitnexus analyze /path` | Index a repository into `.gitnexus/` |
+| `gitnexus list` | Show all indexed repos |
+| `gitnexus status` | Check index staleness (vs. git HEAD) |
+| `gitnexus context <symbol>` | View symbol callers/callees/types |
+| `gitnexus query "term"` | Search codebase (BM25 + semantic) |
+| `gitnexus impact <target>` | Blast radius analysis (what breaks if we change this?) |
+| `gitnexus mcp` | Start MCP server (stdio) — called by Claude Code automatically |
+| `gitnexus serve` | Start HTTP API + web UI on :4747 |
+| `gitnexus wiki` | Generate LLM-powered codebase docs |
+| `gitnexus clean --all` | Delete all indexes (cacheable, regenerate anytime) |
+
+**Using MCP Tools in Claude Code:**
+
+Once MCP is registered (`gitnexus setup`), agents can call these tools directly:
+
+- **Find unfamiliar code**: Use `query` or `context` to understand symbol relationships
+- **Before refactoring**: Use `impact` to understand blast radius
+- **Analyzing diffs**: Use `detect_changes` to map Git changes to code units
+- **Architecture docs**: Use `generate_map` prompt to generate Mermaid diagrams
+- **Cross-repo safety**: Use group tools for multi-repo coordination
+
+**Configuration:**
+
+- **Global config:** `~/.config/gitnexus/config.json` (symlinked from dotfiles)
+- **Per-repo overrides:** `.gitnexusrc` in repo root (optional, local, not stowed)
+- **Environment variables:** `GITNEXUS_WORKER_POOL_SIZE`, `GITNEXUS_SKIP_OPTIONAL_GRAMMARS`, etc.
+
+**Generated Skills:**
+
+After indexing, GitNexus generates agent skills:
+- `./.claude/skills/gitnexus/` — Built-in skills (exploring, debugging, impact analysis, refactoring, PR review)
+- `./.claude/skills/generated/` — Auto-generated per functional area (one skill per Leiden cluster)
+
+Use `gitnexus analyze --skills` to regenerate per-repo skills.
+
+**Indexed Repositories:**
+
+Auto-indexed on setup:
+- `~/Projects/dotfiles` (cross-machine dev config)
+- `~/Projects/keymaging/meta` (key project)
+
+Manually index other repos:
+```bash
+cd /path/to/repo && gitnexus analyze
+```
+
+Index is stored in `.gitnexus/` (gitignored, cache-like, regenerable).
+
+**Troubleshooting:**
+
+- **Stale index?** → `gitnexus status` shows staleness; re-run `gitnexus analyze` to refresh
+- **Missing symbol?** → May be below parse threshold (block-local); check symbol scope in `context`
+- **Slow indexing?** → Check `GITNEXUS_SKIP_OPTIONAL_GRAMMARS=1` if C++ build is slow; embeddings add 20-50% time
+- **MCP not appearing?** → Run `gitnexus setup` and restart Claude Code
+
 @RTK.md

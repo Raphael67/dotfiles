@@ -1,0 +1,12 @@
+# Template for scripts/setup-gitnexus.local (COMMITTED; copy to activate).
+#
+#   cp scripts/setup-gitnexus.local.example scripts/setup-gitnexus.local
+#
+# Then set your real, private repo paths below. The .local file is gitignored
+# so these paths never reach this public repo.
+
+# A primary project repo to full-index alongside dotfiles (optional).
+export GITNEXUS_PRIMARY_REPO="$HOME/Projects/<your-primary-project>"
+
+# Directory whose immediate subdirectories are project repos to index-only (optional).
+export GITNEXUS_PROJECTS_DIR="$HOME/Projects/<your-primary-project>/projects"

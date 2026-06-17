@@ -1,0 +1,25 @@
+# Template for the gitignored .forbidden-terms.toml (COMMITTED, placeholders only).
+#
+# On a fresh machine the real .forbidden-terms.toml is absent, which makes
+# gitleaks abort and block every commit (it is referenced by .gitleaks.toml).
+# Bootstrap it:
+#
+#   cp .forbidden-terms.toml.example .forbidden-terms.toml
+#   # then edit .forbidden-terms.toml and replace the placeholders below with
+#   # the real private terms (that file is gitignored and stays local).
+
+[extend]
+useDefault = true
+
+[[rules]]
+id          = "company-private-terms"
+description = "Private company/project names that must not appear in this public repo"
+regex       = '''(?i)(REPLACE-WITH-TERM-ONE|REPLACE-WITH-TERM-TWO)'''
+keywords    = ["REPLACE-WITH-TERM-ONE", "REPLACE-WITH-TERM-TWO"]
+
+  [rules.allowlist]
+  paths = [
+    '''\.forbidden-terms\.toml$''',
+    '''\.forbidden-terms\.toml\.example$''',
+    '''\.gitleaks\.toml$''',
+  ]

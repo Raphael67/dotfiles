@@ -1,0 +1,23 @@
+# Gitleaks config for this PUBLIC repo.
+#
+# This file is COMMITTED and deliberately contains NO private terms. It only
+# chains to a gitignored ".forbidden-terms.toml" that holds the actual
+# company/project names we must never publish. That indirection keeps the
+# secret list itself out of the public repo.
+#
+#   .gitleaks.toml (this file, committed) --extend--> .forbidden-terms.toml
+#       (gitignored) --extend--> gitleaks default rules (useDefault = true)
+#
+# The global pre-commit hook runs `gitleaks git . --staged`, which auto-detects
+# this file (no --config needed) and follows the chain, so staged diffs are
+# checked against BOTH the default secret rules AND our private term list.
+#
+# IMPORTANT — bootstrap on a fresh machine:
+#   `.forbidden-terms.toml` is gitignored and does NOT sync via git. If it is
+#   missing, gitleaks aborts with "failed to load extended config" and BLOCKS
+#   every commit. Recreate it from the committed template:
+#       cp .forbidden-terms.toml.example .forbidden-terms.toml
+#   then fill in the real terms (kept local, never committed).
+
+[extend]
+path = ".forbidden-terms.toml"

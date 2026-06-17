@@ -309,13 +309,27 @@ Use `gitnexus analyze --skills` to regenerate per-repo skills.
 
 **Indexed Repositories:**
 
-Auto-indexed on setup:
-- `~/Projects/dotfiles` (cross-machine dev config)
-- `~/Projects/keymaging/meta` (key project)
+`scripts/setup-gitnexus.sh` (re)indexes your repos idempotently, in two tiers. Real
+paths are read from a gitignored `scripts/setup-gitnexus.local` (copy it from
+`scripts/setup-gitnexus.local.example` and set `GITNEXUS_PRIMARY_REPO` /
+`GITNEXUS_PROJECTS_DIR`):
 
-Manually index other repos:
+*Primary repos — full index **with** agent-context injection (skills + CLAUDE.md/AGENTS.md):*
+- `~/Projects/dotfiles` (cross-machine dev config)
+- `$GITNEXUS_PRIMARY_REPO` (your primary project, set locally)
+
+*Project repos (`$GITNEXUS_PROJECTS_DIR/*`) — `--index-only`, **zero footprint** (no files written into these possibly team-shared repos) + embeddings.*
+
+Re-run anytime (skips repos already current with git HEAD):
 ```bash
-cd /path/to/repo && gitnexus analyze
+bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh        # all tiers
+ONLY_PROJECTS=1 bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh  # just the project repos
+FORCE=1 bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh # force full re-index
+```
+
+Manually index any other repo:
+```bash
+cd /path/to/repo && gitnexus analyze --index-only   # --index-only keeps shared repos clean
 ```
 
 Index is stored in `.gitnexus/` (gitignored, cache-like, regenerable).

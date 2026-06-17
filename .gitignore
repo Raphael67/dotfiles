@@ -46,6 +46,13 @@ dotfiles/dot-config/docker/buildx/
 dotfiles/dot-config/docker/.token_seed
 dotfiles/dot-config/docker/.token_seed.lock
 
+# gitleaks - private forbidden-terms list (company/project names kept out of
+# this public repo). The .example template IS committed; the real file is not.
+.forbidden-terms.toml
+
+# GitNexus - machine-local repo paths (private). The .example is committed.
+scripts/setup-gitnexus.local
+
 # Python bytecode
 __pycache__/
 *.pyc

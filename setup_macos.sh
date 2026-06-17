@@ -61,7 +61,7 @@ if [[ "$install_apps" == "y" ]]; then
     # Install or update rclone via the official installer.
     # The Homebrew build of rclone explicitly disables FUSE on macOS, so
     # `rclone mount` fails. The official binary (installed to /usr/local/bin)
-    # ships with FUSE support via macFUSE. Required by keymaging-rag mount.
+    # ships with FUSE support via macFUSE. Required for `rclone mount` (FUSE).
     if [[ -x /usr/local/bin/rclone ]]; then
         info "Updating rclone (official binary) via selfupdate..."
         sudo /usr/local/bin/rclone selfupdate

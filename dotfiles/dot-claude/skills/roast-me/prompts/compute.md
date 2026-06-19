@@ -5,8 +5,8 @@ You are analyzing whether the user is over-spending on AI compute by using too-p
 ## Input
 
 You will receive a JSON array of prompt records. Each has standard fields plus:
-- `response_model`: which model handled this prompt (e.g., `claude-opus-4-6`)
-- `response_model_tier`: normalized tier (`opus`, `sonnet`, `haiku`)
+- `response_model`: which model handled this prompt (e.g., `claude-opus-4-8`, `claude-fable-5`)
+- `response_model_tier`: normalized tier (`fable`, `opus`, `sonnet`, `haiku`)
 - `response_has_thinking`: whether extended thinking was used
 - `response_thinking_length`: chars of thinking content (0 if redacted but present)
 - `response_input_tokens`: input tokens consumed
@@ -39,6 +39,18 @@ Use this framework to evaluate whether the heuristic classification was correct:
 | Architecture/design | opus | high | "design the auth system", "plan migration", "create a skill" |
 | Complex debugging | opus | high | "find the race condition", "debug memory leak", "investigate flaky test" |
 | Long implementation | opus | high | Complex multi-step features, full pipeline builds |
+| Frontier / long-horizon autonomous | fable | high | Hardest reasoning, large autonomous migrations, multi-hour agent runs where Opus measurably falls short |
+
+### Model cost ladder (per MTok, verified 2026-06-12)
+
+| Tier | Model ID | Input | Output | Role |
+|------|----------|-------|--------|------|
+| **fable** | `claude-fable-5` | **$10** | **$50** | Frontier (Mythos-class). The NEW most-expensive tier — 2× Opus. |
+| opus | `claude-opus-4-8` | $5 | $25 | Cost-effective top workhorse (dropped from $15/$75 at the 4.5 gen) |
+| sonnet | `claude-sonnet-4-6` | $3 | $15 | Production default for edits/tests |
+| haiku | `claude-haiku-4-5` | $1 | $5 | Simple ops, confirmations, lookups |
+
+**The 2026 inversion:** Fable 5 — not Opus — is now the "nuclear reactor." Using **Fable 5 where Opus 4.8 suffices** is the single biggest overspend (you pay 2× for a capability gap most tasks never exercise). Opus itself is now cheap ($5/$25), so weigh Opus-vs-Sonnet overuse *gently* and Fable-vs-Opus overuse *heavily*. If the user has set Fable 5 as their session default, only flag it where a clearly cheaper tier produces identical quality.
 
 ## Your Job
 
@@ -61,6 +73,7 @@ For each prompt where `compute_was_overkill=true`, evaluate whether the heuristi
 - Extended thinking on genuinely hard problems (debugging, architecture, multi-step planning) is **correct**, not wasteful
 - If `assistant_tool_count` > 15, the task was likely complex regardless of prompt simplicity
 - Only flag cases where you are **confident** a cheaper model would have produced the **same quality result**
+- **Fable 5 is the frontier model AND the priciest tier** ($10/$50, 2× Opus). When `model_used` is `fable`, the right comparison is usually "would Opus 4.8 have been identical?" — recommend `opus` (not `haiku`) unless the task is genuinely trivial. When `model_used` is `opus`, flag downgrades to `sonnet`/`haiku` more conservatively, since Opus is now cheap.
 
 ## Output Format
 
@@ -96,6 +109,7 @@ Return a JSON object:
     {
       "index": 12,
       "prompt_snippet": "first 200 chars of prompt",
+      "model_used": "opus",
       "explanation": "Complex skill creation requiring multi-file coordination, prompt engineering, and architectural decisions. Opus was the right call."
     }
   ],
@@ -118,6 +132,8 @@ Return a JSON object:
 
 Only include `high` and `medium` confidence cases in `overuse_cases`. Mention `low` confidence cases in the summary count but don't list them individually.
 
+`model_used` and `recommended_model` are tier names: `fable`, `opus`, `sonnet`, or `haiku`. The `correctly_used_opus` list is for any **premium model used correctly** — include justified `fable` uses here too (add a `model_used` field so the roast can distinguish "worth the Fable premium" from "worth the Opus spend").
+
 ## Task Type Categories
 
 Use these standardized category names in `task_type`:
@@ -134,4 +150,4 @@ Use these standardized category names in `task_type`:
 - `long_implementation` — building substantial new features
 - `skill_or_agent` — creating/modifying Claude skills or agents
 
-Be constructive. The goal is to help the user develop intuition for when to switch models, not to punish them for using Opus.
+Be constructive. The goal is to help the user develop intuition for when to switch models, not to punish them for using Opus or Fable. The sharpest intuition to instill in 2026: **reach for Fable 5 only when Opus 4.8 would genuinely fall short** — it costs 2× and most tasks never need the difference.

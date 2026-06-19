@@ -33,15 +33,23 @@ CORRECTION_TEXT_LIMIT = 500
 ERROR_TEXT_LIMIT = 500
 CONTEXT_BEFORE_LIMIT = 500  # Previous assistant message for context
 
-# Tier-level fallback pricing (per million tokens) for models not in pricing.json
+# Tier-level fallback pricing (per million tokens) for models not in pricing.json.
+# Source: https://platform.claude.com/docs/en/about-claude/pricing (verified 2026-06-12).
+# Fable 5 / Mythos 5 ($10/$50) is the frontier tier — and the most expensive,
+# 2x Opus 4.8. Note Opus dropped to $5/$25 at the 4.5 generation (was $15/$75).
 TIER_FALLBACK_PRICING = {
+    "fable": {"input": 10, "output": 50, "cache_write_5m": 12.5, "cache_read": 1.0},
     "opus": {"input": 5, "output": 25, "cache_write_5m": 6.25, "cache_read": 0.5},
     "sonnet": {"input": 3, "output": 15, "cache_write_5m": 3.75, "cache_read": 0.3},
     "haiku": {"input": 1, "output": 5, "cache_write_5m": 1.25, "cache_read": 0.1},
 }
 
+# Heuristic recommended model per complexity. Opus 4.8 stays the workhorse for
+# "complex" because at $5/$25 it is the cost-effective top tier; Fable 5 is a
+# premium reserved for frontier/long-horizon work and is flagged as overkill
+# below (rank 3 > opus rank 2) for the LLM stage to adjudicate.
 COMPLEXITY_TO_MODEL = {"simple": "haiku", "moderate": "sonnet", "complex": "opus"}
-MODEL_TIER_RANK = {"haiku": 0, "sonnet": 1, "opus": 2, "unknown": 1}
+MODEL_TIER_RANK = {"haiku": 0, "sonnet": 1, "opus": 2, "fable": 3, "unknown": 1}
 
 # Heuristic patterns for task classification
 SIMPLE_PATTERNS = [
@@ -153,13 +161,81 @@ def load_pricing() -> dict[str, dict]:
         return {}
 
 
+def parse_rtk_session_adoption() -> dict:
+    """Parse `rtk session` (text-only) for EXECUTION-based adoption.
+
+    Why this exists: the PreToolUse hook (`rtk hook claude`) rewrites commands
+    *transparently* — e.g. `grep -r` is executed as `rtk grep -r`, but the
+    transcript still records the raw `grep -r` the model emitted. So any metric
+    that scans transcripts for a literal `rtk ` prefix (like `rtk discover`'s
+    `already_rtk / total_commands`) drastically under-counts adoption.
+
+    `rtk session` reads RTK's own execution-tracking DB, so it counts commands
+    RTK actually processed — including transparent rewrites. That is the honest
+    adoption number. The command is text-only (no --format json), so we parse the
+    table: each session row ends with `<Cmds> <RTK> <Adoption>% ...`, and a
+    footer line reads `Average adoption: NN%`. We prefer a command-weighted
+    rate (sum RTK / sum Cmds) and fall back to the footer average.
+    """
+    try:
+        r = subprocess.run(
+            ["rtk", "session"], capture_output=True, text=True, timeout=10,
+        )
+    except (subprocess.SubprocessError, OSError):
+        return {"available": False}
+    if r.returncode != 0 or not r.stdout.strip():
+        return {"available": False}
+
+    text = r.stdout
+    cmds_sum = rtk_sum = rows = 0
+    # Match the three integers immediately preceding the adoption "%" on a row.
+    for m in re.finditer(r"(\d+)\s+(\d+)\s+(\d+)%", text):
+        cmds, rtk_n, pct = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        if pct > 100 or rtk_n > cmds:  # guard against false matches
+            continue
+        cmds_sum += cmds
+        rtk_sum += rtk_n
+        rows += 1
+
+    avg_match = re.search(r"Average adoption:\s*(\d+)%", text)
+    avg_pct = round(int(avg_match.group(1)) / 100, 3) if avg_match else None
+
+    if cmds_sum > 0:
+        weighted = round(rtk_sum / cmds_sum, 3)
+    elif avg_pct is not None:
+        weighted = avg_pct
+    else:
+        return {"available": False}
+
+    return {
+        "available": True,
+        "execution_adoption_rate": weighted,
+        "execution_rtk_commands": rtk_sum,
+        "execution_total_commands": cmds_sum,
+        "sessions_sampled": rows,
+        "avg_session_adoption_rate": avg_pct,
+    }
+
+
 def load_rtk_stats(days: int) -> dict:
     """Pull realized + missed token savings from rtk-ai/rtk.
 
-    Returns a dict with `available: bool` plus, if available, realized stats
-    from `rtk gain --format json` and missed-opportunity stats from
-    `rtk discover -s <days> -a --format json`. Gracefully degrades if rtk
-    is not installed or either command fails.
+    Three RTK data sources, each with a different vantage point:
+      * `rtk gain`     — realized savings from the execution-tracking DB (truth).
+      * `rtk session`  — execution-based ADOPTION (truth; counts transparent
+                         hook rewrites). Parsed from text — see
+                         parse_rtk_session_adoption().
+      * `rtk discover` — a TRANSCRIPT scan of missed opportunities. Useful for
+                         *which* commands leak, but its `already_rtk / total`
+                         "adoption" only sees literal `rtk ` prefixes and so
+                         under-counts; and its missed-token total overlaps with
+                         realized savings (transparently-rewritten commands show
+                         up raw in the transcript). We keep it for the breakdown,
+                         relabel its adoption as `transcript_prefix_rate`, and
+                         discount the missed total by execution adoption to get a
+                         `genuinely_missed_tokens` estimate.
+
+    Gracefully degrades if rtk is not installed or any command fails.
     """
     if not shutil.which("rtk"):
         return {"available": False, "reason": "rtk binary not on PATH"}
@@ -194,7 +270,38 @@ def load_rtk_stats(days: int) -> dict:
     missed_commands = sum(c.get("count", 0) for c in supported)
     total_commands = missed.get("total_commands", 0)
     already_rtk = missed.get("already_rtk", 0)
-    adoption_rate = round(already_rtk / total_commands, 3) if total_commands else 0
+    rtk_disabled_count = int(missed.get("rtk_disabled_count", 0) or 0)
+    # Transcript-prefix rate: literal `rtk ` in transcripts. Near-zero by design
+    # because the hook rewrites transparently — NOT a real adoption measure.
+    transcript_prefix_rate = (
+        round(already_rtk / total_commands, 4) if total_commands else 0
+    )
+
+    # Honest, execution-based adoption from rtk session's tracking DB.
+    session = parse_rtk_session_adoption()
+    if session.get("available"):
+        execution_adoption_rate = session["execution_adoption_rate"]
+        adoption_source = "rtk_session_execution_db"
+    else:
+        execution_adoption_rate = None
+        adoption_source = "transcript_prefix_fallback"
+
+    adoption_rate = (
+        execution_adoption_rate
+        if execution_adoption_rate is not None
+        else transcript_prefix_rate
+    )
+
+    # rtk discover's missed total double-counts commands the hook rewrote
+    # transparently (they appear raw in the transcript yet were executed via rtk
+    # and already booked in realized). Discount by execution adoption so the
+    # score penalty reflects only genuinely-unhandled commands.
+    unrealized_fraction = (
+        max(0.0, 1.0 - execution_adoption_rate)
+        if execution_adoption_rate is not None else 1.0
+    )
+    genuinely_missed_tokens = int(missed_tokens * unrealized_fraction)
+    genuinely_missed_commands = int(missed_commands * unrealized_fraction)
 
     top_missed = [
         {
@@ -214,19 +321,43 @@ def load_rtk_stats(days: int) -> dict:
 
     return {
         "available": True,
+        # --- realized (execution truth) ---
         "realized_tokens_saved": int(realized.get("total_saved", 0)),
         "realized_input_tokens": int(realized.get("total_input", 0)),
         "realized_output_tokens": int(realized.get("total_output", 0)),
         "realized_commands": int(realized.get("total_commands", 0)),
         "realized_avg_savings_pct": round(realized.get("avg_savings_pct", 0), 1),
+        # --- adoption (execution-based is the headline) ---
+        "adoption_rate": adoption_rate,
+        "adoption_source": adoption_source,
+        "execution_adoption_rate": execution_adoption_rate,
+        "transcript_prefix_rate": transcript_prefix_rate,
+        "session_sample": session if session.get("available") else None,
+        # --- missed (raw transcript scan vs genuinely-unrealized) ---
         "missed_tokens": int(missed_tokens),
         "missed_commands": int(missed_commands),
+        "genuinely_missed_tokens": genuinely_missed_tokens,
+        "genuinely_missed_commands": genuinely_missed_commands,
+        "rtk_disabled_count": rtk_disabled_count,
         "missed_sessions_scanned": int(missed.get("sessions_scanned", 0)),
         "missed_since_days": int(missed.get("since_days", days)),
         "already_rtk_count": int(already_rtk),
         "total_commands_in_period": int(total_commands),
-        "adoption_rate": adoption_rate,
         "top_missed": top_missed,
+        "notes": {
+            "adoption": (
+                "adoption_rate is EXECUTION-based (rtk session tracking DB) and "
+                "is the honest figure. transcript_prefix_rate counts only literal "
+                "'rtk ' in transcripts; it under-counts badly because the "
+                "PreToolUse hook rewrites commands transparently."
+            ),
+            "missed": (
+                "missed_tokens comes from rtk discover's transcript scan and "
+                "overlaps with realized savings (transparently-rewritten commands "
+                "appear raw in the transcript). genuinely_missed_tokens discounts "
+                "that overlap by the execution adoption rate; use it for scoring."
+            ),
+        },
     }
 
 
@@ -252,10 +383,18 @@ def weighted_input_rate_per_mtok(model_dist: dict, fallback_tier: str = "sonnet"
 
 
 def get_model_tier(model_name: str) -> str:
-    """Normalize model name to tier: opus, sonnet, haiku."""
+    """Normalize model name to tier: fable, opus, sonnet, haiku.
+
+    Fable 5 / Mythos 5 (`claude-fable-5`, released 2026-06-09) is the frontier
+    tier and must be checked first — otherwise it falls through to "unknown" and
+    gets mispriced as sonnet. The `[1m]` 1M-context suffix is ignored by substring
+    matching.
+    """
     if not model_name:
         return "unknown"
     m = model_name.lower()
+    if "fable" in m or "mythos" in m:
+        return "fable"
     if "opus" in m:
         return "opus"
     if "sonnet" in m:
@@ -694,6 +833,9 @@ def main():
         rtk_stats["estimated_missed_usd"] = round(
             rtk_stats["missed_tokens"] * rate_per_mtok / 1_000_000, 4
         )
+        rtk_stats["estimated_genuinely_missed_usd"] = round(
+            rtk_stats["genuinely_missed_tokens"] * rate_per_mtok / 1_000_000, 4
+        )
 
     compute_stats = {
         "model_distribution": model_dist,
@@ -737,12 +879,14 @@ def main():
     print(f"Models: {', '.join(f'{t}: {d['count']}' for t, d in sorted(model_dist.items()))}")
     if rtk_stats.get("available"):
         adoption_pct = rtk_stats["adoption_rate"] * 100
+        src = "exec" if rtk_stats.get("adoption_source") == "rtk_session_execution_db" else "transcript"
         print(
             f"RTK: {rtk_stats['realized_tokens_saved']:,} tokens saved "
             f"(~${rtk_stats.get('estimated_realized_usd', 0):.2f}) | "
-            f"{rtk_stats['missed_tokens']:,} tokens missed "
-            f"(~${rtk_stats.get('estimated_missed_usd', 0):.2f}) | "
-            f"adoption {adoption_pct:.0f}%"
+            f"adoption {adoption_pct:.0f}% ({src}) | "
+            f"{rtk_stats['genuinely_missed_tokens']:,} genuinely-missed tokens "
+            f"(~${rtk_stats.get('estimated_genuinely_missed_usd', 0):.2f}); "
+            f"{rtk_stats['missed_tokens']:,} raw transcript-scan"
         )
     else:
         print(f"RTK: unavailable ({rtk_stats.get('reason', 'unknown')})")

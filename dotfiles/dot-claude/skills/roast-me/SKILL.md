@@ -3,8 +3,8 @@ name: roast-me
 description: >
   Analyzes past Claude Code conversations to roast your prompting habits
   and compute efficiency. Reads user prompts, cross-references with tool
-  errors and corrections, analyzes model/reasoning choices (Opus vs Sonnet
-  vs Haiku), then generates dual scores (prompt quality + compute efficiency),
+  errors and corrections, analyzes model/reasoning choices (Fable vs Opus vs
+  Sonnet vs Haiku), then generates dual scores (prompt quality + compute efficiency),
   worst habits, techniques, and a personalized model selection cheat sheet.
   Tracks scores over time so you can see improvement.
   Use when you want honest feedback on your prompting skills.
@@ -53,13 +53,15 @@ If there are 0 issues flagged, still proceed to Phase 3 — the roast should ack
 Read the prompts from `/tmp/roast-me-extracted.json`. Also read the `compute_stats` from the extraction metadata and report a quick summary to the user:
 
 ```
-Compute overview: $X.XX total spend | Y% on Opus | Z prompts flagged as potential overkill
+Compute overview: $X.XX total spend | model split Fable W% / Opus X% / Sonnet Y% / Haiku Z% | N prompts flagged as potential overkill
 ```
 
-If `compute_stats.rtk.available` is true, also report:
+(Fable 5 is the priciest tier — $10/$50, 2× Opus 4.8 — so call it out if it dominates the split.)
+
+If `compute_stats.rtk.available` is true, also report (use the **execution-based** `adoption_rate` and `genuinely_missed_tokens`, NOT the transcript artifact):
 
 ```
-RTK overview: N tokens already saved (~$X.XX) | M tokens missed (~$Y.YY) | adoption A%
+RTK overview: N tokens already saved (~$X.XX) | adoption A% (execution) | M genuinely-missed tokens (~$Y.YY)
 ```
 
 If `available` is false, mention that rtk is not installed / unavailable so the roast section will fall back to the install pitch.
@@ -94,7 +96,7 @@ The subagent receives:
 - The top ~15 worst prompt examples (highest severity + real impact, with their analysis including `impact` and `technique` fields)
 - The stats metadata from the extraction (including `effective_error_rate`)
 - A sample of ~10 good prompts (no issues flagged) for the "What You Do Well" section
-- The `compute_stats` from the extraction metadata (including `compute_stats.rtk` if available — realized + missed RTK token savings)
+- The `compute_stats` from the extraction metadata (including the `fable` tier in `model_distribution`, and `compute_stats.rtk` if available — realized savings, execution-based `adoption_rate`, and `genuinely_missed_tokens`)
 - Aggregated compute analysis from Phase 2.5: overuse cases (top ~10 worst), thinking overuse cases, correctly used opus examples, and summary totals
 
 **Tone instruction**: Be funny and use humor throughout. Comedy roast style — every joke should teach something. Pop culture references welcome.
@@ -124,15 +126,20 @@ Read existing history (if any). Append a new entry:
   "compute_efficiency_pct": 0.73,
   "compute_overuse_count": 45,
   "compute_thinking_overuse_count": 12,
-  "model_distribution": {"opus": 0.93, "sonnet": 0.05, "haiku": 0.02},
+  "model_distribution": {"fable": 0.22, "opus": 0.33, "sonnet": 0.03, "haiku": 0.18, "unknown": 0.24},
   "rtk_available": true,
-  "rtk_realized_tokens": 232346,
-  "rtk_missed_tokens": 59794,
-  "rtk_adoption_rate": 0.018,
-  "rtk_estimated_realized_usd": 0.52,
-  "rtk_estimated_missed_usd": 0.13
+  "rtk_realized_tokens": 82577966,
+  "rtk_missed_tokens": 266184,
+  "rtk_genuinely_missed_tokens": 151458,
+  "rtk_adoption_rate": 0.431,
+  "rtk_adoption_source": "rtk_session_execution_db",
+  "rtk_transcript_prefix_rate": 0.0036,
+  "rtk_estimated_realized_usd": 396.79,
+  "rtk_estimated_genuinely_missed_usd": 0.73
 }
 ```
+
+`rtk_adoption_rate` must be the **execution-based** figure (`compute_stats.rtk.adoption_rate`), not `transcript_prefix_rate`. Store `rtk_genuinely_missed_tokens` (the discounted figure used for scoring) alongside the raw `rtk_missed_tokens` for context.
 
 If `compute_stats.rtk.available` is false, store `"rtk_available": false` and omit the other rtk fields.
 

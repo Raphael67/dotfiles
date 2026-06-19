@@ -1,7 +1,29 @@
 {
-  "lastUpdateTimestamp": "2026-05-29T12:00:00Z",
-  "lastVersion": "2.1.156",
+  "lastUpdateTimestamp": "2026-06-12T12:08:24Z",
+  "lastVersion": "2.1.175",
   "updateHistory": [
+    {
+      "timestamp": "2026-06-12T12:08:24Z",
+      "version": "2.1.175",
+      "filesUpdated": [
+        "DESKTOP.md",
+        "cookbook/self-update.md"
+      ],
+      "changesApplied": 3,
+      "newFeatures": [
+        "Claude Fable 5 (claude-fable-5) released 2026-06-09 — Mythos-class frontier model, publicly available & safety-gated; $10/$50 per MTok (new top tier, 2x Opus 4.8); 1M context, 128k output; requires Claude Code v2.1.170+",
+        "Claude Mythos 5 — limited availability via Project Glasswing; same $10/$50 pricing",
+        "Opus 4.8 confirmed at $5/$25 per MTok (Opus dropped from $15/$75 at the 4.5 generation); Fable 5 fast mode and Opus 4.8 fast mode both $10/$50",
+        "Nested sub-agents: sub-agents can spawn their own sub-agents up to 5 levels deep (v2.1.172)",
+        "fallbackModel setting — up to three fallback models tried in order; --fallback-model applies to interactive sessions (v2.1.166)",
+        "enforceAvailableModels managed setting constrains Default model selection (v2.1.175)",
+        "/usage now shows usage attribution: cache misses, long context, subagents, per-skill/agent/plugin/MCP breakdowns (v2.1.174)",
+        "--safe-mode flag and CLAUDE_CODE_SAFE_MODE env var to disable customizations for troubleshooting (v2.1.169)",
+        "/cd command moves session to a new working directory without breaking the prompt cache (v2.1.169)",
+        "disableBundledSkills setting / CLAUDE_CODE_DISABLE_BUNDLED_SKILLS env var (v2.1.169)",
+        "Fable 5 model names with [1m] 1M-context suffix now normalized correctly (v2.1.173)"
+      ]
+    },
     {
       "timestamp": "2026-05-29T12:00:00Z",
       "version": "2.1.156",

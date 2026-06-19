@@ -41,7 +41,7 @@ Track Claude Desktop app features, updates, and new capabilities:
 ### Model-Specific Sources
 
 For model updates and capabilities, also check:
-- https://www.anthropic.com/news/claude-opus-4-7 (or latest model announcement)
+- https://www.anthropic.com/news/claude-fable-5-mythos-5 (latest model: Fable 5 / Mythos 5, 2026-06-09)
 - Look for new model announcements on https://www.anthropic.com/news
 
 ## Workflow

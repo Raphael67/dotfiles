@@ -192,7 +192,8 @@
     },
     "security.workspace.trust.untrustedFiles": "open",
     "security.allowedUNCHosts": [
-        "wsl.localhost"
+        "wsl.localhost",
+        "nas"
     ],
     "settingsSync.ignoredExtensions": [],
     "terminal.external.linuxExec": "/usr/bin/zsh",

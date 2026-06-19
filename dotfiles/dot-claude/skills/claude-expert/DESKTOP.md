@@ -225,7 +225,8 @@ Notable preference keys observed in production configs:
 | 2026-05-05 | Agents for financial services | Specialized agent offering |
 | 2026-05-06 | Higher usage limits | Increased for subscribers |
 | 2026-05-06 | SpaceX compute deal | Compute infrastructure partnership |
-| 2026-05-28 | Claude Opus 4.8 released | Enhanced agentic tasks, defaults to xhigh effort. Fast mode at 2x rate. Model ID `claude-opus-4-8` |
+| 2026-05-28 | Claude Opus 4.8 released | Enhanced agentic tasks, defaults to xhigh effort. Fast mode at 2x rate. Model ID `claude-opus-4-8` ($5/$25 per MTok) |
+| 2026-06-09 | Claude Fable 5 & Mythos 5 released | Mythos-class frontier intelligence; Fable 5 is the publicly-available, safety-gated variant. State-of-the-art on nearly all benchmarks; 1M context, 128k output. Model ID `claude-fable-5` ($10/$50 per MTok — the new top tier, 2× Opus). Mythos 5 is limited-availability via Project Glasswing. Requires Claude Code v2.1.170+ |
 
 ## Sources
 

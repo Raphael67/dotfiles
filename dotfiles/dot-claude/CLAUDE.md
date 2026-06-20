@@ -254,92 +254,56 @@ sem context <entity> --budget 4000   # Token-budgeted LLM context for an entity
 - Installed via cargo on every platform (listed in `rust/packages.txt` in the dotfiles repo):
   `cargo install sem-cli` — provides the `sem` binary.
 
-### GitNexus — Code Intelligence Platform
+### GitNexus — manual code intelligence (human GUI/CLI tool)
 
-GitNexus indexes any codebase into a knowledge graph with 16 MCP tools for agents. Use it to understand unfamiliar code, analyze impact before changes, and trace execution flows.
+GitNexus indexes a repo into a knowledge graph and surfaces it through a **web UI, a wiki
+generator, and architecture maps**. Here it is a **manual human tool, not an agent tool** —
+there is no MCP server and no autonomous mandates. Claude's role is to **help you run it**
+through the `gnx` wrapper (`~/.local/bin/gnx`, stowed from `dotfiles/dot-local/bin/gnx`).
 
-**Installation & MCP:**
+> **When to use which:** for agentic *"what does this change touch?"* reasoning, prefer
+> **`sem`** (above) — always-fresh, zero-footprint, already in the pre-commit hook. Reach for
+> **GitNexus when *you* want to explore or document** a codebase: search execution flows,
+> browse the call graph in a UI, or generate a wiki.
+
+**Core workflow:**
 ```bash
-npm install -g gitnexus@latest
-gitnexus setup          # Register MCP server with Claude Code (one-time)
+gnx index <path>     # build/refresh the graph (+ local embeddings) for the repo at <path>
+gnx serve            # open the web UI at http://127.0.0.1:4747 (browses ALL indexed repos)
+gnx ui               # same, but serve in the background and open the browser
 ```
 
-**On new machines, auto-index key repos:**
-```bash
-bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh
-```
-
-**Core Commands:**
+**All `gnx` commands** (run `gnx help` for details):
 
 | Command | Purpose |
 |---------|---------|
-| `gitnexus analyze /path` | Index a repository into `.gitnexus/` |
-| `gitnexus list` | Show all indexed repos |
-| `gitnexus status` | Check index staleness (vs. git HEAD) |
-| `gitnexus context <symbol>` | View symbol callers/callees/types |
-| `gitnexus query "term"` | Search codebase (BM25 + semantic) |
-| `gitnexus impact <target>` | Blast radius analysis (what breaks if we change this?) |
-| `gitnexus mcp` | Start MCP server (stdio) — called by Claude Code automatically |
-| `gitnexus serve` | Start HTTP API + web UI on :4747 |
-| `gitnexus wiki` | Generate LLM-powered codebase docs |
-| `gitnexus clean --all` | Delete all indexes (cacheable, regenerate anytime) |
+| `gnx index <path> [--fast] [--force]` | Build/refresh a repo's index. Always `--index-only` (writes nothing into the repo); `--fast` skips embeddings |
+| `gnx serve [--port N] [--open]` | Start the web UI (serves every registered repo) |
+| `gnx ui` | Serve in background + open the browser |
+| `gnx refresh-all [--force]` | Re-index every registered repo |
+| `gnx wiki <path>` | Generate the markdown wiki for a repo |
+| `gnx status` / `gnx list` | Index freshness / all registered repos |
+| `gnx clean <path>` | Delete a repo's index |
+| `gnx doctor` | Runtime + embedding capabilities |
 
-**Using MCP Tools in Claude Code:**
+**Storage & freshness:**
+- The index lives in `<repo>/.gitnexus/lbug` (LadybugDB — graph + full-text search + vector
+  embeddings, one file), gitignored. The only global state is `~/.gitnexus/registry.json`
+  (pointers to each repo) and `~/.config/gitnexus/config.json` (settings).
+- Indexes go **stale** as the repo changes — just re-run `gnx index <path>` before browsing
+  (idempotent: it skips repos already current with git HEAD).
+- Embeddings are **local and free** (ONNX). Repos with no embeddable content (pure
+  shell/Terraform) build structure-only; `gnx index` detects this and retries automatically.
 
-Once MCP is registered (`gitnexus setup`), agents can call these tools directly:
-
-- **Find unfamiliar code**: Use `query` or `context` to understand symbol relationships
-- **Before refactoring**: Use `impact` to understand blast radius
-- **Analyzing diffs**: Use `detect_changes` to map Git changes to code units
-- **Architecture docs**: Use `generate_map` prompt to generate Mermaid diagrams
-- **Cross-repo safety**: Use group tools for multi-repo coordination
-
-**Configuration:**
-
-- **Global config:** `~/.config/gitnexus/config.json` (symlinked from dotfiles)
-- **Per-repo overrides:** `.gitnexusrc` in repo root (optional, local, not stowed)
-- **Environment variables:** `GITNEXUS_WORKER_POOL_SIZE`, `GITNEXUS_SKIP_OPTIONAL_GRAMMARS`, etc.
-
-**Generated Skills:**
-
-After indexing, GitNexus generates agent skills:
-- `./.claude/skills/gitnexus/` — Built-in skills (exploring, debugging, impact analysis, refactoring, PR review)
-- `./.claude/skills/generated/` — Auto-generated per functional area (one skill per Leiden cluster)
-
-Use `gitnexus analyze --skills` to regenerate per-repo skills.
-
-**Indexed Repositories:**
-
-`scripts/setup-gitnexus.sh` (re)indexes your repos idempotently, in two tiers. Real
-paths are read from a gitignored `scripts/setup-gitnexus.local` (copy it from
-`scripts/setup-gitnexus.local.example` and set `GITNEXUS_PRIMARY_REPO` /
-`GITNEXUS_PROJECTS_DIR`):
-
-*Primary repos — full index **with** agent-context injection (skills + CLAUDE.md/AGENTS.md):*
-- `~/Projects/dotfiles` (cross-machine dev config)
-- `$GITNEXUS_PRIMARY_REPO` (your primary project, set locally)
-
-*Project repos (`$GITNEXUS_PROJECTS_DIR/*`) — `--index-only`, **zero footprint** (no files written into these possibly team-shared repos) + embeddings.*
-
-Re-run anytime (skips repos already current with git HEAD):
+**Pre-warming on a new machine:**
 ```bash
-bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh        # all tiers
-ONLY_PROJECTS=1 bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh  # just the project repos
-FORCE=1 bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh # force full re-index
+bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh   # indexes the repos listed in
+                                                     # scripts/setup-gitnexus.local (gitignored)
 ```
-
-Manually index any other repo:
-```bash
-cd /path/to/repo && gitnexus analyze --index-only   # --index-only keeps shared repos clean
-```
-
-Index is stored in `.gitnexus/` (gitignored, cache-like, regenerable).
 
 **Troubleshooting:**
-
-- **Stale index?** → `gitnexus status` shows staleness; re-run `gitnexus analyze` to refresh
-- **Missing symbol?** → May be below parse threshold (block-local); check symbol scope in `context`
-- **Slow indexing?** → Check `GITNEXUS_SKIP_OPTIONAL_GRAMMARS=1` if C++ build is slow; embeddings add 20-50% time
-- **MCP not appearing?** → Run `gitnexus setup` and restart Claude Code
+- **Stale index?** → `gnx status`; re-run `gnx index <path>`.
+- **Semantic search weak / no embeddings?** → `gnx doctor` shows capability; rebuild with `gnx index <path> --force`.
+- **UI won't load?** → check the port (`gnx serve --port N`); stop a stray server with `pkill -f 'gitnexus serve'`.
 
 @RTK.md

@@ -63,7 +63,9 @@ For complex skills with multiple workflows:
 | Project | `.claude/skills/<name>/SKILL.md` | This project only |
 | Plugin | `<plugin>/skills/<name>/SKILL.md` | Where plugin is enabled |
 
-When skills share the same name, higher-priority locations win: enterprise > personal > project. Plugin skills use `plugin-name:skill-name` namespace (no conflicts).
+When skills share the same name across levels, enterprise overrides personal, personal overrides project. A skill at any of these levels also overrides a bundled skill with the same name (e.g., a project `code-review` skill replaces the bundled `/code-review`). Plugin skills use `plugin-name:skill-name` namespace (no conflicts).
+
+Skills also load from nested `.claude/skills/` directories below your working directory. When a nested skill shares a name with a root-level skill, the nested one appears under a directory-qualified name while the root-level skill keeps its plain name. For collisions across nested `.claude/` directories, the closest directory wins.
 
 ## SKILL.md Format
 
@@ -529,13 +531,21 @@ Writes to `.claude/skills` directory are **blocked in sandbox mode**. This preve
 
 ## Nested Skill Discovery (Monorepos)
 
-Skills in nested `.claude/skills` directories are auto-discovered:
+Skills in nested `.claude/skills` directories are auto-discovered when Claude works with files in those subdirectories (v2.1.178+):
 ```
 project-root/
-├── .claude/skills/          # Root-level skills
-└── packages/app/
-    └── .claude/skills/      # Auto-discovered when working in packages/app
+├── .claude/skills/deploy/   # Root-level: invoked as /deploy
+└── apps/web/
+    └── .claude/skills/deploy/  # Nested: invoked as /apps/web:deploy
 ```
+
+When a nested skill shares a name with another skill, both stay available:
+- The nested one appears under a directory-qualified name: `<dir>:<name>` (e.g., `apps/web:deploy`)
+- The root-level skill keeps its plain name: `/deploy`
+- Claude picks the variant that matches the files it is working on
+- Type the qualified name to invoke the nested variant explicitly: `/apps/web:deploy`
+
+For name collisions across nested `.claude/` levels, the closest directory wins (most-specific directory takes precedence). Qualified-name skills are no longer blocked by permission prompts (v2.1.178 fix).
 
 ## Auto-Loading from Additional Directories (v2.1.32+)
 

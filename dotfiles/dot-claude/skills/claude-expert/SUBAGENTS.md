@@ -183,8 +183,7 @@ Always respond with:
 |------|----------|
 | `default` | Standard permission prompts |
 | `acceptEdits` | Auto-accept file edits |
-| `auto` | Auto-mode classifier decides per-call (with `PermissionDenied` hook event firing on denials) |
-| `delegate` | Coordination-only for team leads (team management tools only) |
+| `auto` | Background classifier reviews each tool call before execution (with `PermissionDenied` hook event firing on denials). As of v2.1.178, auto mode also evaluates subagent spawns with a classifier before launch. |
 | `dontAsk` | Auto-deny permission prompts |
 | `bypassPermissions` | Skip all permission checks |
 | `plan` | Read-only exploration mode |
@@ -636,7 +635,7 @@ tools: Agent(worker, researcher), Read, Bash
 - This is an **allowlist**: only `worker` and `researcher` can be spawned
 - Use `Agent` without parentheses to allow all subagent types
 - Omit `Agent` entirely to prevent spawning any subagents
-- Only applies to main thread agents (`claude --agent`); subagents cannot spawn other subagents
+- Only applies to main thread agents (`claude --agent`); in a subagent definition, listing `Agent` in `tools` lets that subagent spawn nested subagents (up to 5 levels deep)
 
 Also usable in permissions deny list:
 ```json
@@ -646,6 +645,12 @@ Also usable in permissions deny list:
   }
 }
 ```
+
+## Nested Subagents (v2.1.172+)
+
+As of v2.1.172, subagents can spawn their own subagents. Depth is counted as the number of subagent levels below the main conversation. A subagent at depth 5 does not receive the Agent tool and cannot spawn further. **As of v2.1.181, foreground subagents also enforce this limit** (previously foreground chains were unbounded). The limit is fixed and not configurable.
+
+The subagent panel caps at 5 visible rows with scroll hints; idle agents auto-hide (v2.1.181).
 
 ## Agent Teams (Experimental)
 
@@ -657,6 +662,8 @@ Already enabled in `settings.json`:
 ```json
 { "env": { "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1" } }
 ```
+
+> **v2.1.178 BREAKING**: `TeamCreate` and `TeamDelete` tools are removed. Every session now has an **implicit team** when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set — you no longer create or delete teams explicitly. The `team_name` parameter on the Agent tool is accepted but **ignored**.
 
 ### Subagents vs Agent Teams
 

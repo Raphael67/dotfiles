@@ -310,10 +310,13 @@ Hooks can conditionally execute using permission rule syntax. This also fixes is
 
 **Supported patterns**:
 - `ToolName` — Match any use of the tool
-- `ToolName(pattern)` — Match tool with argument pattern
+- `ToolName(pattern)` — Match tool with argument pattern (for Bash, matches the command string)
+- `ToolName(param:value)` — Match a specific tool input parameter value; supports `*` wildcard (v2.1.178+). Example: `Edit(file_path:src/*)` matches Edit calls whose `file_path` starts with `src/`
 - `Tool1|Tool2` — Match multiple tools
 - `!ToolName` — Negate/exclude pattern
 - Compound commands and env-var prefixes now supported (v2.1.85+)
+
+> **Path pattern fix (v2.1.176)**: `if` conditions matching Read/Edit/Write tool paths (e.g. `Edit(src/*)`) now correctly match the file path argument. Previously these patterns silently failed to match.
 
 ### Common Fields
 
@@ -892,6 +895,19 @@ The `settings.autoMode.hard_deny` setting adds classifier rules that block uncon
 
 Unlike standard deny rules, `hard_deny` rules apply even when Claude is operating in auto mode.
 
+### Auto Mode Built-in Safety Blocks (v2.1.183)
+
+Auto mode now blocks the following destructive operations **unless explicitly requested by the user** in the current turn:
+
+- `git reset --hard`, `git checkout -- .`, `git clean -fd`, `git stash drop`
+- `terraform destroy`, `pulumi destroy`, `cdk destroy`
+
+These blocks are applied by the built-in auto-mode classifier independently of any `hard_deny` rules you configure.
+
+### Subagent-Spawn Classifier (v2.1.178)
+
+When operating in auto mode, Claude evaluates subagent spawns through a classifier before launch. The classifier can reject a subagent spawn if it determines the spawned agent would perform unsafe or out-of-scope actions. This fires before `SubagentStart`.
+
 ## Best Practices
 
 1. **Keep hooks fast**: Use `timeout` to prevent hangs
@@ -915,6 +931,7 @@ Unlike standard deny rules, `hard_deny` rules apply even when Claude is operatin
 | `CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS` | Configurable timeout for SessionEnd hooks (v2.1.74). Previously hardcoded at 1.5s |
 | `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` | Set to `1` to strip credentials from subprocess environments (v2.1.83+) |
 | `CLAUDE_EFFORT` | Current effort level, also available in hook JSON input as `effort.level` (v2.1.133+) |
+| `CLAUDE_CLIENT_PRESENCE_FILE` | Path to a file whose presence suppresses mobile push notifications (v2.1.181+) |
 
 ## Advanced Hook Output
 

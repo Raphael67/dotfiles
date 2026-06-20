@@ -41,7 +41,8 @@ Track Claude Desktop app features, updates, and new capabilities:
 ### Model-Specific Sources
 
 For model updates and capabilities, also check:
-- https://www.anthropic.com/news/claude-fable-5-mythos-5 (latest model: Fable 5 / Mythos 5, 2026-06-09)
+- https://www.anthropic.com/news/claude-fable-5-mythos-5 (Fable 5 / Mythos 5 launched 2026-06-09, but **SUSPENDED 2026-06-12** by a US export-control directive — disabled for all customers, unavailable as of 2026-06-20; Anthropic working to restore access)
+- Top generally-available model is currently **Opus 4.8** (`claude-opus-4-8`, $5/$25 per MTok) while Fable 5 / Mythos 5 remain suspended
 - Look for new model announcements on https://www.anthropic.com/news
 
 ## Workflow

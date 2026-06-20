@@ -226,7 +226,8 @@ Notable preference keys observed in production configs:
 | 2026-05-06 | Higher usage limits | Increased for subscribers |
 | 2026-05-06 | SpaceX compute deal | Compute infrastructure partnership |
 | 2026-05-28 | Claude Opus 4.8 released | Enhanced agentic tasks, defaults to xhigh effort. Fast mode at 2x rate. Model ID `claude-opus-4-8` ($5/$25 per MTok) |
-| 2026-06-09 | Claude Fable 5 & Mythos 5 released | Mythos-class frontier intelligence; Fable 5 is the publicly-available, safety-gated variant. State-of-the-art on nearly all benchmarks; 1M context, 128k output. Model ID `claude-fable-5` ($10/$50 per MTok — the new top tier, 2× Opus). Mythos 5 is limited-availability via Project Glasswing. Requires Claude Code v2.1.170+ |
+| 2026-06-09 | Claude Fable 5 & Mythos 5 launched | Mythos-class frontier intelligence; Fable 5 is the publicly-available, safety-gated variant. State-of-the-art on nearly all benchmarks; 1M context, 128k output. Model ID `claude-fable-5` ($10/$50 per MTok). Mythos 5 limited-availability via Project Glasswing. Requires Claude Code v2.1.170+ |
+| 2026-06-12 | **Fable 5 & Mythos 5 suspended — export-control directive** | US government issued an export-control directive citing national security authorities, suspending all access to Fable 5 and Mythos 5 for foreign nationals worldwide. Anthropic disabled both models for ALL customers to comply. As of 2026-06-20 both remain unavailable; Anthropic believes this is a misunderstanding and is working to restore access. **Claude Opus 4.8 (`claude-opus-4-8`, $5/$25 per MTok) is again the top generally-available model.** Sources: @AnthropicAI (X, 2026-06-13); Al Jazeera; National Law Review; MarkTechPost. |
 
 ## Sources
 

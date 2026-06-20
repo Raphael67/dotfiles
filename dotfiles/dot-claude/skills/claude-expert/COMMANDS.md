@@ -377,7 +377,7 @@ PROMPT: $2
 | `/context` | Shows context usage with actionable optimization tips (v2.1.74+) |
 | `/loop [interval] <prompt>` | Run a prompt on a recurring interval (v2.1.71) |
 | `/effort [low\|medium\|high\|auto]` | Set effort level. Works while Claude is responding (v2.1.73+). Also available as slash command (v2.1.76+) |
-| `/config` | Configure settings including output style (replaces deprecated `/output-style` v2.1.73+). Includes "Show turn duration" toggle (v2.1.79+). Editor mode setting moved here from `/vim` (v2.1.92+) |
+| `/config` | Configure settings including output style (replaces deprecated `/output-style` v2.1.73+). Includes "Show turn duration" toggle (v2.1.79+). Editor mode setting moved here from `/vim` (v2.1.92+). Direct-set syntax: `/config key=value` works in interactive, `-p`/print, and Remote Control sessions (v2.1.181+). `/config --help` lists available shorthand keys (v2.1.183+). Toggle behavior: Enter/Space change settings, Esc saves and closes (v2.1.183+) |
 | `/branch` | Fork conversation into a new branch (renamed from `/fork` v2.1.77+, `/fork` still works as alias) |
 | `/copy [N]` | Copy response to clipboard. Optional index to copy a specific response (v2.1.77+) |
 | `/btw` | Side question that sees full context but has no tools; answer discarded from history |
@@ -398,6 +398,8 @@ PROMPT: $2
 | `/chrome` | Select which connected browser to use; includes "Select browser…" option for multi-browser setups (v2.1.154) |
 | `/model` | Persist selection across restarts (v2.1.117+); honors `ANTHROPIC_DEFAULT_*_MODEL_NAME` overrides (v2.1.117+); lists models from gateway `/v1/models` when `ANTHROPIC_BASE_URL` points to compatible gateway (v2.1.126+) |
 | `/color` | Sync accent color to claude.ai/code; bare `/color` (no args) picks a random session color (v2.1.128+) |
+| `/bug` | Submit a bug report; a description is required before submitting (v2.1.178+) |
+| `/doctor` | Diagnose Claude Code installation; flat tree layout with highlighted command names (v2.1.178+) |
 
 ## Project Lifecycle
 

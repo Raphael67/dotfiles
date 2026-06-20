@@ -8,7 +8,7 @@ description: >
 model: opus
 user-invocable: true
 argument-hint: [days=7]
-allowed-tools: Bash, Read, Write, Edit, Agent, Glob, AskUserQuestion, TaskCreate, TaskGet, TaskList, TaskOutput, TaskStop, TaskUpdate, TeamCreate, TeamDelete, SendMessage
+allowed-tools: Bash, Read, Write, Edit, Agent, Glob, AskUserQuestion, TaskCreate, TaskGet, TaskList, TaskOutput, TaskStop, TaskUpdate, SendMessage
 ---
 
 # Self-Healing Skill

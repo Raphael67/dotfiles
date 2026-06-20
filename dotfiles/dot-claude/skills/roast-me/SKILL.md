@@ -11,7 +11,7 @@ description: >
 model: opus
 user-invocable: true
 argument-hint: [days=7]
-allowed-tools: Bash, Read, Write, Glob, Agent, TaskCreate, TaskGet, TaskList, TaskOutput, TaskStop, TaskUpdate, TeamCreate, TeamDelete, SendMessage
+allowed-tools: Bash, Read, Write, Glob, Agent, TaskCreate, TaskGet, TaskList, TaskOutput, TaskStop, TaskUpdate, SendMessage
 ---
 
 # Roast Me Skill

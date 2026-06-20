@@ -7,7 +7,7 @@ description: >
 model: opus
 reasoning: high
 allowed-tools: Read, Grep, Glob, Bash, Write, AskUserQuestion,
-  WebSearch, WebFetch, ToolSearch, Skill
+  WebSearch, WebFetch, ToolSearch, Skill, SendMessage
 permissionMode: plan
 effort: high
 ---
@@ -84,7 +84,9 @@ created: <ISO 8601 timestamp>
 
 ### 6. Return Results to the Router
 
-After saving the plan, your final output message MUST include these exact lines so the router can parse them:
+You run as a named teammate, so your final text is NOT auto-returned to the
+router — after saving the plan you MUST **SendMessage these exact lines to the
+lead** (the router that spawned you) before you go idle, or it cannot continue:
 
 ```
 PLAN_PATH: .claude/plans/<slug>.md
@@ -92,4 +94,4 @@ MODEL_RECOMMENDATION: sonnet|opus
 COMPLEXITY: low|medium|high
 ```
 
-The router will read your output, extract the plan path and recommendation, and spawn an executor subagent to implement it.
+The router will read your message, extract the plan path and recommendation, and spawn an executor subagent to implement it.

@@ -7,7 +7,7 @@ description: >
 model: sonnet
 reasoning: medium
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, AskUserQuestion,
-  WebSearch, WebFetch, ToolSearch, Skill, LSP
+  WebSearch, WebFetch, ToolSearch, Skill, LSP, SendMessage
 permissionMode: acceptEdits
 effort: medium
 ---
@@ -36,7 +36,10 @@ When your prompt contains a `.claude/plans/` path:
 
 ## Final Output
 
-Your final output message MUST include a clear summary so the router can report to the user:
+You run as a named teammate, so your final text is NOT auto-returned to the
+router — you MUST **SendMessage your completion summary to the lead** (the router
+that spawned you) before you go idle, or the result is lost. Send this exact
+shape:
 
 ```
 EXECUTION COMPLETE

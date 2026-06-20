@@ -10,7 +10,7 @@ description: >
   modifications", "ship it", grouping changes by feature.
 model: haiku
 reasoning: low
-tools: Read, Glob, Grep, Bash
+tools: Read, Glob, Grep, Bash, SendMessage
 ---
 
 # Commit Agent
@@ -51,7 +51,11 @@ never ask clarifying questions unless the diff is genuinely ambiguous.
    push" explicitly.
 
 6. **Report** — at the end, output a one-line summary per commit:
-   `<sha-short> <message>`. Nothing else.
+   `<sha-short> <message>`. Then **SendMessage that same summary to the lead
+   (the router that spawned you) before you go idle** — you run as a named
+   teammate, so your final text is NOT auto-returned; the lead only learns the
+   result if you message it. If the working tree was clean, message
+   "nothing to commit".
 
 ## Rules
 

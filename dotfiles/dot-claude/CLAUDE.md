@@ -39,6 +39,7 @@ Global Claude Configuration
 ## Workflow Preferences
 
 - **Agents**: Always check if a subagent is more appropriate to do a task. Prefer `/pthread` (mprocs) over background subagents so the user can see agent activity in real time and interact directly
+  - **Subagents always run as a team.** `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set in `~/.claude/settings.json`, so every session has an **implicit team** (Claude Code v2.1.178+). Spawn *named* agents (`Agent(name: "...", ...)`) — they run non-blocking and report back via `SendMessage` rather than as a tool result. The `TeamCreate`/`TeamDelete` tools were **removed** in v2.1.178 (teams are implicit now — never call them), and the `team_name` parameter is accepted but **ignored** (don't pass it).
 - **Skills**: Never update or alter a skill without explicit user request
 - **Planning**: When in plan mode (or otherwise about to present a non-trivial implementation plan or design), invoke the `grill-me` skill first — interview me one question at a time to resolve open decisions before finalizing the plan. Skip for trivial, single-step, or unambiguous tasks.
 - **Git**: Use conventional commits format

@@ -34,7 +34,7 @@ PORT_DEFAULT=4747
 # Semantic search runs on exact-scan: the HNSW vector-index build is broken in GitNexus
 # 1.6.7 (CREATE_VECTOR_INDEX throws an opaque native error even with the VECTOR extension
 # installed). Exact-scan is full-accuracy but capped (default 10k chunks). Raise the cap so
-# even large repos (e.g. large repos with 20-30k symbols) get complete semantic coverage. Applies to
+# even the largest repos (~20-30k symbols) get complete semantic coverage. Applies to
 # every gitnexus subprocess (index + serve/query). Export your own value before gnx to override.
 : "${GITNEXUS_SEMANTIC_EXACT_SCAN_LIMIT:=50000}"
 export GITNEXUS_SEMANTIC_EXACT_SCAN_LIMIT

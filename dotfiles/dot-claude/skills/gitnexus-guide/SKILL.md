@@ -56,7 +56,7 @@ gitnexus cypher '<query>'           # raw graph query (see graph schema below)
   `CREATE_VECTOR_INDEX(... metric := 'cosine')` throws an opaque native error, so semantic
   search always falls back to **exact-scan** (brute-force cosine, full accuracy). Exact-scan
   is capped at 10k chunks by default; `gnx` raises it to **50k** via
-  `GITNEXUS_SEMANTIC_EXACT_SCAN_LIMIT` so even large repos (e.g. large repos with 20-30k symbols) get
+  `GITNEXUS_SEMANTIC_EXACT_SCAN_LIMIT` so even the largest repos (~20-30k symbols) get
   complete coverage. `doctor` shows `VECTOR index: available` / `Semantic mode: vector-index`,
   but that only means the *platform* is supported — not that HNSW actually builds. Revisit
   HNSW on a future GitNexus release; until then exact-scan is the working path.

@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+#
+# gnx — human-friendly front-end to GitNexus.
+#
+# GitNexus is used here as a MANUAL exploration + documentation tool (web UI, wiki,
+# architecture maps), NOT as an autonomous agent tool. This wrapper gives you two core
+# verbs — build the knowledge graph for any repo by path, and open the web UI — plus a
+# few conveniences. Claude may run these for you on request.
+#
+#   gnx index <path> [--fast] [--force]   build / refresh the graph (+ embeddings) for a repo
+#   gnx serve [--port N] [--open]         start the web UI (serves ALL indexed repos)
+#   gnx ui [--port N]                     serve in the background + open the browser
+#   gnx refresh-all [--force]             re-index every registered repo (with embeddings)
+#   gnx wiki <path>                       generate the markdown wiki for a repo
+#   gnx status                            index status for the current repo
+#   gnx list                              list every registered repo
+#   gnx clean <path>                      delete the index for a repo
+#   gnx doctor                            show runtime / embedding capabilities
+#   gnx help                              this help
+#
+# Notes:
+#   • `index` defaults to `--index-only --embeddings`: it builds a rich graph WITHOUT
+#     writing any files (CLAUDE.md/AGENTS.md/skills) into the target repo, so it is safe
+#     on team-shared repos. `--fast` drops embeddings for a quicker structure-only build.
+#   • Repos with no embeddable content (pure shell/Terraform) can't persist embeddings;
+#     `index` detects that and transparently retries structure-only.
+#   • `serve` takes no path — the web UI shows every repo in the registry. Workflow:
+#     `gnx index <path>` to (re)build, then `gnx serve` to browse.
+
+set -uo pipefail
+
+PORT_DEFAULT=4747
+
+# Semantic search runs on exact-scan: the HNSW vector-index build is broken in GitNexus
+# 1.6.7 (CREATE_VECTOR_INDEX throws an opaque native error even with the VECTOR extension
+# installed). Exact-scan is full-accuracy but capped (default 10k chunks). Raise the cap so
+# even large repos (e.g. large repos with 20-30k symbols) get complete semantic coverage. Applies to
+# every gitnexus subprocess (index + serve/query). Export your own value before gnx to override.
+: "${GITNEXUS_SEMANTIC_EXACT_SCAN_LIMIT:=50000}"
+export GITNEXUS_SEMANTIC_EXACT_SCAN_LIMIT
+
+die()  { printf '✖ %s\n' "$*" >&2; exit 1; }
+info() { printf '▶ %s\n' "$*" >&2; }
+
+command -v gitnexus >/dev/null 2>&1 \
+  || die "gitnexus not found on PATH. Install it (brew) — see ~/.claude/CLAUDE.md → GitNexus."
+
+usage() {
+  # Print the header comment block (from line 3) up to the first non-comment line.
+  awk 'NR>=3 && /^#/ {sub(/^# ?/,""); print; next} NR>=3 {exit}' "$0"
+}
+
+# Resolve a path argument to an absolute path (the repo need not be the cwd).
+abspath() {
+  local p="${1:?path required}"
+  if [ -d "$p" ]; then ( cd "$p" && pwd ); else
+    die "not a directory: $p"
+  fi
+}
+
+cmd_index() {
+  local fast=0 force=0 path=""
+  for a in "$@"; do
+    case "$a" in
+      --fast)  fast=1 ;;
+      --force) force=1 ;;
+      -*)      die "unknown flag for 'index': $a" ;;
+      *)       path="$a" ;;
+    esac
+  done
+  [ -n "$path" ] || die "usage: gnx index <path> [--fast] [--force]"
+  local repo; repo="$(abspath "$path")"
+  [ -d "$repo/.git" ] || info "warning: $repo has no .git (indexing anyway)"
+
+  local flags=(--index-only)
+  [ "$fast" -eq 0 ] && flags+=(--embeddings)
+  [ "$force" -eq 1 ] && flags+=(--force)
+
+  info "indexing $repo  [${flags[*]}]"
+  local out rc
+  out="$(gitnexus analyze "$repo" "${flags[@]}" 2>&1)"; rc=$?
+  printf '%s\n' "$out"
+
+  # Pure shell/Terraform repos can't persist embeddings — retry structure-only.
+  if [ "$rc" -ne 0 ] && [ "$fast" -eq 0 ] \
+     && printf '%s' "$out" | grep -q 'without persisted embeddings'; then
+    info "no embeddable content — retrying structure-only"
+    local rest=(--index-only); [ "$force" -eq 1 ] && rest+=(--force)
+    gitnexus analyze "$repo" "${rest[@]}"; rc=$?
+  fi
+  return "$rc"
+}
+
+cmd_serve() {
+  local port="$PORT_DEFAULT" open=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --port|-p) port="${2:?--port needs a value}"; shift 2 ;;
+      --open)    open=1; shift ;;
+      *)         die "unknown flag for 'serve': $1" ;;
+    esac
+  done
+  [ "$open" -eq 1 ] && open_browser "$port"
+  info "serving web UI at http://127.0.0.1:${port}  (Ctrl-C to stop)"
+  exec gitnexus serve --port "$port"
+}
+
+cmd_ui() {
+  local port="$PORT_DEFAULT"
+  case "${1:-}" in --port|-p) port="${2:?--port needs a value}" ;; esac
+  ( gitnexus serve --port "$port" >/dev/null 2>&1 & )
+  open_browser "$port"
+  info "web UI starting in background at http://127.0.0.1:${port}"
+  info "stop it with:  pkill -f 'gitnexus serve'"
+}
+
+open_browser() {
+  local url="http://127.0.0.1:${1:-$PORT_DEFAULT}"
+  if   command -v open    >/dev/null 2>&1; then open "$url"
+  elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$url"
+  else info "open $url in your browser"; fi
+}
+
+cmd_refresh_all() {
+  local force=""; [ "${1:-}" = "--force" ] && force="--force"
+  local repos; repos="$(gitnexus list 2>/dev/null | grep -oE '/[^ ]+' | sort -u)"
+  [ -n "$repos" ] || die "no repos registered (gitnexus list is empty)"
+  local r fails=0
+  while IFS= read -r r; do
+    [ -d "$r" ] || continue
+    info "refreshing $r"
+    cmd_index "$r" ${force:+--force} || fails=$((fails+1))
+  done <<< "$repos"
+  info "refresh-all done ($fails failure(s))"
+  return "$fails"
+}
+
+case "${1:-help}" in
+  index)        shift; cmd_index "$@" ;;
+  serve)        shift; cmd_serve "$@" ;;
+  ui)           shift; cmd_ui "$@" ;;
+  refresh-all)  shift; cmd_refresh_all "$@" ;;
+  wiki)         shift; [ -n "${1:-}" ] || die "usage: gnx wiki <path>"; gitnexus wiki "$(abspath "$1")" ;;
+  status)       gitnexus status ;;
+  list)         gitnexus list ;;
+  clean)        shift; [ -n "${1:-}" ] || die "usage: gnx clean <path>"; gitnexus remove "$(abspath "$1")" ;;
+  doctor)       gitnexus doctor ;;
+  help|-h|--help) usage ;;
+  *)            die "unknown command: $1  (try: gnx help)" ;;
+esac

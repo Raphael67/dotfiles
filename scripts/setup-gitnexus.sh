@@ -1,124 +1,71 @@
 #!/usr/bin/env bash
 #
-# setup-gitnexus.sh — Reproducibly (re)index key repos into GitNexus.
+# setup-gitnexus.sh — Pre-warm GitNexus indexes for a known set of repos.
 #
-# Two tiers, by intent:
-#   • Primary repos (dotfiles + your primary project) — personal repos. Full index
-#     *with* agent-context injection (.claude/skills/gitnexus/, CLAUDE.md / AGENTS.md
-#     sections). These are mine; I want the in-repo GitNexus context.
-#   • Project repos (under $GITNEXUS_PROJECTS_DIR) — possibly team-shared. `--index-only`,
-#     so the knowledge graph is built in .gitnexus/ but ZERO files are written into the
-#     repo (no surprise git changes for teammates). Embeddings still on for semantic search.
+# GitNexus is a MANUAL human tool here (web UI / wiki / architecture maps), driven by the
+# `gnx` wrapper (dotfiles/dot-local/bin/gnx → ~/.local/bin/gnx). This script just pre-builds
+# indexes so `gnx serve` is ready to browse without waiting — handy on a new machine. For
+# day-to-day use, prefer `gnx index <path>` on demand.
 #
-# Idempotent: `gitnexus analyze` skips a repo already current with git HEAD. Pass FORCE=1
-# to force a full re-index. A failure on one repo is logged and does NOT abort the rest.
+# Every repo is indexed via `gnx index`, i.e. `--index-only --embeddings`: ZERO files are
+# written into the repo (no CLAUDE.md/AGENTS.md/skills), embeddings are built locally, and
+# repos with no embeddable content fall back to structure-only automatically.
+#
+# Idempotent: `gnx index` skips a repo already current with git HEAD. FORCE=1 re-indexes all.
+# A failure on one repo is logged and does NOT abort the rest.
 #
 # Usage:
 #   bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh
-#   FORCE=1 bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh        # full re-index
-#   ONLY_PROJECTS=1 bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh # skip primary tier
+#   FORCE=1 bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh   # force full re-index
 #
-# Real, private repo paths live in a gitignored sibling file sourced below:
-#   scripts/setup-gitnexus.local   (copy from scripts/setup-gitnexus.local.example)
-#
-# Env overrides (set them in setup-gitnexus.local or your shell):
-#   GITNEXUS_PRIMARY_REPO    extra primary repo to full-index alongside dotfiles
-#   GITNEXUS_PROJECTS_DIR    dir whose immediate subdirs are project repos (index-only)
-#   FORCE=1                  add --force to every analyze
-#   ONLY_PROJECTS=1          index only the project repos (skip the primary tier)
+# Repo paths come from the gitignored scripts/setup-gitnexus.local (copy the .example):
+#   GITNEXUS_PRIMARY_REPO    extra repo to index alongside dotfiles
+#   GITNEXUS_PROJECTS_DIR    dir whose immediate subdirs are repos to index
 
 # Note: deliberately NOT using `set -e` — one bad repo must not kill the whole run.
 set -uo pipefail
 
-# Machine-local, gitignored config — real repo paths live here, never committed.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=/dev/null
 [ -f "$SCRIPT_DIR/setup-gitnexus.local" ] && . "$SCRIPT_DIR/setup-gitnexus.local"
 
-PRIMARY_REPO="${GITNEXUS_PRIMARY_REPO:-}"
-PROJECTS_DIR="${GITNEXUS_PROJECTS_DIR:-}"
+# Use the repo's own gnx (works before stow puts it on PATH).
+GNX="$SCRIPT_DIR/../dotfiles/dot-local/bin/gnx"
+[ -x "$GNX" ] || { echo "✖ gnx not found/executable at $GNX" >&2; exit 1; }
+command -v gitnexus >/dev/null 2>&1 \
+  || { echo "✖ gitnexus not on PATH. Install it (Homebrew); gnx wraps it." >&2; exit 1; }
 
-FORCE_FLAG=""
-[ "${FORCE:-0}" = "1" ] && FORCE_FLAG="--force"
+FORCE_ARG=""
+[ "${FORCE:-0}" = "1" ] && FORCE_ARG="--force"
 
-if ! command -v gitnexus >/dev/null 2>&1; then
-  echo "✖ gitnexus not found on PATH. Install with: npm install -g gitnexus@latest" >&2
-  exit 1
+# Build the repo list: dotfiles + optional primary + each immediate subdir of the projects dir.
+repos=("$HOME/Projects/dotfiles")
+[ -n "${GITNEXUS_PRIMARY_REPO:-}" ] && repos+=("$GITNEXUS_PRIMARY_REPO")
+if [ -n "${GITNEXUS_PROJECTS_DIR:-}" ] && [ -d "${GITNEXUS_PROJECTS_DIR}" ]; then
+  for d in "$GITNEXUS_PROJECTS_DIR"/*/; do repos+=("${d%/}"); done
+elif [ -n "${GITNEXUS_PROJECTS_DIR:-}" ]; then
+  echo "  ⤷ projects dir not found (GITNEXUS_PROJECTS_DIR): $GITNEXUS_PROJECTS_DIR" >&2
 fi
 
-ok=()
-failed=()
-skipped=()
-degraded=()   # indexed, but had to drop --embeddings (e.g. pure Terraform/shell repos)
-
-# index <repo-path> [extra gitnexus flags...]
-index() {
-  local repo="$1"
-  shift
+ok=() failed=() skipped=()
+for repo in "${repos[@]}"; do
   if [ ! -d "$repo/.git" ]; then
-    echo "  ⤷ skip (not a git repo): $repo"
-    skipped+=("$repo")
-    return
+    echo "  ⤷ skip (not a git repo): $repo"; skipped+=("$repo"); continue
   fi
-  echo "▶ indexing: $repo  [flags: $* ${FORCE_FLAG}]"
-
-  local out
-  out="$(gitnexus analyze "$repo" "$@" ${FORCE_FLAG:+$FORCE_FLAG} 2>&1)"
-  local rc=$?
-  echo "$out"
-
-  if [ "$rc" -eq 0 ]; then
+  echo "==> $repo"
+  if bash "$GNX" index "$repo" $FORCE_ARG; then
     ok+=("$repo")
-    return
+  else
+    echo "  ✖ FAILED: $repo" >&2; failed+=("$repo")
   fi
-
-  # Known-benign failure: --embeddings asked for, but the repo has no embeddable
-  # content (e.g. pure Terraform/shell). GitNexus refuses to register an
-  # embedding-less index. Retry structure-only so the repo still gets covered.
-  if printf '%s' "$*" | grep -q -- '--embeddings' \
-     && printf '%s' "$out" | grep -q 'without persisted embeddings'; then
-    echo "  ⚠ no embeddable content — retrying structure-only (no --embeddings)"
-    local rest=()
-    local a
-    for a in "$@"; do [ "$a" = "--embeddings" ] || rest+=("$a"); done
-    if gitnexus analyze "$repo" "${rest[@]}" ${FORCE_FLAG:+$FORCE_FLAG}; then
-      degraded+=("$repo")
-      return
-    fi
-  fi
-
-  echo "  ✖ FAILED: $repo" >&2
-  failed+=("$repo")
-}
-
-if [ "${ONLY_PROJECTS:-0}" != "1" ]; then
-  echo "=== Primary repos (full index + agent-context injection) ==="
-  index "$HOME/Projects/dotfiles"       --embeddings
-  [ -n "$PRIMARY_REPO" ] && index "$PRIMARY_REPO" --embeddings
-  echo
-fi
-
-echo "=== Project repos (index-only, zero footprint + embeddings) ==="
-if [ -n "$PROJECTS_DIR" ] && [ -d "$PROJECTS_DIR" ]; then
-  for repo in "$PROJECTS_DIR"/*/; do
-    index "${repo%/}" --index-only --embeddings
-  done
-else
-  echo "  ⤷ projects dir not set/found (set GITNEXUS_PROJECTS_DIR): ${PROJECTS_DIR:-<unset>}" >&2
-fi
+done
 
 echo
 echo "================= Summary ================="
 echo "  Indexed OK : ${#ok[@]}"
-echo "  Degraded   : ${#degraded[@]}  (indexed structure-only; no embeddable content)"
-if [ "${#degraded[@]}" -gt 0 ]; then
-  printf '    ⚠ %s\n' "${degraded[@]}"
-fi
 echo "  Skipped    : ${#skipped[@]}  (not git repos)"
 echo "  Failed     : ${#failed[@]}"
-if [ "${#failed[@]}" -gt 0 ]; then
-  printf '    ✖ %s\n' "${failed[@]}"
-fi
+[ "${#failed[@]}" -gt 0 ] && printf '    ✖ %s\n' "${failed[@]}"
 echo "==========================================="
 echo
 gitnexus list

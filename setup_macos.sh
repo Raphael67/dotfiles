@@ -136,10 +136,14 @@ if [[ "$install_apps" == "y" ]]; then
     [[ ! -d "$zsh_custom/plugins/fzf-tab" ]] &&
         git clone https://github.com/Aloxaf/fzf-tab "$zsh_custom/plugins/fzf-tab"
 
-    USER_HOME="${DOTFILES_HOME:-$HOME}"
+    # brew shellenv is configured persistently by the guarded block in
+    # dot-zprofile (stowed below at `stow .`). Do NOT append it here:
+    # ~/.zprofile is a stow symlink into this repo, so an append would
+    # (a) pollute the tracked repo file, (b) accumulate a fresh duplicate on
+    # every run, and (c) be unguarded and break the shared Arch Linux
+    # .zprofile. We only eval it for THIS setup session so the remaining steps
+    # can find brew on PATH.
     BREW_PREFIX="${HOMEBREW_PREFIX:-/opt/homebrew}"
-    echo >>"${USER_HOME}/.zprofile"
-    echo "eval \"\$(${BREW_PREFIX}/bin/brew shellenv)\"" >>"${USER_HOME}/.zprofile"
     eval "$(${BREW_PREFIX}/bin/brew shellenv)"
 
     if [[ ! -d "$HOME/.config/tmux/plugins/tpm" ]]; then

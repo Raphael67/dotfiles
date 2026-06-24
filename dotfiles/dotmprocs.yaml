@@ -1,0 +1,15 @@
+# mprocs configuration for Claude Code agent spawning
+# Optimized for vertical splits with preserved pane widths
+
+# Layout: tiled keeps panes from redistributing equally
+layout: tiled
+
+# Pane sizing (0 = auto)
+pane_height: 0
+pane_width: 0
+
+# Mouse support for manual resizing if needed
+mouse_support: true
+
+# Log level
+log_level: warn

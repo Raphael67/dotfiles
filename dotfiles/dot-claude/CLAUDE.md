@@ -44,7 +44,7 @@ Global Claude Configuration
   - **Team agent cleanup**: After a team agent completes its work and sends a final summary, **always terminate it** using `SendMessage({to: "<agent-name>", message: {"type": "shutdown_request"}})`—don't leave team agents idle in the background.
 - **Skills**: Never update or alter a skill without explicit user request
 - **Planning**: When in plan mode (or otherwise about to present a non-trivial implementation plan or design), invoke the `grill-me` skill first — interview me one question at a time to resolve open decisions before finalizing the plan. Skip for trivial, single-step, or unambiguous tasks.
-- **Git**: Use conventional commits format
+- **Git**: Use conventional commits format. **Never run `git commit` or `git push` yourself from the main loop — always delegate to the `commit` subagent** (`Agent` with `subagent_type: 'commit'`), which groups changes into cohesive commits and writes the messages. A `PreToolUse` hook (`commit-delegation-gate.py`) enforces this: it blocks main-loop commit/push (subagents run freely). Only bypass by telling the user to run the git command via `!` in the prompt.
 - **Documentation**: Keep README files concise and practical
 
 ## Role-Based Responsibilities

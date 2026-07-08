@@ -4,7 +4,7 @@
 return {
 	{
 		"mrcjkb/rustaceanvim",
-		version = "^6",
+		version = "^9",
 		lazy = false, -- the plugin configures itself on the `rust` filetype
 		ft = { "rust" },
 		init = function()

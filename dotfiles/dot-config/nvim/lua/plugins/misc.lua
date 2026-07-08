@@ -80,10 +80,17 @@ return {
 		end,
 	},
 	{
-		-- Surround actions (add, delete, replace)
+		-- Surround text objects (sa = add, sd = delete, sr = replace)
+		-- e.g. saiw{ surrounds inner word with { }, saiw} for {} without padding
 		"echasnovski/mini.surround",
 		version = "*",
+		event = "VeryLazy",
 		opts = {},
+		init = function()
+			-- mini.surround uses the s-prefix (sa/sd/sr); free up bare `s`
+			-- so it doesn't shadow the operators. Use `cl` for substitute.
+			vim.keymap.set({ "n", "x" }, "s", "<Nop>")
+		end,
 	},
 	{
 		-- Enhanced a/i text objects (treesitter-backed function/argument objects)

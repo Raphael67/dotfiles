@@ -47,7 +47,6 @@ require("lazy").setup({
   require("plugins.misc"),
   require("plugins.harpoon"),
   require("plugins.aerial"),
-  require("plugins.flash"),
   require("plugins.vim-tmux-navigator"),
   require("plugins.rust"),
   require("plugins.trouble"),

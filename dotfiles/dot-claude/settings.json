@@ -204,6 +204,7 @@
     ],
     "defaultMode": "acceptEdits"
   },
+  "model": "opus[1m]",
   "hooks": {
     "Notification": [
       {
@@ -330,6 +331,17 @@
         ]
       }
     ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ~/.claude/hooks/teammate-report-gate.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
@@ -341,6 +353,7 @@
       }
     ]
   },
+  "workflowKeywordTriggerEnabled": false,
   "statusLine": {
     "type": "command",
     "command": "uv run ~/.claude/status_lines/status_line.py",
@@ -360,15 +373,20 @@
       }
     }
   },
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
+  "promptSuggestionEnabled": false,
+  "awaySummaryEnabled": false,
   "autoUpdatesChannel": "latest",
+  "tui": "fullscreen",
   "autoDreamEnabled": true,
   "skipDangerousModePermissionPrompt": true,
+  "editorMode": "normal",
   "preferredNotifChannel": "ghostty",
   "autoCompactEnabled": false,
-  "teammateMode": "auto",
+  "autoScrollEnabled": false,
+  "teammateMode": "in-process",
   "remoteControlAtStartup": false,
-  "agentPushNotifEnabled": true,
+  "agentPushNotifEnabled": false,
   "useAutoModeDuringPlan": false,
   "voiceEnabled": true
 }

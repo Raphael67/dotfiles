@@ -104,6 +104,11 @@ alias news="$HOME/Projects/hys-fork/zig-out/bin/hys --all -p 48"
 # Fix stuck mouse reporting mode (when scrolling outputs escape sequences)
 alias fixmouse="printf '\e[?1000l\e[?1002l\e[?1003l\e[?1006l'"
 
+# rclone-mount: mount encrypted cloud storage on demand (moved off login —
+# replaces a per-user LaunchAgent). Point RCLONE_MOUNT_WRAPPER at the
+# machine-local wrapper script in ~/.env (gitignored) — the path is private.
+alias rclone-mount='RCLONE_PASSWORD_COMMAND="security find-generic-password -a rclone -s rclone-config -w" bash "$RCLONE_MOUNT_WRAPPER"'
+
 # Update Claude Code to latest version (uses built-in updater)
 alias cc-update="claude update"
 

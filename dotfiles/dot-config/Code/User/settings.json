@@ -166,7 +166,8 @@
         "**/.svn": true,
         "**/CVS": true,
         "**/node_modules": true,
-        "**/.angular": true
+        "**/.angular": true,
+        "**/__pycache__": true
     },
     "files.trimTrailingWhitespace": true,
     "git.autofetch": true,

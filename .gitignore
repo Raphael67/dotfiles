@@ -50,8 +50,11 @@ dotfiles/dot-config/docker/buildx/
 dotfiles/dot-config/docker/.token_seed
 dotfiles/dot-config/docker/.token_seed.lock
 
-# Homebrew - runtime state (trust-store lock; created in ~/.config/homebrew
-# because XDG_CONFIG_HOME=~/.config, which is stow-symlinked into this repo)
+# Homebrew - machine-local trust store (the list of trusted third-party taps and
+# its lock; created in ~/.config/homebrew because XDG_CONFIG_HOME=~/.config, which
+# is stow-symlinked into this repo). Trust is an explicit per-machine decision
+# (run `brew trust --formula <owner>/<tap>/<name>`), never seeded from the repo.
+dotfiles/dot-config/homebrew/trust.json
 dotfiles/dot-config/homebrew/trust.json.lock
 
 # gitleaks - private forbidden-terms list (company/project names kept out of

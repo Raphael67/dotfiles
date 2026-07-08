@@ -49,6 +49,7 @@ export NPM_CONFIG_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/npm"
 export DOCKER_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/docker"
 export LESSHISTFILE="${XDG_CACHE_HOME:-$HOME/.cache}/less/history"
 export GOPATH="${XDG_DATA_HOME:-$HOME/.local/share}/go"
+export PATH="$PATH:$GOPATH/bin"  # `go install` drops binaries here (GOBIN unset)
 
 # Path to your oh-my-zsh installation.
 export ZSH="${XDG_DATA_HOME:-$HOME/.local/share}/oh-my-zsh"
@@ -455,3 +456,4 @@ fpath=(/Users/raphael/.docker/completions $fpath)
 autoload -Uz compinit
 compinit
 # End of Docker CLI completions
+

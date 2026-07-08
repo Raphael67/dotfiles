@@ -89,8 +89,6 @@ Cross-platform dotfiles managed with [GNU Stow](https://www.gnu.org/software/sto
 |------|---------|
 | [Karabiner-Elements](https://karabiner-elements.pqrs.org) | Keyboard customization |
 | [Hammerspoon](https://www.hammerspoon.org) | macOS automation |
-| [AltTab](https://alt-tab-macos.netlify.app) | Windows-style alt-tab |
-| [BoringNotch](https://github.com/theboredteam/boring-notch) | Notch utility |
 | pam-reattach | Touch ID in tmux |
 
 ### Security & Backup

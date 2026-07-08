@@ -1,5 +1,3 @@
-tap "theboredteam/boring-notch"
-
 # Cross-platform make
 brew "cmake"
 # Command-line fuzzy finder written in Go
@@ -45,10 +43,6 @@ brew "glow"
 brew "lazygit"
 # CLI proxy that filters command output to minimize LLM token consumption
 brew "rtk"
-# Enable alt-tab window switching
-cask "alt-tab"
-# Notch customization utility
-cask "boring-notch"
 # Unfreeze stuck macOS apps
 cask "thaw"
 # App to build and share containerized applications and microservices

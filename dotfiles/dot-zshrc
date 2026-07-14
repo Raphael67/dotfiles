@@ -92,7 +92,17 @@ if  [[ -z "$TMUX" ]] && \
     ( _is_mac || _is_wsl ) && \
     command -v tmux &>/dev/null
 then
-  exec tmux new-session -A -s scratchpad
+  # Avoid racing tmux-continuum's async restore (`continuum_restore.sh &`).
+  # Creating `scratchpad` here before restore finishes would shadow the saved
+  # session (losing its state) and corrupt restored working dirs.
+  if ! tmux has-session 2>/dev/null; then
+    # Cold start: boot the server (triggers continuum-restore in the background)
+    # without creating a session, then wait up to ~3s for it to rebuild sessions.
+    tmux start-server
+    for _ in {1..30}; do tmux has-session 2>/dev/null && break; sleep 0.1; done
+  fi
+  # Attach to restored sessions; create a fresh `scratchpad` only if none exist.
+  exec tmux attach 2>/dev/null || exec tmux new-session -s scratchpad
 fi
 unset -f _is_wsl _is_mac
 

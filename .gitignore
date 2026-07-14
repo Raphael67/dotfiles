@@ -3,6 +3,7 @@ dotfiles/dot-config/tmux/plugins
 .DS_Store
 dotfiles/dot-config/go
 .env
+.env.local
 logs
 swiftpm
 dotfiles/dot-config/menus/applications-merged.mcp.json

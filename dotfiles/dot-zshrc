@@ -31,14 +31,16 @@ export HOMEBREW_NO_ENV_HINTS=1
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
 
-# Load environment variables from ~/.env
-if [[ -f ~/.env ]]; then
+# Load environment variables from ~/.env.local
+# (named .env.local rather than .env so direnv's load_dotenv=true ignores it —
+#  this file is sourced here, not managed by direnv)
+if [[ -f ~/.env.local ]]; then
     while IFS= read -r line || [[ -n "$line" ]]; do
         # Skip empty lines and comments (lines starting with #)
         if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
             export "$line"
         fi
-    done < ~/.env
+    done < ~/.env.local
 fi
 
 # XDG-compliant tool paths

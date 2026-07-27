@@ -96,13 +96,26 @@ then
   # Creating `scratchpad` here before restore finishes would shadow the saved
   # session (losing its state) and corrupt restored working dirs.
   if ! tmux has-session 2>/dev/null; then
-    # Cold start: boot the server (triggers continuum-restore in the background)
-    # without creating a session, then wait up to ~3s for it to rebuild sessions.
-    tmux start-server
+    # Cold start: boot the server (sourcing tmux.conf kicks off continuum-restore
+    # in the background) without creating a session, then wait up to ~3s for it
+    # to rebuild sessions. `exit-empty off` is mandatory: since tmux 2.7 a
+    # session-less server exits immediately, killing the restore before it runs.
+    tmux start-server \; set -g exit-empty off 2>/dev/null
     for _ in {1..30}; do tmux has-session 2>/dev/null && break; sleep 0.1; done
+    # Nothing restored -> create `scratchpad` on the server that is already up
+    # (a fresh `new-session` server would re-trigger restore and race it).
+    tmux has-session 2>/dev/null || tmux new-session -d -s scratchpad 2>/dev/null
+    # Re-arm the tmux default so an emptied server exits instead of letting
+    # continuum snapshot a session-less state over good saves.
+    tmux set -g exit-empty on 2>/dev/null
   fi
-  # Attach to restored sessions; create a fresh `scratchpad` only if none exist.
-  exec tmux attach 2>/dev/null || exec tmux new-session -s scratchpad
+  # Never write `exec cmd || exec fallback`: exec replaces this shell, so the
+  # fallback can only run if exec fails to *load* tmux -- a failed attach would
+  # leave Ghostty with no process and close the window instantly. Guard instead,
+  # and fall through to a plain shell if tmux could not be brought up at all.
+  if tmux has-session 2>/dev/null; then
+    exec tmux attach
+  fi
 fi
 unset -f _is_wsl _is_mac
 

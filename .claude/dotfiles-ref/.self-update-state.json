@@ -1,6 +1,35 @@
 {
-  "lastUpdateTimestamp": "2026-05-31T00:00:00Z",
+  "lastUpdateTimestamp": "2026-08-23T00:00:00Z",
   "updateHistory": [
+    {
+      "timestamp": "2026-08-23T00:00:00Z",
+      "filesUpdated": [
+        "GHOSTTY.md",
+        "TOOLS.md",
+        "ZSH.md",
+        "TMUX.md",
+        "NEOVIM.md",
+        "STOW.md"
+      ],
+      "rulesUpdated": [
+        "rules/ghostty.md",
+        "rules/tmux.md",
+        "rules/nvim.md",
+        "rules/zsh.md"
+      ],
+      "changesApplied": 50,
+      "noChangesNeeded": ["STARSHIP.md"],
+      "configBugsFlagged": [
+        "dotfiles/dot-config/starship/starship.toml: [php] module block (lines 74-77) defined but never added to root `format` string — dead config, zero effect on rendered prompt",
+        "dotfiles/dot-config/ghostty/config: `background-opacity = 1.0` with `background-blur = 30` set — per Ghostty docs, blur only takes effect when opacity < 1, so blur is currently a dead no-op",
+        "dotfiles/dot-zshrc: duplicate 'Docker Desktop completions' blocks near EOF — one guarded/HOME-relative, one unguarded with hardcoded absolute path `/Users/raphael/.docker/completions` (breaks portability) and redundantly re-runs compinit",
+        "dotfiles/dot-config/tmux/tmux.custom.conf: `escape-time` set twice (0 then 10) and `status-interval` set twice (3 then 1) — second assignment silently wins in both cases, so line 17's stated Neovim-ESC-delay fix has no effect",
+        "dotfiles/dot-config/tmux/tmux.catppuccin.conf: catppuccin/tmux-cpu/tmux-battery each declared as TPM @plugin AND run via explicit absolute path — likely double-initialized on every tmux start",
+        "dotfiles/dot-config/nvim/init.lua: bufferline loaded via both an inline lazy.nvim spec and a standalone require(\"plugins.bufferline\") call after lazy.setup() — works today but fragile/non-idiomatic",
+        "dotfiles/dot-config/nvim/lua/plugins/lsp/basedpyright.lua: dead LSP override file, server not present in lsp.lua's servers list",
+        ".stow-local-ignore (repo root): dead file, never read by Stow given .stowrc's --dir=./dotfiles layout; contents (README.org, installer.sh, nix-darwin, etc.) look like a leftover from an earlier flat-layout dotfiles template"
+      ]
+    },
     {
       "timestamp": "2026-05-31T00:00:00Z",
       "filesUpdated": [

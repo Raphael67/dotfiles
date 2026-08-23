@@ -66,10 +66,11 @@ dotfiles/dot-config/homebrew/trust.json.lock
 # GitNexus - machine-local repo paths (private). The .example is committed.
 scripts/setup-gitnexus.local
 
-# OpenSpec working directory - change proposals routinely mix planning
-# artifacts with personal/professional content (this is a PUBLIC repo):
-# keep the whole tree local only
-openspec/
+# OpenSpec change proposals and specs - routinely mix planning artifacts with
+# personal/professional content (this is a PUBLIC repo): keep them local only.
+# openspec/config.yaml itself is fine to track.
+openspec/changes/
+openspec/specs/
 
 # Python bytecode
 __pycache__/

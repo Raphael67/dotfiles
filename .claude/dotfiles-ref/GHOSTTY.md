@@ -89,6 +89,8 @@ palette = 2=#a6da95
 
 > **Note:** Ghostty 1.2.0+ switched from kebab-case (`catppuccin-mocha`) to Title Case (`Catppuccin Macchiato`). Update configs accordingly.
 
+> **Local theme lookup:** When `theme = <name>` doesn't match a built-in Title Case theme, Ghostty resolves it by searching `$XDG_CONFIG_HOME/ghostty/themes/<name>` first, then `$PREFIX/share/ghostty/themes/<name>`. This is a separate mechanism from both built-in themes and explicit `config-file = themes/extra.conf` includes. This repo's own config uses this exact lookup — `theme` resolves to a custom file under `~/.config/ghostty/themes/`, not a built-in theme.
+
 ### Auto Light/Dark Switching
 
 Ghostty can switch themes based on system appearance:
@@ -111,6 +113,7 @@ window-padding-y = 8
 
 # Window decoration
 window-decoration = auto    # none, auto, client, server
+# Legacy booleans also accepted: true = auto, false = none
 
 # Fullscreen
 fullscreen = false
@@ -380,7 +383,7 @@ Manual fallback (older approach) — export terminfo directly:
 infocmp -x | ssh user@host -- tic -x -
 ```
 
-## New Features (1.1.0 - 1.3.0)
+## New Features (1.1.0+)
 
 ### Command Palette
 
@@ -417,6 +420,7 @@ background-image-fit = contain
 
 ```ini
 link-previews = true
+link-previews = osc8   # show previews only for OSC 8 hyperlinks
 ```
 
 ### Shell Integration Features
@@ -507,6 +511,43 @@ key-remap = left_alt=left_ctrl
 ```bash
 ghostty +list-themes    # List all available built-in themes
 ```
+
+### Working Directory Inheritance (Ghostty 1.3.0+)
+
+```ini
+tab-inherit-working-directory = true      # new tabs inherit the spawning surface's cwd
+split-inherit-working-directory = true    # new splits inherit the spawning surface's cwd
+window-inherit-working-directory = true   # new windows inherit the spawning surface's cwd
+```
+
+### Command Finish Notifications (Ghostty 1.3.0+)
+
+```ini
+notify-on-command-finish-action = bell    # bell, notify — how to signal when a long-running command finishes
+notify-on-command-finish-after = 10s      # minimum command duration before notifying
+```
+
+### Other 1.3.0 Additions
+
+- `scrollbar` — new scrollbar display option
+- `clipboard-codepoint-map` — remap codepoints on clipboard copy/paste
+- `mouse-reporting` — new mouse reporting mode option
+- `scroll-to-bottom` gained an `output` value (scroll to bottom on new output)
+- `split-preserve-zoom` — preserve a split's zoom state when creating new splits
+- `macos-applescript` — AppleScript support on macOS
+- Keybind tables gained a `catch_all` matcher (fallback binding within a key table)
+- Scrollback search: `Cmd+F` (macOS) / `Ctrl+Shift+F` (Linux)
+
+## New Features (1.3.1)
+
+Current stable release (2026-03-13).
+
+```ini
+progress-style = default    # controls OSC 9;4 progress bar rendering
+```
+
+- New binding actions: `set_surface_title:<title>` and `set_tab_title:<title>`
+- `working-directory` now expands a leading `~/`
 
 ## Tiling Window Manager Integration
 

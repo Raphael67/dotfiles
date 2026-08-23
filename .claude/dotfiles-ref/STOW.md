@@ -47,6 +47,12 @@ dotfiles/
 
 > `.stowrc` values support variable expansion (`$VAR` / `${VAR}`); escape with a backslash to keep a literal `$`.
 
+> **Gotcha:** Action flags (`-D`/`--delete`, `-S`/`--stow`, `-R`/`--restow`) and package-name
+> arguments are **silently ignored** when placed in a `.stowrc` file — only true options (like
+> `--dir`, `--target`, `--dotfiles`, `--ignore`) take effect there. This repo's `.stowrc` never
+> lists action flags or package names for this reason; always pass those on the command line
+> (e.g. `stow .`, `stow -R .`).
+
 ### The --dotfiles Flag
 
 Converts `dot-` prefix to `.`:
@@ -57,6 +63,13 @@ Converts `dot-` prefix to `.`:
 | `dot-config/nvim/` | `~/.config/nvim/` |
 | `dot-claude/` | `~/.claude/` |
 | `dot-local/bin/` | `~/.local/bin/` |
+
+> **Edge case:** `--dotfiles` only rewrites `dot-` prefixes at stow time — it does not retroactively
+> exempt a dot-prefixed package file from the ignore lists. A file literally named `dot-gitignore`
+> is **not** auto-ignored just because `.gitignore` is a built-in default-ignore pattern; only an
+> ignore-list entry that explicitly matches the dot-prefixed name (`dot-gitignore`) would skip it.
+> Worth remembering in a repo this `--dotfiles`-heavy, where `.stow-local-ignore` or `--ignore`
+> patterns are written against pre-rewrite package names.
 
 ## Critical Usage Pattern
 
@@ -244,12 +257,26 @@ This creates individual file symlinks instead of directory symlinks.
 2. `~/.stow-global-ignore`
 3. Built-in defaults
 
+### Anchoring Semantics
+
+`--ignore` regexes are anchored to the **end** of the filename/path being tested, while
+`--override` and `--defer` regexes are anchored to the **start** of the path relative to the
+target directory. This repo's `.stowrc` relies on end-anchoring: `--ignore='cli-plugins'`
+matches any path ending in `cli-plugins`, and `--ignore='\.DS_Store'` matches any path ending
+in `.DS_Store` — neither needs a leading `^` or trailing `$`.
+
 ### Default Ignored
 
-- `README.*`, `LICENSE`, `COPYING`
-- `.git`, `.gitignore`
-- `#*#` (Emacs backup)
-- `*~` (backup files)
+GNU Stow's actual built-in default-ignore-list (from the manual):
+
+- `RCS`, `.+,v` — RCS files
+- `CVS`, `\.\#.+` — CVS conflict files / Emacs lock files
+- `\.cvsignore`
+- `\.svn`, `_darcs`, `\.hg`, `\.git` — VCS metadata directories
+- `\.gitignore`, `\.gitmodules`
+- `.+~` — Emacs backup files
+- `\#.*\#` — Emacs autosave files
+- `^/README.*`, `^/LICENSE.*`, `^/COPYING` — top-level docs only (anchored with `^/`)
 
 ### Custom Ignore File
 
@@ -413,6 +440,10 @@ chkstow --badlinks   # Symlinks that don't point into a stow dir (dangling)
 chkstow --aliens     # Files in the target NOT managed by stow
 chkstow --list       # Packages currently stowed into the target
 ```
+
+> `-p`/`--compat` restores the legacy full-tree scan behavior on unstow (slower, scans every
+> file rather than just stowed links). `chkstow --badlinks` is the modern recommended
+> alternative for finding broken links without paying that cost.
 
 ## Best Practices
 

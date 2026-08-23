@@ -31,6 +31,11 @@ dotfiles/dot-config/tmux/
 git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
 ```
 
+`tmux.conf` also self-bootstraps: near the top, it checks whether
+`~/.config/tmux/plugins/tpm` exists and, if not, clones TPM and runs
+`tpm/bin/install_plugins` automatically. The manual clone above is only needed if
+that bootstrap step itself fails (e.g. no network access on first launch).
+
 ### Plugin Declaration
 
 ```tmux
@@ -131,6 +136,14 @@ Configured in `tmux.custom.conf` with `is_vim` shell check — detects nvim/vim/
 | `prefix + {` / `}` | Swap pane up/down |
 | `prefix + space` | Cycle layouts |
 | `S-Left/Right/Up/Down` | Resize panes (with prefix) |
+| `prefix + c` | New window |
+| `prefix + C-c` | Confirm-then-kill current window |
+
+> **Gotcha**: `tmux.reset.conf` also binds plain `c` to `kill-pane`, but `tmux.conf`
+> re-binds `c` to `new-window` later in the sourcing order (`tmux.conf` sources
+> `tmux.reset.conf` first, then sets its own `bind c` further down). The reset
+> file's `c` binding is silently dead — other reset bindings (`H`/`L`/`j`/`k`/etc.)
+> are still live since nothing later overrides them.
 
 ### Sessions
 
@@ -191,12 +204,21 @@ set -g @catppuccin_status_left_separator ""
 set -g @catppuccin_status_right_separator " "
 set -g @catppuccin_status_connect_separator "no"
 
+# Round the current-window indicator to match the rounded status segments
+set -g @catppuccin_window_current_left_separator "#[fg=#{@_ctp_status_bg},reverse]#[none]"
+set -g @catppuccin_window_current_right_separator "#[fg=#{@_ctp_status_bg},reverse]#[none]"
+
 # Window text uses pane_title so Claude Code agent names (e.g. "✳ router") show
 # correctly — Claude Code sets the terminal title via OSC, surfaced as pane_title.
 # Falls back to the process name when pane_title is empty.
 set -g @catppuccin_window_text " #{?pane_title,#{pane_title},#{pane_current_command}}"
 set -g @catppuccin_window_current_text "#{?pane_title,#{pane_title},#{pane_current_command}}#{?window_zoomed_flag,(),}"
 set -g @catppuccin_window_number_position "right"
+
+# Load catppuccin and the plugins whose modules the status bar uses (see note below)
+run ~/.config/tmux/plugins/tmux/catppuccin.tmux
+run ~/.config/tmux/plugins/tmux-cpu/cpu.tmux
+run ~/.config/tmux/plugins/tmux-battery/battery.tmux
 
 # Status bar layout
 # Left: session name
@@ -207,7 +229,30 @@ set -ag status-right "#{E:@catppuccin_status_network}"
 set -agF status-right "#{E:@catppuccin_status_cpu}"
 set -ag status-right "#{E:@catppuccin_status_uptime}"
 set -agF status-right "#{?#{battery_status},#{E:@catppuccin_status_battery},}"
+
+# Claude model + tmux version segment, appended after the battery module
+set -ag status-right "#[fg=#{@thm_lavender},bg=#{@thm_surface_1},bold]#(~/.config/tmux/scripts/claude-info.sh)#[nobold] #[fg=#{@thm_overlay_2}]tmux #{version}#[fg=#{@thm_surface_1},reverse]"
 ```
+
+The `run` lines load `catppuccin.tmux`, `cpu.tmux`, and `tmux-battery`'s `battery.tmux`
+directly by path, in addition to (not instead of) their entries in `tmux.conf`'s
+`@plugin` list, which TPM loads too — this looks like it may double-initialize those
+three plugins (flagged separately as a config bug to fix, not addressed here).
+
+### Claude model status segment (`claude-info.sh`)
+
+`tmux.catppuccin.conf` appends a status-right segment that shows:
+
+```
+<model> (<agent>) tmux <version>
+```
+
+It shells out to `~/.config/tmux/scripts/claude-info.sh`, which reads
+`~/.claude/tmux-model-info` — a file written by a Claude Code `SessionStart` hook —
+to display the current model and agent name for the pane. This was restored/fixed
+in commit `08386ef` ("restore bell flag visibility and model info in status bar")
+after regressing; if the segment goes blank, check that the `SessionStart` hook is
+still writing `~/.claude/tmux-model-info`.
 
 ## Common Configuration Options
 
@@ -255,6 +300,39 @@ set -g status-right-length 60
 ```tmux
 setw -g mode-keys vi         # Vi keys in copy mode
 ```
+
+### Shell & Clipboard (tmux.custom.conf)
+
+```tmux
+set-option -g default-shell /bin/zsh
+
+# Unset CLAUDECODE so it doesn't leak from a Claude Code session into
+# a shell spawned inside tmux — CLAUDECODE=1 skips zoxide's init,
+# which would break the `cd` directory-history alias.
+set-environment -gu CLAUDECODE
+
+set -g set-clipboard on       # Use the system clipboard
+```
+
+### Bell Marker Workaround (tmux.custom.conf)
+
+Catppuccin's `window-status-format` hardcodes a `bg=` on every segment, which
+repaints over `window-status-bell-style` — so a window's bell flag gets raised but
+never renders visibly. `tmux.custom.conf` works around this by appending an explicit
+conditional marker to `window-status-format` instead of rewriting the plugin's
+format string (this preserves Catppuccin's separator glyphs):
+
+```tmux
+set -ag window-status-format "#{?window_bell_flag,#[fg=#181926#,bg=#eed49f#,bold] 🔔 #[default],}"
+```
+
+`~/.claude/hooks/notify/claude-notify.sh` raises the bell flag on a window when a
+Claude Code session wants attention, so this marker is what keeps it visible in the
+status bar after reattaching. This line **must stay in `tmux.custom.conf`**, which
+is sourced after Catppuccin/TPM — sourcing it earlier would let Catppuccin's format
+overwrite it again. This exact regression was fixed in commit `08386ef` ("restore
+bell flag visibility and model info in status bar"); if bell flags stop showing
+again, check this line first.
 
 ## Adding a New Plugin
 

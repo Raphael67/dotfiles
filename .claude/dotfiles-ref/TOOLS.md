@@ -210,11 +210,11 @@ alias lg='lazygit'
 ```yaml
 # config.yml
 gui:
+  nerdFontsVersion: "3"
   theme:
-    lightTheme: false
     # Catppuccin Macchiato colors
     activeBorderColor:
-      - "#8aadf4"  # blue
+      - "#c6a0f6"  # mauve
       - bold
     inactiveBorderColor:
       - "#a5adcb"  # subtext0
@@ -225,17 +225,13 @@ gui:
     cherryPickedCommitBgColor:
       - "#494d64"  # surface1
     cherryPickedCommitFgColor:
-      - "#8aadf4"  # blue
+      - "#c6a0f6"  # mauve
     unstagedChangesColor:
       - "#ed8796"  # red
     defaultFgColor:
       - "#cad3f5"  # text
     searchingActiveBorderColor:
       - "#eed49f"  # yellow
-git:
-  paging:
-    colorArg: always
-    pager: delta --dark --paging=never
 ```
 
 ---
@@ -367,6 +363,7 @@ path add "~/.local/bin"
 **Important behaviors:**
 - `$env.config` settings are **not inherited** by child processes — export variables if they need to persist
 - XDG variables (`$env.XDG_CONFIG_HOME`, `$env.XDG_DATA_HOME`, `$env.XDG_DATA_DIRS`) must point to the **parent directory**, not the nushell subdirectory
+- `$env.NU_LIB_DIRS` is deprecated upstream in favor of `const NU_LIB_DIRS` for parse-time use in `config.nu`; this repo's config doesn't currently use either form
 
 **Startup flags:**
 
@@ -723,9 +720,15 @@ Type a command, then press `Ctrl+T` — television picks the right channel:
 |---------------|---------|
 | `git checkout` | git-branch |
 | `git add` | git-diff |
+| `git clone` | git-repos |
 | `cd` | dirs |
+| `ls` | dirs |
+| `rmdir` | dirs |
+| `z` | dirs |
 | `nvim` | files |
 | `docker run` | docker-images |
+| `alias`/`unalias` | alias |
+| `export`/`unset` | env |
 
 ### Key Bindings (inside tv)
 
@@ -748,6 +751,8 @@ Type a command, then press `Ctrl+T` — television picks the right channel:
 | git-diff | changed files | — |
 | git-stash | stashes | apply, drop |
 | docker-containers | containers | start, logs, exec |
+| docker-images | images | — |
+| npm-scripts | package.json scripts | run |
 | gh-prs | open PRs | open in browser, checkout |
 | k8s-pods | pods | logs, exec |
 | claude-sessions | JSONL files | resume, open in VS Code, delete |

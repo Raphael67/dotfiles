@@ -41,7 +41,7 @@ export XDG_STATE_HOME="$HOME/.local/state"
 
 Tools that use these:
 - **Oh-My-Zsh**: `export ZSH="$XDG_DATA_HOME/oh-my-zsh"`
-- **NVM**: `export NVM_DIR="$XDG_DATA_HOME/nvm"`
+- **NVM**: `export NVM_DIR="$HOME/.nvm"` (canonical default; XDG/`~/.config/nvm` paths are only a fallback search if `~/.nvm` doesn't exist — see [Node.js: nvm owns it](../../CLAUDE.md) policy)
 - **Zsh history**: `HISTFILE="$XDG_STATE_HOME/zsh/history"`
 - **evalcache**: `ZSH_EVALCACHE_DIR="$XDG_CACHE_HOME/zsh-evalcache"`
 
@@ -110,31 +110,24 @@ if [[ -d "$HOME/.pyenv" ]]; then
 fi
 ```
 
-# nvm (Node.js) — ~300ms savings
-# Eagerly adds default node version to PATH, then lazy-loads nvm
-if [[ -d "$NVM_DIR" || -d "/opt/homebrew/opt/nvm" ]]; then
-  # Add default node version to PATH immediately (no nvm load)
-  if [[ -d "$NVM_DIR/versions/node" ]]; then
-    local default_node=$(ls -1 "$NVM_DIR/versions/node" | sort -V | tail -1)
-    [[ -n "$default_node" ]] && export PATH="$NVM_DIR/versions/node/$default_node/bin:$PATH"
-  fi
+### nvm (Node.js)
 
-  nvm() {
-    unset -f nvm node npm npx
-    # Supports both Homebrew and standard nvm paths
-    if [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
-      export NVM_DIR="/opt/homebrew/opt/nvm"
-      \. "/opt/homebrew/opt/nvm/nvm.sh"
-    elif [[ -s "$NVM_DIR/nvm.sh" ]]; then
-      \. "$NVM_DIR/nvm.sh"
-    fi
-    nvm "$@"
-  }
-  node() { unset -f node; nvm use --lts --silent 2>/dev/null; node "$@"; }
-  npm() { unset -f npm; nvm use --lts --silent 2>/dev/null; npm "$@"; }
-  npx() { unset -f npx; nvm use --lts --silent 2>/dev/null; npx "$@"; }
-fi
-```
+**nvm** is more involved than the jenv/pyenv snippet above — full policy lives in the
+global `~/.claude/CLAUDE.md` → "Node.js: nvm owns it". Summary of what `dot-zshrc` does:
+
+- `NVM_DIR` defaults to `$HOME/.nvm` (canonical); if that doesn't exist, it falls back to
+  searching `$XDG_DATA_HOME/nvm` then `~/.config/nvm`.
+- A stale `NPM_CONFIG_PREFIX` (pointing at a directory that no longer exists) is unset —
+  it otherwise breaks nvm in sandboxed environments.
+- A `_nvm_default_version()` helper resolves nvm's own alias chain (`default` →
+  `lts/*` → `lts/<name>` → `vX.Y.Z`) by reading files under `$NVM_DIR/alias/` directly,
+  so the shell tracks the actual LTS rather than just the highest version installed.
+- The resolved version's `bin` dir is prepended to the `path` array (not `nvm.sh` sourced)
+  to avoid paying nvm's startup cost on every shell.
+- `nvm`, `node`, `npm`, `npx` are then defined as self-replacing lazy-load functions,
+  same pattern as jenv/pyenv above.
+- **Never use `ls` in this logic** — `aliases.zsh` (sourced earlier) aliases it to
+  `eza --icons=always`, which prefixes a glyph even when piped, corrupting path parsing.
 
 ### How It Works
 
@@ -195,21 +188,34 @@ alias g="git"
 alias ga="git add"
 alias gap="git add --patch"
 alias gb="git branch"
+alias gbr="git branch -r"
 alias gc="git commit -v"
+alias gcanenv="git commit --amend --no-edit --no-verify"
 alias gcl="git clone"
+alias gcmnv="git commit --no-verify -m"
 alias gco="git checkout"
 alias gd="git diff ..."
 alias gds="git diff --staged"
 alias gf="git fetch"
+alias ggpush='git push origin $(current_branch)'
+alias gi="git init"
 alias gl="git log --all --graph ..."   # Pretty graph log
+alias glgg="git log --graph --max-count=5 --decorate --pretty=oneline"
 alias gm="git merge"
 alias gp="git push"
 alias gpo="git push origin"
-alias gs="git status --short --branch"
+alias gre="git remote"
+alias gres="git remote show"
+alias gs="git status --short --branch"   # + submodule status, see below
+alias gtd="git tag --delete"
+alias gtdr="git tag --delete origin"
 alias gu="git pull"
 alias gup="git fetch && git rebase"
 alias lg="lazygit"
 ```
+
+`gs` also appends a per-submodule status line (branch + dirty/clean) via a
+`git submodule foreach` one-liner, but only when the repo has a `.gitmodules` file.
 
 **fzf-powered Git:**
 ```zsh
@@ -245,17 +251,31 @@ alias vi='poetry_run_nvim'
 
 **Misc:**
 ```zsh
+alias less='less -iR'
+alias shutdown='sudo shutdown now'
+alias restart='sudo reboot'
+alias suspend='sudo pm-suspend'
 alias c='clear'
 alias e='exit'
 alias r='. ranger'
+alias doc="$HOME/Documents"   # expands to the path string (folder shortcut)
+alias dow="$HOME/Downloads"   # expands to the path string (folder shortcut)
 alias oo='...'           # Open Obsidian vault in nvim
 alias notmux='...'       # New Ghostty window without tmux
 alias news='...'         # HYS RSS reader (last 48h)
 alias fixmouse='...'     # Reset stuck mouse reporting mode
+alias cc-update="claude update"   # Update Claude Code to latest
 alias clyo='claude --dangerously-skip-permissions'
 alias ccr='claude --agent router --dangerously-skip-permissions'  # Haiku model router
 ask() { claude -p --model haiku --dangerously-skip-permissions "$*" }  # Quick factual Q&A
 ```
+
+Two functions also live here (see `dotfiles/dot-config/zsh/aliases.zsh` for full bodies):
+- `rclone-mount()` — mounts encrypted cloud storage on demand, decrypting the rclone
+  config via the macOS Keychain; the mount wrapper script path comes from
+  `$RCLONE_MOUNT_WRAPPER` (set in `~/.env.local`, machine-local/gitignored).
+- `cowork-skills()` — syncs `~/.claude/skills/` into the Cowork plugin so skills appear
+  inside Cowork sessions; rerun after adding/editing a skill, then restart Claude Desktop.
 
 ### Adding New Aliases
 
@@ -400,26 +420,46 @@ Replaces zsh's default tab completion with fzf. Configured via zstyle in `dot-zs
 
 ### eza (ls replacement)
 ```zsh
-# aliases.zsh defines a simple form, but dot-zshrc (line 330) redefines `ls`
-# afterwards, so this richer alias is what actually runs:
+# aliases.zsh defines a simple form, but dot-zshrc redefines `ls` afterwards
+# (guarded by `type eza`), so this richer alias is what actually runs:
 alias ls="eza -g -s Name --group-directories-first --time-style long-iso --icons=auto --git"
 ```
 
 ### bat (cat replacement)
 ```zsh
-alias cat="bat --style=plain --paging=auto"
+alias cat="bat --paging=auto"
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export MANROFFOPT="-c"     # suppresses roff warnings piped into `bat -l man`
+
+help() {
+  "$@" --help 2>&1 | bat --plain --language=help
+}
 ```
 
-## Tmux Auto-Start (Disabled)
+## Tmux Auto-Start (Active)
 
-Currently commented out in dot-zshrc. Use manual start:
+`dot-zshrc` has a live auto-start block — it is **not** disabled. It runs when all of
+these hold: not already inside tmux (`$TMUX` unset), `$TERM_PROGRAM == "ghostty"`, not
+inside Claude Code (`$CLAUDECODE != "1"`), `$NO_TMUX` unset, running on macOS or WSL, and
+`tmux` is installed.
 
-```bash
-tmux attach -t main || tmux new -s main
-```
+When triggered, it races against tmux-continuum's async session restore rather than
+just attaching blindly:
+1. If no session exists yet, it starts a bare tmux server (`tmux start-server`, with
+   `exit-empty off` so a session-less server doesn't immediately exit) *without* creating
+   a session — sourcing `tmux.conf` this way kicks off continuum's background restore.
+2. It polls for up to ~3s (`{1..30}` × 0.1s) for a session to appear.
+3. If nothing restored, it falls back to creating a `scratchpad` session on the
+   already-running server (a fresh `tmux new-session` would re-trigger and race restore
+   again).
+4. It re-arms `exit-empty on`, then `exec tmux attach` — deliberately not
+   `exec cmd || exec fallback`, since `exec` replaces the shell: a failed attach would
+   leave the Ghostty window with no process and close it instantly. It guards with an
+   `if tmux has-session` check first and falls through to a plain shell only if tmux
+   could not be brought up at all.
 
-The `notmux` alias opens a Ghostty window without tmux.
+Set `NO_TMUX=1` before launching a shell to skip auto-start for that session. The
+`notmux` alias opens a whole new Ghostty window without tmux.
 
 ## Additional Integrations
 
@@ -429,6 +469,21 @@ Loaded early in dot-zshrc to enable seamless terminal integration:
 ```zsh
 if [[ -n "$VSCODE_SHELL_INTEGRATION" && -r "$VSCODE_SHELL_INTEGRATION" ]]; then
   source "$VSCODE_SHELL_INTEGRATION"
+fi
+```
+
+A second, independent mechanism runs near the end of `dot-zshrc`: when
+`$TERM_PROGRAM == "vscode"`, it sources VS Code's `shellIntegration-rc.zsh` from a
+hardcoded install path, guarded separately per OS:
+```zsh
+if [[ "$TERM_PROGRAM" == "vscode" ]]; then
+  # macOS
+  if [[ -f "/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh" ]]; then
+    . "/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh"
+  # Linux (code installed via package manager)
+  elif [[ -f "/usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh" ]]; then
+    . "/usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh"
+  fi
 fi
 ```
 
@@ -467,6 +522,13 @@ fi
 fpath=($HOME/.docker/completions $fpath)
 ```
 
+**Known issue:** `dot-zshrc` currently has *two* "Docker Desktop completions" blocks —
+one guarded (`$HOME`-relative path, checks `type compdef` before calling `compinit`)
+mid-file, and a second, unguarded one near the end of the file with a hardcoded
+absolute path (`/Users/raphael/.docker/completions`) that calls `compinit`
+unconditionally. This causes a duplicate `compinit` call on every shell start. Not
+fixed yet — flagged here rather than documented as clean.
+
 ### rclone Config Decryption
 
 ```zsh
@@ -493,14 +555,17 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 ### .env File Loading
 
-Environment variables loaded from `~/.env` (for per-machine overrides without committing secrets):
+Environment variables loaded from `~/.env.local` — **not** `~/.env` — for per-machine
+overrides without committing secrets. direnv already auto-loads plain `.env` files
+(`load_dotenv=true`), so `dot-zshrc`'s own loader targets `.env.local` specifically to
+avoid double-loading:
 ```zsh
-if [[ -f ~/.env ]]; then
+if [[ -f ~/.env.local ]]; then
     while IFS= read -r line || [[ -n "$line" ]]; do
         if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
             export "$line"
         fi
-    done < ~/.env
+    done < ~/.env.local
 fi
 ```
 
@@ -615,12 +680,6 @@ nvim-startuptime() {
 }
 ```
 
-### Startup Cleanup Notes
-
-- Duplicate `compinit` calls removed (Oh-My-Zsh handles it)
-- OpenJDK PATH export consolidated into jenv lazy loader
-- `NVM_DIR` set via XDG, no longer defaults to `~/.nvm`
-
 ## Common Customizations
 
 ### Change Prompt
@@ -640,7 +699,7 @@ typeset -U path PATH
 ### Environment Variables
 
 ```zsh
-# In dot-zshrc or ~/.env
+# In dot-zshrc or ~/.env.local
 export MY_VAR="value"
 ```
 

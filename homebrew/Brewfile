@@ -4,8 +4,10 @@ brew "cmake"
 brew "fzf"
 # GNU compiler collection
 brew "gcc"
-# Platform built on V8 to build network applications
-brew "node"
+# Node.js is NOT managed by Homebrew: nvm owns it (see brew "nvm" below).
+# A brew node re-introduces a second global npm prefix (/opt/homebrew/lib/node_modules)
+# that shadows nvm's and drifts out of sync with npm/packages.txt.
+# brew "node"
 # Incredibly fast JavaScript runtime, bundler, test runner, and package manager
 # Note: bun is installed via its own installer: curl -fsSL https://bun.sh/install | bash
 # brew "bun"

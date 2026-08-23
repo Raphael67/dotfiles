@@ -30,3 +30,19 @@ canvas
 
 # Claude CLI
 @anthropic-ai/claude-code
+
+# Spec-driven development CLI (global config shared via dot-config/openspec/)
+@fission-ai/openspec
+
+# API client CLI (ex-brew bruno-cli — migré vers npm pour n'avoir qu'un seul node)
+@usebruno/cli
+
+# Google Gemini CLI (ex-brew gemini-cli — migré vers npm pour n'avoir qu'un seul node)
+@google/gemini-cli
+
+# Code intelligence: knowledge graph + web UI (backs the `gnx` wrapper)
+gitnexus
+
+# Angular/TypeScript documentation generators
+@compodoc/compodoc
+tsdoc

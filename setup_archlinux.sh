@@ -190,12 +190,23 @@ else
 fi
 
 # Install npm global packages
+# Activate nvm's LTS FIRST, otherwise `npm install -g` follows whatever node is
+# on PATH and the packages land outside NVM_DIR (see setup_macos.sh).
 if [ -f "$SCRIPT_DIR/npm/packages.txt" ]; then
     info "Installing npm global packages..."
-    grep -v '^#' "$SCRIPT_DIR/npm/packages.txt" | grep -v '^$' | while read -r package; do
-        npm install -g "$package"
-    done
-    success "npm packages installed"
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    if command -v nvm &>/dev/null; then
+        nvm install --lts
+        nvm use --lts
+        info "Using node $(node -v) → $(npm config get prefix)"
+        grep -v '^#' "$SCRIPT_DIR/npm/packages.txt" | grep -v '^$' | while read -r package; do
+            npm install -g "$package"
+        done
+        success "npm packages installed"
+    else
+        info "nvm unavailable — skipping npm globals rather than installing them against the wrong node"
+    fi
 fi
 
 # Install pip/uv packages

@@ -86,13 +86,30 @@ if [[ "$install_apps" == "y" ]]; then
     fi
 
     # Install npm global packages from packages.txt
+    # Activate nvm's LTS FIRST. Without it, `npm install -g` follows whatever
+    # node happens to be on PATH (Homebrew's, typically) and the packages land
+    # outside NVM_DIR — that is how a second, stale set of globals accumulated
+    # under /opt/homebrew/lib/node_modules.
     info "Installing npm global packages..."
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        # Skip empty lines and comments
-        if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
-            npm install -g "$line"
-        fi
-    done <npm/packages.txt
+    export NVM_DIR="$HOME/.nvm"
+    if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+        . "$NVM_DIR/nvm.sh"
+    elif [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
+        . "/opt/homebrew/opt/nvm/nvm.sh"
+    fi
+    if command -v nvm &>/dev/null; then
+        nvm install --lts
+        nvm use --lts
+        info "Using node $(node -v) → $(npm config get prefix)"
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            # Skip empty lines and comments
+            if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
+                npm install -g "$line"
+            fi
+        done <npm/packages.txt
+    else
+        info "nvm unavailable — skipping npm globals rather than installing them against the wrong node"
+    fi
 
     # Install Python tools with uv (isolated environments)
     info "Installing Python tools..."

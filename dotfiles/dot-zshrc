@@ -301,11 +301,16 @@ add-zsh-hook chpwd _auto_venv
 _auto_venv
 
 # node: nvm
-export NVM_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/nvm"
-# Fallback to legacy paths
+# Canonical NVM_DIR. Homebrew's nvm formula ships nvm.sh but must NOT own the
+# versions dir: pointing NVM_DIR at the Cellar makes `nvm install` write into
+# /opt/homebrew/opt/nvm/versions/node, which nvm then forgets about on the next
+# shell (that is how the orphaned v22/v24 trees appeared).
+export NVM_DIR="$HOME/.nvm"
 if [[ ! -d "$NVM_DIR" ]]; then
-  [[ -d "$HOME/.nvm" ]] && export NVM_DIR="$HOME/.nvm"
-  [[ -d "$HOME/.config/nvm" ]] && export NVM_DIR="$HOME/.config/nvm"
+  for _nvm_candidate in "${XDG_DATA_HOME:-$HOME/.local/share}/nvm" "$HOME/.config/nvm"; do
+    [[ -d "$_nvm_candidate" ]] && { export NVM_DIR="$_nvm_candidate"; break; }
+  done
+  unset _nvm_candidate
 fi
 
 # Unset NPM_CONFIG_PREFIX if invalid (causes nvm errors in sandboxed environments)
@@ -314,27 +319,50 @@ if [[ -n "$NPM_CONFIG_PREFIX" && ! -d "$NPM_CONFIG_PREFIX" ]]; then
 fi
 
 if [[ -d "$NVM_DIR" || -d "/opt/homebrew/opt/nvm" ]]; then
-  # Add node/npm to PATH without loading nvm (use default version)
-  if [[ -d "$NVM_DIR/versions/node" ]]; then
-    local default_node_dir="$NVM_DIR/versions/node"
-    local default_node=$(ls -1 "$default_node_dir" 2>/dev/null | sort -V | tail -1)
-    [[ -n "$default_node" ]] && export PATH="$default_node_dir/$default_node/bin:$PATH"
-  elif [[ -d "/opt/homebrew/opt/nvm/versions/node" ]]; then
-    local default_node_dir="/opt/homebrew/opt/nvm/versions/node"
-    local default_node=$(ls -1 "$default_node_dir" 2>/dev/null | sort -V | tail -1)
-    [[ -n "$default_node" ]] && export PATH="$default_node_dir/$default_node/bin:$PATH"
-  fi
+  # Put node/npm on PATH without paying nvm.sh's startup cost. Resolve nvm's
+  # own `default` alias (normally `lts/*` -> `lts/<name>` -> `vX.Y.Z`) so we
+  # track the LTS, not merely the highest version installed.
+  #
+  # Never use `ls` here: aliases.zsh (sourced above) aliases it to
+  # `eza --icons=always`, which prefixes a glyph even when piped. That produced
+  # a bogus "$NVM_DIR/versions/node/ v24.19.0/bin" PATH entry.
+  _nvm_default_version() {
+    local target="default" hops=0
+    while [[ -n "$target" && "$target" != v[0-9]* && $hops -lt 10 ]]; do
+      [[ -r "$NVM_DIR/alias/$target" ]] || return 1
+      target="$(<"$NVM_DIR/alias/$target")"
+      (( hops++ ))
+    done
+    [[ "$target" == v[0-9]* && -d "$NVM_DIR/versions/node/$target/bin" ]] || return 1
+    print -r -- "$target"
+  }
 
-  # Lazy-load nvm on first use
+  _nvm_version="$(_nvm_default_version)"
+  if [[ -z "$_nvm_version" ]]; then
+    # No usable default alias: fall back to the newest installed version.
+    # (n) sorts numerically, so v9 stays below v10.
+    _nvm_versions=("$NVM_DIR"/versions/node/v*(Nn/:t))
+    (( ${#_nvm_versions} )) && _nvm_version="${_nvm_versions[-1]}"
+    unset _nvm_versions
+  fi
+  if [[ -n "$_nvm_version" ]]; then
+    # Prepend via the `path` array so `typeset -U path` below dedupes it, and
+    # so nvm's node wins over Homebrew's /opt/homebrew/bin/node.
+    path=("$NVM_DIR/versions/node/$_nvm_version/bin" $path)
+    export PATH
+  fi
+  unset _nvm_version
+  unfunction _nvm_default_version
+
+  # Lazy-load nvm on first use. NVM_DIR stays ours in every branch.
   nvm() {
     unset -f nvm node npm npx
-    if [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
-      export NVM_DIR="/opt/homebrew/opt/nvm"
-      \. "/opt/homebrew/opt/nvm/nvm.sh"
-      [ -s "/opt/homebrew/opt/nvm/bash_completion" ] && \. "/opt/homebrew/opt/nvm/bash_completion"
-    elif [[ -s "$NVM_DIR/nvm.sh" ]]; then
+    if [[ -s "$NVM_DIR/nvm.sh" ]]; then
       \. "$NVM_DIR/nvm.sh"
-      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+      [[ -s "$NVM_DIR/bash_completion" ]] && \. "$NVM_DIR/bash_completion"
+    elif [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
+      \. "/opt/homebrew/opt/nvm/nvm.sh"
+      [[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ]] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
     fi
     nvm "$@"
   }

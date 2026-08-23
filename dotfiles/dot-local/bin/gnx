@@ -43,7 +43,7 @@ die()  { printf '✖ %s\n' "$*" >&2; exit 1; }
 info() { printf '▶ %s\n' "$*" >&2; }
 
 command -v gitnexus >/dev/null 2>&1 \
-  || die "gitnexus not found on PATH. Install it (brew) — see ~/.claude/CLAUDE.md → GitNexus."
+  || die "gitnexus not found on PATH. Install it: npm install -g gitnexus (declared in npm/packages.txt) — see ~/.claude/CLAUDE.md → GitNexus."
 
 usage() {
   # Print the header comment block (from line 3) up to the first non-comment line.

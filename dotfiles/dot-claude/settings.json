@@ -146,6 +146,13 @@
       "Bash(rclone:*)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__query-docs",
+      "mcp__claude_ai_Metabase__search",
+      "mcp__claude_ai_Metabase__read_resource",
+      "mcp__claude_ai_Metabase__construct_query",
+      "mcp__claude_ai_Metabase__execute_query",
+      "mcp__claude_ai_Metabase__query",
+      "mcp__claude_ai_Metabase__visualize_query",
+      "mcp__claude_ai_Metabase__render_drill_through",
       "Bash(python .claude/hooks/validate-write-path.py electron/renderer)",
       "Bash(python .claude/hooks/validate-write-path.py electron/main electron/preload)",
       "Bash(python .claude/hooks/validate-write-path.py backend)",
@@ -211,7 +218,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run --no-project ~/.claude/ccnotify/ccnotify.py Notification"
+            "command": "~/.claude/hooks/notify/claude-notify.sh Notification"
           }
         ]
       }
@@ -274,6 +281,10 @@
           {
             "type": "command",
             "command": "__claudebar_hook() { PORT=$(cat \"$HOME/.claude/claudebar-hook-port\" 2>/dev/null || echo 19847); cat | curl -s -X POST \"http://localhost:${PORT}/hook\" -H 'Content-Type: application/json' -d @- > /dev/null 2>&1 & }; __claudebar_hook"
+          },
+          {
+            "type": "command",
+            "command": "rm -f \"$HOME/.claude/tmux-model-info\""
           }
         ]
       }
@@ -290,14 +301,6 @@
       }
     ],
     "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "uv run --no-project ~/.claude/ccnotify/ccnotify.py Stop"
-          }
-        ]
-      },
       {
         "matcher": ".*",
         "hooks": [
@@ -328,6 +331,14 @@
             "command": "__claudebar_hook() { PORT=$(cat \"$HOME/.claude/claudebar-hook-port\" 2>/dev/null || echo 19847); cat | curl -s -X POST \"http://localhost:${PORT}/hook\" -H 'Content-Type: application/json' -d @- > /dev/null 2>&1 & }; __claudebar_hook"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notify/claude-notify.sh SubagentStop"
+          }
+        ]
       }
     ],
     "TaskCompleted": [
@@ -348,16 +359,6 @@
             "type": "command",
             "command": "uv run ~/.claude/hooks/teammate-report-gate.py",
             "timeout": 10
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "uv run --no-project ~/.claude/ccnotify/ccnotify.py UserPromptSubmit"
           }
         ]
       }
@@ -393,7 +394,8 @@
   "editorMode": "normal",
   "preferredNotifChannel": "ghostty",
   "autoCompactEnabled": false,
-  "autoScrollEnabled": false,
+  "autoScrollEnabled": true,
+  "fileCheckpointingEnabled": false,
   "teammateMode": "in-process",
   "remoteControlAtStartup": false,
   "agentPushNotifEnabled": false,

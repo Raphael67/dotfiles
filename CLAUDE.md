@@ -68,6 +68,8 @@ tmux source ~/.config/tmux/tmux.conf  # Reload tmux
 | `dotfiles/dot-config/direnv/` | `~/.config/direnv/` |
 | `dotfiles/dot-config/television/` | `~/.config/television/` |
 | `dotfiles/dot-config/glow/` | `~/.config/glow/` |
+| `dotfiles/dot-config/openspec/` | `~/.config/openspec/` (global OpenSpec config) |
+| `dotfiles/dot-local/share/openspec/` | `~/.local/share/openspec/` (user OpenSpec schemas) |
 | `dotfiles/dot-claude/` | `~/.claude/` (global Claude config, skills, commands, hooks) |
 | `homebrew/Brewfile` | Package manifest |
 
@@ -86,6 +88,50 @@ Before committing changes to `dot-zprofile`, `dot-zshrc`, or any shell config:
      eval "$(/opt/homebrew/bin/brew shellenv)"
    fi
    ```
+
+## Node.js: nvm owns it, Homebrew does not
+
+There is exactly **one** Node.js on this machine: nvm's LTS, under `~/.nvm`
+(`NVM_DIR` is set in both `dot-zprofile` and `dot-zshrc`). `brew "node"` is
+deliberately commented out in `homebrew/Brewfile` — a Homebrew node re-creates a
+second global npm prefix at `/opt/homebrew/lib/node_modules` that shadows nvm's and
+drifts out of sync with `npm/packages.txt`.
+
+**Rules when touching anything Node-related:**
+
+- **Never `npm install -g` without activating nvm first.** Both setup scripts now do
+  `nvm install --lts && nvm use --lts` before reading `npm/packages.txt`; keep it that way.
+  Every global CLI (`claude`, `openspec`, `bw`, `gitnexus`, `bru`, `gemini`, `bdg`, `mmdc`…)
+  must live in `$NVM_DIR/versions/node/<lts>/bin`.
+- **Never `ls` inside shell config.** `dot-config/zsh/aliases.zsh` aliases it to
+  `eza --icons=always`, which prefixes a glyph even when piped. That corrupted the parsed
+  version and produced a bogus `.../node/ v24.19.0/bin` PATH entry. Use a glob or `command ls`.
+- **Never point `NVM_DIR` at `/opt/homebrew/opt/nvm`.** Homebrew ships `nvm.sh`, but making
+  the Cellar the versions dir makes `nvm install` write somewhere nvm forgets on the next
+  shell (that produced orphaned v22/v24 trees holding a stale OpenSpec).
+- If a CLI seems missing, check `command -v` before installing it — do not add a symlink
+  into `~/.local/bin` pointing at an nvm version dir. Those break on every node upgrade.
+
+Verify with: `env -i HOME=$HOME /bin/zsh -l -i -c 'command -v node npm; node -v'` —
+exactly one node entry, from `~/.nvm`.
+
+## OpenSpec
+
+Configured globally; no per-project setup is needed beyond `openspec init`.
+
+| Layer | Path | Stowed from |
+|-------|------|-------------|
+| Global config | `~/.config/openspec/config.json` | `dotfiles/dot-config/openspec/` |
+| User schemas | `~/.local/share/openspec/schemas/` | `dotfiles/dot-local/share/openspec/schemas/` |
+
+- **`spec-driven` is forked at user level** and shadows the built-in in every project, so
+  proposals and designs carry mermaid diagrams by default. Templates are re-read on every
+  `openspec instructions` call — edits apply immediately, no `openspec update` needed.
+  See `dotfiles/dot-local/share/openspec/schemas/README.md` for the rebase procedure.
+- **`delivery: commands`** — slash commands only (`/opsx:propose`, `/opsx:explore`, …), no
+  skills. Changing `delivery` or `workflows` *does* require `openspec update` per project.
+- Telemetry is off and `telemetry.anonymousId` is deliberately absent from the tracked
+  config: it is machine-bound and this file is shared across machines.
 
 ## Global Git Hooks
 

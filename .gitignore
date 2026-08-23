@@ -34,8 +34,15 @@ dotfiles/dot-config/cagent/.cagent_first_run
 # Jira CLI - generated from template + .env
 dotfiles/dot-config/.jira/.config.yml
 
+# git config include with a professional identity (name + work email) -
+# machine-local, never committed to this public repo
+dotfiles/dot-config/git/config-key*
+
 # rclone - OAuth tokens and machine-local config
 dotfiles/dot-config/rclone/rclone.conf
+# rclone's own atomic-write temp files (pattern rclone.conf<random>), left behind
+# on an interrupted config rewrite - never intentional, never committed
+dotfiles/dot-config/rclone/rclone.conf[0-9]*
 
 # glab CLI - recovery data may contain professional info
 dotfiles/dot-config/glab-cli/recover/
@@ -59,14 +66,10 @@ dotfiles/dot-config/homebrew/trust.json.lock
 # GitNexus - machine-local repo paths (private). The .example is committed.
 scripts/setup-gitnexus.local
 
-# OpenSpec change working files - the memory archive and analysis reports carry
-# personal/professional content (this is a PUBLIC repo: never commit them)
-openspec/changes/*/archive/
-openspec/changes/*/mining-report.md
-openspec/changes/*/triage-report-memoires.md
-openspec/changes/*/scan-claudemd-projets.md
-openspec/changes/*/audit-claude-md.md
-openspec/changes/*/usage-skills-agents.md
+# OpenSpec working directory - change proposals routinely mix planning
+# artifacts with personal/professional content (this is a PUBLIC repo):
+# keep the whole tree local only
+openspec/
 
 # Python bytecode
 __pycache__/

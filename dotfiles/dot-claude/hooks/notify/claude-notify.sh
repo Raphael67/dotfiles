@@ -37,9 +37,12 @@ field() { printf '%s' "$PAYLOAD" | jq -r "$1 // empty" 2>/dev/null; }
 CWD=$(field '.cwd')
 MESSAGE=$(field '.message')
 NTYPE=$(field '.notification_type')
-# The SubagentStop matcher is the agent type, but the payload field carrying it
-# is undocumented — try the plausible names rather than guessing one.
-AGENT=$(field '.agent_type // .subagent_type // .agent_name')
+# `agent_type` is the field (confirmed from a live payload), but it arrives EMPTY
+# for nested subagents — and jq's // only falls through on null, never on "". Hence
+# the explicit select() rather than a chain of //.
+AGENT=$(printf '%s' "$PAYLOAD" | jq -r '
+    [.agent_type, .subagent_type, .agent_name]
+    | map(select(. != null and . != "")) | first // empty' 2>/dev/null)
 
 # Strip anything that would break the OSC sequence: ';' is its field separator,
 # BEL terminates it, and control characters corrupt it. Bash substring keeps the
@@ -73,7 +76,8 @@ LABEL="$TARGET_LABEL"
 
 case "$EVENT" in
     Notification)  TITLE="🔔 $LABEL"; BODY="${MESSAGE:-${NTYPE:-Claude needs you}}" ;;
-    SubagentStop)  TITLE="✅ $LABEL"; BODY="agent ${AGENT:-agent} terminé" ;;
+    SubagentStop)  TITLE="✅ $LABEL"
+                   BODY=$([[ -n "$AGENT" ]] && echo "agent $AGENT terminé" || echo "subagent terminé") ;;
     *)             TITLE="$LABEL";    BODY="$EVENT" ;;
 esac
 TITLE=$(sanitize "$TITLE")

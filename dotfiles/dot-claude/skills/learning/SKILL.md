@@ -1,12 +1,14 @@
 ---
 name: learning
 description: >
-  Generates personalized learning plans for any topic (tech or non-tech).
-  Assesses current knowledge, researches official documentation and resources,
-  creates structured learning paths with theory and practice modules.
-  Stores the plan in Obsidian for interactive follow-up with the learning-tutor agent.
-  Use when: learn, study plan, learning path, curriculum, teach me,
-  how to learn, formation, apprendre, study, training.
+  Generates a personalized learning plan for a topic the USER wants to study
+  (tech or non-tech): assesses current knowledge, researches resources, builds
+  a structured curriculum with theory and practice modules, stored in Obsidian.
+  Use for explicit study requests: "study plan", "learning path", "curriculum",
+  "teach me <topic>", "plan pour apprendre". Do NOT trigger for one-off
+  how-to questions or for installing agent skills (that is the `learn` skill).
+  Note: the interactive follow-up agent (learning-tutor) is archived —
+  restore it from archive/dot-claude/agents/ before a tutoring session.
 user-invocable: true
 argument-hint: [topic]
 version: 1.1.0

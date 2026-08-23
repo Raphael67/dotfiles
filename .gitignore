@@ -12,8 +12,6 @@ dotfiles/dot-config/karabiner/automatic_backups
 
 # Skills - ignore all, then whitelist published ones
 dotfiles/dot-claude/skills/**
-!dotfiles/dot-claude/skills/browser-expert/
-!dotfiles/dot-claude/skills/browser-expert/**
 !dotfiles/dot-claude/skills/claude-expert/
 !dotfiles/dot-claude/skills/claude-expert/**
 !dotfiles/dot-claude/skills/self-healing/
@@ -22,8 +20,6 @@ dotfiles/dot-claude/skills/**
 !dotfiles/dot-claude/skills/roast-me/**
 !dotfiles/dot-claude/skills/learning/
 !dotfiles/dot-claude/skills/learning/**
-!dotfiles/dot-claude/skills/agent-expert/
-!dotfiles/dot-claude/skills/agent-expert/**
 !dotfiles/dot-claude/skills/minecraft-client-expert/
 !dotfiles/dot-claude/skills/minecraft-client-expert/**
 !dotfiles/dot-claude/skills/grill-me/
@@ -62,6 +58,15 @@ dotfiles/dot-config/homebrew/trust.json.lock
 
 # GitNexus - machine-local repo paths (private). The .example is committed.
 scripts/setup-gitnexus.local
+
+# OpenSpec change working files - the memory archive and analysis reports carry
+# personal/professional content (this is a PUBLIC repo: never commit them)
+openspec/changes/*/archive/
+openspec/changes/*/mining-report.md
+openspec/changes/*/triage-report-memoires.md
+openspec/changes/*/scan-claudemd-projets.md
+openspec/changes/*/audit-claude-md.md
+openspec/changes/*/usage-skills-agents.md
 
 # Python bytecode
 __pycache__/

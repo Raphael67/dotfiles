@@ -74,10 +74,18 @@ PROJECT=$(basename "${CWD:-}")
 LABEL="$TARGET_LABEL"
 [[ -n "$PROJECT" && "$TARGET_SESSION" != "$PROJECT" ]] && LABEL="$TARGET_LABEL ($PROJECT)"
 
+# An empty agent_type means a nested or internal subagent that Claude Code never
+# named. Production data: 51 of 62 SubagentStop events had no type, and "subagent
+# terminé" tells you nothing you can act on. Only named agents — the ones you
+# actually asked for — are worth a banner.
+if [[ "$EVENT" == "SubagentStop" && -z "$AGENT" ]]; then
+    log "SKIPPED (unnamed nested subagent): $LABEL"
+    exit 0
+fi
+
 case "$EVENT" in
     Notification)  TITLE="🔔 $LABEL"; BODY="${MESSAGE:-${NTYPE:-Claude needs you}}" ;;
-    SubagentStop)  TITLE="✅ $LABEL"
-                   BODY=$([[ -n "$AGENT" ]] && echo "agent $AGENT terminé" || echo "subagent terminé") ;;
+    SubagentStop)  TITLE="✅ $LABEL"; BODY="agent $AGENT terminé" ;;
     *)             TITLE="$LABEL";    BODY="$EVENT" ;;
 esac
 TITLE=$(sanitize "$TITLE")

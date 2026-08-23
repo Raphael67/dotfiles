@@ -20,6 +20,12 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
 
 CACHE_PATH = os.path.join(os.environ.get("TMPDIR", "/tmp"), "claude_rate_limits.json")
 
+# Consumed by ~/.config/tmux/scripts/claude-info.sh to show the live model in the
+# tmux status bar. Written here rather than from a hook because hook payloads
+# carry no `model` field — only the status line receives one. Removed by the
+# SessionEnd hook so the bar goes blank when no Claude session is running.
+TMUX_MODEL_INFO_PATH = os.path.join(os.path.expanduser("~"), ".claude", "tmux-model-info")
+
 # ANSI color codes
 CYAN = "\033[36m"
 GREEN = "\033[32m"
@@ -151,6 +157,21 @@ def save_rate_limits_cache(rate_limits):
         pass
 
 
+def write_tmux_model_info(input_data):
+    """Write "model:agent" for the tmux status bar; never break the status line."""
+    model = input_data.get("model") or {}
+    # Prefer the compact id ("claude-sonnet-5" -> "sonnet-5") over the display name.
+    name = (model.get("id") or model.get("display_name") or "").removeprefix("claude-")
+    agent = os.environ.get("CLAUDE_CODE_AGENT", "")
+    if not name and not agent:
+        return
+    try:
+        with open(TMUX_MODEL_INFO_PATH, "w") as f:
+            f.write(f"{name}:{agent}\n")
+    except OSError:
+        pass
+
+
 def get_rate_limits(input_data):
     rate_limits = input_data.get("rate_limits")
     if rate_limits and isinstance(rate_limits, dict):
@@ -161,6 +182,7 @@ def get_rate_limits(input_data):
 
 def generate_status_line(input_data):
     model_name = input_data.get("model", {}).get("display_name", "Claude")
+    write_tmux_model_info(input_data)
     session_id = input_data.get("session_id", "") or "--------"
 
     context_data = input_data.get("context_window", {})

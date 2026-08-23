@@ -211,7 +211,7 @@
     ],
     "defaultMode": "acceptEdits"
   },
-  "model": "opus[1m]",
+  "model": "haiku",
   "hooks": {
     "Notification": [
       {

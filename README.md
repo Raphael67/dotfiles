@@ -259,10 +259,26 @@ Plugin manager: [lazy.nvim](https://github.com/folke/lazy.nvim) — plugins load
 
 This repo includes a full [Claude Code](https://claude.com/claude-code) setup deployed via stow to `~/.claude/`:
 
-- **14+ custom skills** — dotfiles management, document generation (docx, xlsx, pptx, pdf), visual assets, browser automation, prompt engineering, and more
+- **Custom skills** — dotfiles management, document generation (docx, xlsx, pptx, pdf), visual assets, browser automation, prompt engineering, and more
 - **Damage control hooks** — safety hooks that review Bash, Edit, and Write tool calls against destructive patterns
 - **MCP servers** — Atlassian, Playwright, Context7 (library docs), iCal, and more
 - **Custom commands** — context priming, parallel agent orchestration
+
+### Skill symlink bridges
+
+Some entries in `dotfiles/dot-claude/skills/` are **symlinks, not directories** — a deliberate
+mechanism to reuse skills maintained elsewhere without copying them:
+
+- **Claude Desktop (Cowork) bridge** — `docx`, `pdf`, `pptx`, `xlsx`, `skill-creator` point into
+  Claude Desktop's plugin store (`~/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin/…`),
+  so Claude Code and Claude Desktop share one copy of Anthropic's document skills.
+- **Obsidian vault bridge** — `presentation`, `visual-assets` point into the vault
+  (`…/my_vault/Agents/Claude/skills/`), where they are versioned alongside the notes they serve.
+
+Symlinked skills are machine-local by nature: they are **not committed** (the skills
+`.gitignore` block only whitelists real directories) and will dangle on a machine without
+the target app — harmless, Claude Code just skips them. Audit with
+`ls -la dotfiles/dot-claude/skills/` and `readlink <name>`.
 
 ## Tips
 

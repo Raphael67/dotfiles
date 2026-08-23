@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Logging: capture full output (stdout + stderr) to a timestamped file while
+# still printing to the terminal in real time.
+mkdir -p logs
+LOG_FILE="logs/setup-macos-$(date +%Y%m%d-%H%M%S).log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+echo "=== Setup started at $(date) ==="
+echo "Script version: $(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+
 # Source environment variables if .env exists
 if [[ -f "$(dirname "$0")/.env" ]]; then
     source "$(dirname "$0")/.env"
@@ -101,10 +109,16 @@ if [[ "$install_apps" == "y" ]]; then
         nvm install --lts
         nvm use --lts
         info "Using node $(node -v) → $(npm config get prefix)"
+
         while IFS= read -r line || [[ -n "$line" ]]; do
             # Skip empty lines and comments
             if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
-                npm install -g "$line"
+                info "Installing npm package: $line"
+                if npm install -g "$line"; then
+                    success "Installed: $line"
+                else
+                    warning "Failed to install: $line (exit code: $?)"
+                fi
             fi
         done <npm/packages.txt
     else
@@ -213,3 +227,6 @@ fi
 USER_HOME="${DOTFILES_HOME:-$HOME}"
 rm "${USER_HOME}/Library/Application Support/Code/User/settings.json"
 ln -s $(pwd)/dotfiles/dot-config/Code/User/settings.json "${USER_HOME}/Library/Application Support/Code/User/settings.json"
+
+printf "\n"
+success "Setup completed at $(date)"

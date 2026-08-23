@@ -7,6 +7,14 @@ set -e
 # Get the absolute path of the directory where the script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Logging: capture full output (stdout + stderr) to a timestamped file while
+# still printing to the terminal in real time.
+mkdir -p "$SCRIPT_DIR/logs"
+LOG_FILE="$SCRIPT_DIR/logs/setup-archlinux-$(date +%Y%m%d-%H%M%S).log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+echo "=== Setup started at $(date) ==="
+echo "Script version: $(git -C "$SCRIPT_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+
 if [[ -f "$SCRIPT_DIR/.env" ]]; then
     source "$SCRIPT_DIR/.env"
 fi
@@ -200,8 +208,14 @@ if [ -f "$SCRIPT_DIR/npm/packages.txt" ]; then
         nvm install --lts
         nvm use --lts
         info "Using node $(node -v) → $(npm config get prefix)"
+
         grep -v '^#' "$SCRIPT_DIR/npm/packages.txt" | grep -v '^$' | while read -r package; do
-            npm install -g "$package"
+            info "Installing npm package: $package"
+            if npm install -g "$package"; then
+                success "Installed: $package"
+            else
+                warning "Failed to install: $package (exit code: $?)"
+            fi
         done
         success "npm packages installed"
     else
@@ -260,3 +274,5 @@ info "Post-setup checklist:"
 info "  - Run 'tmux' then press prefix+I (Ctrl+x I) to install tmux plugins"
 info "  - Run 'nvim' to auto-install plugins via lazy.nvim"
 info "  - Configure git GPG signing if needed"
+
+success "Setup completed at $(date)"

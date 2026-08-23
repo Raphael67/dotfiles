@@ -10,6 +10,13 @@ default = current # Pull the current branch from the remote branch of the same n
 [rebase]
 autostash = true           # Automatically stash changes before rebasing
 missingCommitsCheck = warn # Warn if there are missing commits during rebase
+[pull]
+rebase = true
+default = current # Pull the current branch from the remote branch of the same name
+
+[rebase]
+autostash = true           # Automatically stash changes before rebasing
+missingCommitsCheck = warn # Warn if there are missing commits during rebase
 
 [init]
 defaultBranch = main

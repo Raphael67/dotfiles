@@ -18,5 +18,6 @@ You are editing the stow **source** (`dotfiles/dot-config/tmux/`). Reload with `
 - `allow-passthrough on` (image preview), `detach-on-destroy off`, `terminal-features ",*:RGB"` and `",*:usstyle"` (with `-sag`).
 - **`%` is remapped to a vertical/down split** (standard tmux `%` is horizontal).
 - `scripts/claude-info.sh` renders the Claude model/agent in the status bar from `~/.claude/tmux-model-info`.
+- **Bell flag marker** (`window-status-format` in `tmux.custom.conf`) must stay in that file, sourced *after* Catppuccin — Catppuccin's per-segment `bg=` overrides `window-status-bell-style`, so without this appended marker, `claude-notify.sh`'s bell flag raises but never renders. Regressed and fixed once already (commit `08386ef`) — don't move or drop this line.
 
 Full reference: [.claude/dotfiles-ref/TMUX.md](../dotfiles-ref/TMUX.md)

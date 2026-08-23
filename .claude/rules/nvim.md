@@ -14,7 +14,7 @@ You are editing the stow **source** (`dotfiles/dot-config/nvim/`). The deployed 
 
 ## Gotchas (do not regress)
 - **Treesitter is on the `main` branch** (Neovim 0.12+), pinned to a commit with `pin = true`, `lazy = false`. Do **NOT** use `require("nvim-treesitter.configs").setup{}` — that module doesn't exist on `main` and throws. Add parsers to the `ensure_installed` table; highlight via `pcall(vim.treesitter.start)` in a `FileType` autocmd.
-- **LSP**: Mason + lspconfig; navigation keymaps (`gd`/`gr`/`gI`/`<leader>D`/`ds`/`ws`) route through `telescope.builtin`. Use the **method-call** form `client:supports_method("...")` (colon) — the dot form is deprecated in 0.12. Completion is `blink.cmp`.
+- **LSP**: native `vim.lsp.enable(servers)` / `vim.lsp.config("*", {...})` API (not `lspconfig.<server>.setup()`); per-server overrides go in top-level `lsp/<name>.lua` files, auto-discovered on the runtimepath and deep-merged over lspconfig's defaults. Mason + mason-lspconfig only install binaries and translate names (`automatic_enable = false`) — they don't enable servers. Navigation keymaps (`gd`/`gr`/`gI`/`<leader>D`/`ds`/`ws`) route through `telescope.builtin`. Use the **method-call** form `client:supports_method("...")` (colon) — the dot form is deprecated in 0.12. Completion is `blink.cmp`.
 - **Diagnostics**: use `signs.text` in `vim.diagnostic.config()` (not `vim.fn.sign_define`); this repo sets `update_in_insert = true`.
 
 Full reference: [.claude/dotfiles-ref/NEOVIM.md](../dotfiles-ref/NEOVIM.md)

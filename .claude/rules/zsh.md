@@ -22,5 +22,8 @@ You are editing the stow **source** (`dotfiles/dot-zshrc`, `dot-zprofile`, `dot-
 ## Gotchas (do not regress)
 - `zsh-syntax-highlighting`: `builtin` and `reserved-word` are blue `#8aadf4` (not red).
 - `dot-zshrc` redefines `ls` (richer eza form) after `aliases.zsh` — the zshrc one wins at runtime.
+- Tmux auto-start is **live, active code** in `dot-zshrc` (races tmux-continuum's restore, then `exec tmux attach`) — don't assume it's dead/disabled when editing nearby.
+- `dot-zshrc` sources `~/.env.local`, not `~/.env` — direnv already auto-loads plain `.env`, so `.env.local` avoids double-loading.
+- `NVM_DIR`'s canonical default is `~/.nvm` (XDG paths are only a fallback search) — matches the global `~/.claude/CLAUDE.md` → "Node.js: nvm owns it" policy; keep this rule and that policy in agreement.
 
 Full reference: [.claude/dotfiles-ref/ZSH.md](../dotfiles-ref/ZSH.md) · cross-platform [WINDOWS.md](../dotfiles-ref/WINDOWS.md)

@@ -26,6 +26,13 @@ CHANGELOG_URL = https://github.com/anthropics/claude-code/releases
 | Anthropic Skills Repo | https://github.com/anthropics/skills | SKILLS.md |
 | Anthropic Plugins Repo | https://github.com/anthropics/claude-plugins-official | SKILLS.md |
 | Agent Skills Home | https://agentskills.io/home | SKILLS.md |
+| Commands Docs | https://code.claude.com/docs/en/commands | COMMANDS.md, SKILLS.md |
+| Workflows Docs | https://code.claude.com/docs/en/workflows | WORKFLOWS.md |
+| Output Styles Docs | https://code.claude.com/docs/en/output-styles | OUTPUT-STYLES.md |
+| Status Line Docs | https://code.claude.com/docs/en/statusline | STATUS-LINES.md |
+| Settings Reference | https://code.claude.com/docs/en/settings-reference | All files |
+| Hooks Guide | https://code.claude.com/docs/en/hooks-guide | HOOKS.md |
+| **Docs index** | https://code.claude.com/docs/llms.txt | discover pages whose slug moved |
 | Anthropic News | https://www.anthropic.com/news | All files (model updates, product launches) |
 | Claude Desktop Release Notes | https://www.anthropic.com/download | DESKTOP.md |
 | Claude Desktop Changelog | https://claude.ai/changelog | DESKTOP.md |
@@ -34,16 +41,31 @@ CHANGELOG_URL = https://github.com/anthropics/claude-code/releases
 ### Claude Desktop Sources
 
 Track Claude Desktop app features, updates, and new capabilities:
-- https://claude.ai/changelog — official changelog for Claude.ai and Desktop
+- https://claude.ai/changelog — official changelog for Claude.ai and Desktop.
+  **Known broken for WebFetch**: returns HTTP 403 (needs an authenticated session).
+  Last confirmed failing 2026-08-23. Use a browser or an authenticated tool instead.
 - https://www.anthropic.com/news — product announcements (filter for Desktop-related posts)
-- https://support.anthropic.com/en/collections/4560928-claude-desktop — help articles for new features
+- https://support.claude.com/en/collections/4560928-claude-desktop — help articles.
+  The old `support.anthropic.com` URL 301-redirects here, and this URL returned
+  **HTTP 404** on 2026-08-23. Find the current collection via https://support.claude.com.
+
+When both Desktop sources fail, do **not** invent Desktop features: leave DESKTOP.md alone
+apart from corrections other sources support, and record the failure in the report.
 
 ### Model-Specific Sources
 
 For model updates and capabilities, also check:
-- https://www.anthropic.com/news/claude-fable-5-mythos-5 (Fable 5 / Mythos 5 launched 2026-06-09, but **SUSPENDED 2026-06-12** by a US export-control directive — disabled for all customers, unavailable as of 2026-06-20; Anthropic working to restore access)
-- Top generally-available model is currently **Opus 4.8** (`claude-opus-4-8`, $5/$25 per MTok) while Fable 5 / Mythos 5 remain suspended
+Verified against https://www.anthropic.com/news on 2026-08-23:
+
+- **Claude Opus 5** — announced **2026-07-24**, "a step change improvement for the Opus tier
+  powering long-running agents". Current top model.
+- **Claude Sonnet 5** — announced **2026-06-30**.
+- **Fable 5** — announced 2026-06-30 and **redeployed globally from 2026-07-01**. The earlier
+  export-control suspension (2026-06-12) is over; do not repeat it as current.
 - Look for new model announcements on https://www.anthropic.com/news
+
+> Pricing per MTok is not published on the news index. Do not assert a price you have not
+> sourced — check https://code.claude.com/docs or the API pricing page instead.
 
 ## Workflow
 
@@ -72,14 +94,14 @@ Launch 7 parallel WebFetch calls:
 | Skills Docs | Extract all information about Claude Code skills: file structure, YAML frontmatter options, cookbook patterns, auto-discovery behavior, and best practices. |
 | Hooks Docs | Extract all information about Claude Code hooks: PreToolUse, PostToolUse, event types, exit codes, JSON output format, and configuration options. |
 | MCP Docs | Extract all information about MCP in Claude Code: server configuration, transport types, tool definitions, resource handling, and troubleshooting. |
-| Agent SDK Docs | Extract all information about sub-agents in Claude Code: agent definition files, YAML options, tool restrictions, Task tool usage, and parallel execution. |
+| Agent SDK Docs | Extract all information about sub-agents in Claude Code: agent definition files, YAML options, tool restrictions, **Agent** tool usage (renamed from `Task` in v2.1.63), forking, background execution, cross-session messaging, and parallel-execution limits. |
 | Anthropic News | Extract recent announcements about Claude models and products: new model releases, capabilities, pricing, API changes, features, and Claude Desktop updates. Focus on model IDs, performance benchmarks, technical details, and any Desktop-specific features. |
 | Claude Desktop Changelog | Extract all recent updates, new features, bug fixes, and improvements to the Claude Desktop app and claude.ai. Include feature names, dates, and descriptions. |
 | Claude Desktop Support | Extract information about Claude Desktop features: scheduled tasks, cowork mode, MCP in Desktop, keyboard shortcuts, integrations, and any new capabilities documented in help articles. |
 
 ### Step 3: Launch Parallel Subagents
 
-Launch **9 parallel Task agents** (subagent_type: general-purpose, model: haiku) to review each reference file.
+Launch **11 parallel Agent-tool subagents** (subagent_type: general-purpose, model: haiku) to review each reference file.
 
 Each agent receives:
 - Combined changelog + relevant documentation as context
@@ -98,6 +120,12 @@ Each agent receives:
 | 7 | MCP.md | Review against MCP docs. Return: outdated_sections[], new_content[], corrections[]. |
 | 8 | MEMORY.md | Review against memory docs. Return: outdated_sections[], new_content[], corrections[]. |
 | 9 | DESKTOP.md | Review against Desktop changelog, support docs, and Anthropic news. Return: outdated_sections[], new_content[], corrections[]. If file doesn't exist yet, return NEW_CONTENT with all Desktop features found. |
+| 10 | OUTPUT-STYLES.md | Review against the output-styles docs. Return: outdated_sections[], new_content[], corrections[]. |
+| 11 | STATUS-LINES.md | Review against the status-line docs. Return: outdated_sections[], new_content[], corrections[]. |
+
+Also review **SKILL.md** itself and **this cookbook**: the skill's front page summarises every
+topic and goes stale with them, and the cookbook's own model/source notes rot too. Neither is
+covered by an agent above — handle them directly.
 </parallel-agents>
 
 **Agent Prompt Template:**
@@ -124,6 +152,13 @@ You are reviewing a Claude Code reference file for updates.
 2. Identify sections that are outdated or incorrect
 3. Identify new features/content that should be added
 4. Identify corrections needed
+5. **Hunt for fabrications.** Do not only look for stale facts — look for facts that were
+   never true. Every enumerated list presented as authoritative (built-in styles, event
+   names, settings keys, payload fields, env vars, CLI flags) must be checked item by item
+   against a page you actually fetched. Flag anything you cannot find in a source as a
+   CORRECTION with `current:` set to the unfoundable claim.
+6. Never state a fact you cannot source. An omission is a small cost; an invented setting
+   name or payload field is a trap that costs someone a debugging session.
 
 Return your findings in this exact format:
 </instructions>
@@ -152,7 +187,7 @@ SUMMARY: "One-line summary of findings"
 
 ### Step 4: Collect and Consolidate Results
 
-Wait for all 9 agents to complete. Consolidate findings:
+Wait for all 11 agents to complete. Consolidate findings:
 
 - Group changes by file
 - Deduplicate overlapping suggestions
@@ -236,7 +271,7 @@ Bullet list of smaller changes, fixes, and corrections that don't warrant full p
 | ... | ... |
 
 ---
-*9 files reviewed, {X} updated, {Y} changes applied.*
+*11 files reviewed, {X} updated, {Y} changes applied.*
 ```
 
 ## Error Handling
@@ -249,6 +284,27 @@ Bullet list of smaller changes, fixes, and corrections that don't warrant full p
 | State file corrupt | Backup and create new |
 | Edit failure | Log error, continue with next file, report at end |
 
+## Why the fabrication check exists
+
+The 2026-08-23 cycle found two files containing content that was **never true**, not merely
+stale, and that had survived several self-update cycles unchallenged:
+
+- `OUTPUT-STYLES.md` listed `genui`, `table-based` and `yaml-structured` as **built-in**
+  output styles. No such built-ins exist; the real set is Default, Proactive, Concise,
+  Explanatory, Learning.
+- `STATUS-LINES.md` documented a flat input schema with `model` as a string plus
+  `conversation`, `duration` and `line_changes` fields. The real schema is nested
+  (`model.id`, `model.display_name`, `workspace.*`, `cost.*`, `context_window.*`) and those
+  three fields do not exist.
+
+The same cycle also found this cookbook itself asserting that Fable 5 was suspended and that
+Opus 4.8 was the top model, months after both had ceased to be true.
+
+**The lesson: a self-updating skill fossilises its own errors.** Each cycle reads the file as
+a baseline and only looks for what is *missing*, so an invented fact is never revisited.
+Step 5 of the agent instructions exists to break that loop. Do not skip it, and apply it to
+this cookbook too.
+
 ## Up-to-Date Detection
 
 If changelog shows no new versions since `lastVersion`:
@@ -260,7 +316,7 @@ Already up to date!
 
 **Current Version:** {VERSION}
 **Last Updated:** {TIMESTAMP}
-**Files Tracked:** 9
+**Files Tracked:** 11
 ```
 
 Skip steps 3-6, exit early.

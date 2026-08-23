@@ -1,11 +1,20 @@
 # CLAUDE.md
 
 This file provides guidance to Claude Code when working with this repository.
-**IMPORTANT**: Always use the work-completion-summary agent when you finish a task.
+
+**Working language: English** (public repo — code, docs, and conversation in English).
 
 ## Repository Overview
 
 Cross-platform dotfiles repository (macOS/Linux/Windows) using GNU Stow for symlink management.
+
+## PUBLIC Repository — No Personal or Professional Information
+
+This repo is **public on GitHub**. No personal or professional
+information may appear in any committed file: no credentials, no company/project internals,
+no colleague names, no memory archives or transcript-derived reports. Working files that
+carry such content (change archives, mining/triage reports) must be gitignored — see the
+OpenSpec block in `.gitignore`. When in doubt, gitignore first and ask.
 
 ## Project Structure: Two `.claude` Directories
 

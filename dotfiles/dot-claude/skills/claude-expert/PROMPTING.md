@@ -169,6 +169,8 @@ Start Claude's response to guide format:
 
 ## Claude 4+ Specifics
 
+> **Model landscape update (as of 2026-08-23)**: the table and release notes below are a historical snapshot from May 2026. Since then Anthropic has shipped **Claude Sonnet 5** (announced 2026-06-30), **Claude Fable 5** (announced 2026-06-30, redeployed globally from 2026-07-01 after a brief suspension), and **Claude Opus 5** (announced 2026-07-24, "a step change improvement for the Opus tier powering long-running agents"). Opus 4.8 is **no longer** the top generally-available model. Verify current model IDs via `/model` or the API docs rather than relying on the specifics below; the prompting techniques themselves remain valid across model generations.
+
 ### Available Models (May 2026)
 
 | Model | ID | Best For |

@@ -1,5 +1,7 @@
 # Claude Desktop App
 
+> **Sources unreachable (2026-08-23)**: this cycle's self-update could not refresh Desktop-specific sources — `https://claude.ai/changelog` returned HTTP 403 and the support collection 404'd after redirecting to support.claude.com. Desktop-specific sections below (Cowork architecture, scheduled tasks, preferences) were **not re-verified** and may lag actual behavior. Only the model-landscape facts in this file were corrected this cycle, using Anthropic's general news source. Treat Desktop-specific claims with extra caution until sources are reachable again.
+
 Reference for Claude Desktop application features and capabilities — with deep architectural notes on **Cowork mode** that are not documented anywhere else and that Claude consistently forgets between sessions.
 
 ## TL;DR for future-you
@@ -227,7 +229,11 @@ Notable preference keys observed in production configs:
 | 2026-05-06 | SpaceX compute deal | Compute infrastructure partnership |
 | 2026-05-28 | Claude Opus 4.8 released | Enhanced agentic tasks, defaults to xhigh effort. Fast mode at 2x rate. Model ID `claude-opus-4-8` ($5/$25 per MTok) |
 | 2026-06-09 | Claude Fable 5 & Mythos 5 launched | Mythos-class frontier intelligence; Fable 5 is the publicly-available, safety-gated variant. State-of-the-art on nearly all benchmarks; 1M context, 128k output. Model ID `claude-fable-5` ($10/$50 per MTok). Mythos 5 limited-availability via Project Glasswing. Requires Claude Code v2.1.170+ |
-| 2026-06-12 | **Fable 5 & Mythos 5 suspended — export-control directive** | US government issued an export-control directive citing national security authorities, suspending all access to Fable 5 and Mythos 5 for foreign nationals worldwide. Anthropic disabled both models for ALL customers to comply. As of 2026-06-20 both remain unavailable; Anthropic believes this is a misunderstanding and is working to restore access. **Claude Opus 4.8 (`claude-opus-4-8`, $5/$25 per MTok) is again the top generally-available model.** Sources: @AnthropicAI (X, 2026-06-13); Al Jazeera; National Law Review; MarkTechPost. |
+| 2026-06-12 | **Fable 5 & Mythos 5 suspended — export-control directive** | US government issued an export-control directive citing national security authorities, suspending all access to Fable 5 and Mythos 5 for foreign nationals worldwide. Anthropic disabled both models for ALL customers to comply. As of 2026-06-20, Opus 4.8 (`claude-opus-4-8`, $5/$25 per MTok) was again the top generally-available model. Sources: @AnthropicAI (X, 2026-06-13); Al Jazeera; National Law Review; MarkTechPost. **Superseded** — see the rows below: Fable 5 was redeployed 2026-07-01 and Opus 4.8 is no longer the top model. |
+| 2026-06-30 | Claude Sonnet 5 announced | Frontier performance across coding, agents, and professional work at scale. |
+| 2026-06-30 / 2026-07-01 | Claude Fable 5 redeployed | Announced 2026-06-30 and redeployed globally from 2026-07-01, ending the suspension above. Biology-safeguard improvements 2026-08-07; updated jailbreak severity scoring framework built with Amazon, Microsoft, and Google. |
+| 2026-07-24 | Claude Opus 5 released | "A step change improvement for the Opus tier powering long-running agents" — now the top generally-available model, superseding Opus 4.8. |
+| 2026-08-14 | Claude text watermark technology disclosed | — |
 
 ## Sources
 

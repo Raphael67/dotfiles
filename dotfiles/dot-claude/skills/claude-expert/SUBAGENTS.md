@@ -2,7 +2,9 @@
 
 ## What Are Sub-Agents?
 
-Sub-agents are specialized Claude instances that can be invoked via the Task tool for specific tasks. They run in isolation with their own context, tools, and instructions.
+Sub-agents are specialized Claude instances that can be invoked via the **Agent tool** for specific tasks. They run in isolation with their own context, tools, and instructions.
+
+> **Naming history**: the spawn tool was called `Task` before v2.1.63, when it was renamed to `Agent`. Old `Task(...)` references in settings/agent definitions still work as aliases, but all current invocations and documentation use `Agent`.
 
 ## Built-in Agent Types
 
@@ -10,36 +12,41 @@ Claude Code includes several built-in agent types:
 
 | Agent Type | Model | Use Case |
 |------------|-------|----------|
-| `Explore` | Haiku | Fast read-only codebase exploration, file search |
+| `Explore` | Inherits (capped at Opus on the Claude API) | Fast read-only codebase exploration, file search |
 | `Plan` | Inherit | Research for plan mode (read-only) |
 | `general-purpose` | Inherit | Complex multi-step tasks, code modifications |
 | `Bash` | Inherit | Command execution in separate context |
 | `statusline-setup` | Sonnet | Configure status line via `/statusline` |
 | `Claude Code Guide` | Haiku | Answer questions about Claude Code features |
+| `fork` | Inherits (same model as parent) | Inherits full conversation, system prompt, and prompt cache — see [Fork Subagents](#fork-subagents) |
 
-## Using the Task Tool
+Explore and Plan skip CLAUDE.md files and git status to keep research fast.
+
+## Using the Agent Tool
 
 ### Basic Usage
 ```
-Use the Task tool with subagent_type="Explore" to find all API endpoints.
+Use the Agent tool with subagent_type="Explore" to find all API endpoints.
 ```
 
-### Task Tool Parameters
+### Agent Tool Parameters
 
 | Parameter | Description |
 |-----------|-------------|
 | `description` | Short (3-5 word) description of the task |
 | `prompt` | Detailed task instructions |
-| `subagent_type` | Agent type to use |
-| `model` | Optional model override (`sonnet`, `opus`, `haiku`) |
+| `subagent_type` | Agent type to use (built-in, custom, or `"fork"`) |
+| `model` | Optional model override (`sonnet`, `opus`, `haiku`, `fable`) |
+| `name` | Optional name for the spawned agent — makes it addressable via `SendMessage`, and (with agent teams enabled) causes it to launch as a teammate |
 | `run_in_background` | Run asynchronously |
 | `resume` | Agent ID to resume previous execution |
+| `team_name` | Accepted but **ignored** since v2.1.178 (teams are implicit now) |
 
 ### Examples
 
 **Explore Agent:**
 ```xml
-<invoke name="Task">
+<invoke name="Agent">
 <parameter name="description">Find API endpoints</parameter>
 <parameter name="prompt">Search the codebase for all REST API endpoint definitions. Look for route handlers, controller methods, and OpenAPI specs.</parameter>
 <parameter name="subagent_type">Explore</parameter>
@@ -48,7 +55,7 @@ Use the Task tool with subagent_type="Explore" to find all API endpoints.
 
 **Plan Agent:**
 ```xml
-<invoke name="Task">
+<invoke name="Agent">
 <parameter name="description">Plan auth implementation</parameter>
 <parameter name="prompt">Design an implementation plan for adding JWT authentication to the API. Consider middleware, token refresh, and logout.</parameter>
 <parameter name="subagent_type">Plan</parameter>
@@ -57,12 +64,42 @@ Use the Task tool with subagent_type="Explore" to find all API endpoints.
 
 **Background Execution:**
 ```xml
-<invoke name="Task">
+<invoke name="Agent">
 <parameter name="description">Run test suite</parameter>
 <parameter name="prompt">Run the full test suite and report failures.</parameter>
 <parameter name="subagent_type">Bash</parameter>
 <parameter name="run_in_background">true</parameter>
 </invoke>
+```
+
+## Fork Subagents
+
+`subagent_type: "fork"` inherits the **entire conversation history**, system prompt, model, and prompt cache from the parent — instead of starting fresh like a regular subagent.
+
+**Since v2.1.232, forking is enabled by default** in interactive sessions:
+
+```bash
+CLAUDE_CODE_FORK_SUBAGENT=1 claude   # enable (default)
+CLAUDE_CODE_FORK_SUBAGENT=0 claude   # disable
+```
+
+With fork mode on, **all spawned subagents run in the background by default** — Claude cannot request foreground execution for them. `/subtask <prompt>` forks manually from the current conversation on demand.
+
+| Aspect | Fork | Regular subagent |
+|--------|------|-------------------|
+| Context | Full conversation history | Fresh context |
+| System prompt | Same as main session | From agent definition |
+| Tools | Same as main session | From agent definition |
+| Model | Same as main session | From agent definition |
+| Prompt cache | Shared with parent | Separate cache |
+
+Disable fork spawning entirely via permissions:
+```json
+{
+  "permissions": {
+    "deny": ["Agent(fork)"]
+  }
+}
 ```
 
 ## Creating Custom Agents
@@ -73,10 +110,11 @@ Custom agents are defined as markdown files with YAML frontmatter.
 
 | Location | Scope | Priority |
 |----------|-------|----------|
-| `--agents` CLI flag | Current session only | 1 (highest) |
-| `.claude/agents/` | Current project | 2 |
-| `~/.claude/agents/` | All your projects | 3 |
-| Plugin `agents/` directory | Where plugin is enabled | 4 (lowest) |
+| Managed settings | Organization-wide | 1 (highest) |
+| `--agents` CLI flag | Current session only | 2 |
+| `.claude/agents/` | Current project | 3 |
+| `~/.claude/agents/` | All your projects | 4 |
+| Plugin `agents/` directory | Where plugin is enabled | 5 (lowest) |
 
 When multiple agents share the same name, higher-priority location wins.
 
@@ -112,6 +150,8 @@ claude --agents '{
 }'
 ```
 
+Accepted fields in the JSON definition: `prompt`, `description`, `tools`, `disallowedTools`, `model`, `permissionMode`, `mcpServers`, `hooks`, `maxTurns`, `skills`, `isolation`, `memory`, `background`, `effort`, `initialPrompt`.
+
 ### Directory Structure
 ```
 .claude/agents/
@@ -129,7 +169,7 @@ Or globally:
 ```yaml
 ---
 name: my-custom-agent
-description: Description shown in Task tool agent list. Include when to use this agent.
+description: Description shown in Agent tool's agent list. Include when to use this agent.
 model: sonnet
 allowed-tools:
   - Read
@@ -161,21 +201,22 @@ Always respond with:
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `name` | Yes | Unique agent identifier |
+| `name` | Yes | Unique agent identifier (lowercase, hyphens only) |
 | `description` | Yes | What + when, used for discovery |
-| `model` | No | Default model (`sonnet`, `opus`, `haiku`, `inherit`) |
-| `allowed-tools` | No | Restrict available tools |
+| `model` | No | `sonnet`, `opus`, `haiku`, `fable`, a full model ID, or `inherit` (default) |
+| `tools` / `allowed-tools` | No | Allowlist of available tools; inherits all if omitted |
 | `disallowedTools` | No | Tools to deny (removed from inherited list) |
 | `permissionMode` | No | `default`, `plan`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`. Honored by `--agent <name>` since v2.1.119 |
 | `skills` | No | Preload skills into agent context |
 | `hooks` | No | Lifecycle hooks: PreToolUse, PostToolUse, Stop (converted to SubagentStop) |
 | `memory` | No | Persistent memory scope: `user`, `project`, or `local` |
-| `mcpServers` | No | MCP servers: reference configured names or define inline. Loaded for main-thread when invoked via `--agent <name>` (v2.1.117+) |
+| `mcpServers` | No | MCP servers: reference configured names or define inline. Loaded for main-thread when invoked via `--agent <name>` (v2.1.117+). **v2.1.238+**: inline servers in `.claude/agents/` require folder trust (already-trusted servers and user-level agents are exempt) |
 | `maxTurns` | No | Limit conversation turns |
-| `background` | No | Set to `true` to always run as background task. Default: `false` |
+| `background` | No | Set to `true` to always run as background task. Default depends on fork mode (see [Fork Subagents](#fork-subagents)) |
 | `isolation` | No | Set to `worktree` to run in a temporary git worktree (isolated repo copy). Auto-cleaned if no changes |
-| `effort` | No | Effort level when agent is active. Overrides session effort. Options: `low`, `medium`, `high`, `max` (Opus 4.6 only) |
+| `effort` | No | Effort level when agent is active. Overrides session effort. Options: `low`, `medium`, `high`, `xhigh`, `max` |
 | `initialPrompt` | No | Auto-submit prompt for first turn (v2.1.83+). Agent starts working immediately without manual trigger |
+| `color` | No | Display color for the agent in the task/agent panel |
 
 ### Permission Modes
 
@@ -219,8 +260,8 @@ memory: user    # Scope: user, project, or local
 When memory is enabled:
 - Read, Write, Edit tools are auto-enabled for memory access
 - Agent maintains `MEMORY.md` automatically
-- First 200 lines of `MEMORY.md` are included in system prompt each session
-- If `MEMORY.md` exceeds 200 lines, agent is instructed to curate it
+- First 200 lines / 25KB of `MEMORY.md` are included in system prompt each session
+- If `MEMORY.md` exceeds that, agent is instructed to curate it
 
 ### Hooks in Agent Frontmatter
 
@@ -394,13 +435,13 @@ Coverage: Z%
 Launch multiple agents simultaneously in a SINGLE message:
 
 ```xml
-<invoke name="Task">
+<invoke name="Agent">
 <parameter name="description">Find components</parameter>
 <parameter name="prompt">Find all React components in src/</parameter>
 <parameter name="subagent_type">Explore</parameter>
 </invoke>
 
-<invoke name="Task">
+<invoke name="Agent">
 <parameter name="description">Find API routes</parameter>
 <parameter name="prompt">Find all API route definitions</parameter>
 <parameter name="subagent_type">Explore</parameter>
@@ -488,7 +529,7 @@ After all subagents complete:
 Use the agent ID to resume:
 
 ```xml
-<invoke name="Task">
+<invoke name="Agent">
 <parameter name="description">Continue analysis</parameter>
 <parameter name="prompt">Continue with the next step</parameter>
 <parameter name="resume">a3840f8</parameter>
@@ -544,22 +585,23 @@ Add to permissions deny list:
 ```json
 {
   "permissions": {
-    "deny": ["Task(Explore)", "Task(my-agent)"]
+    "deny": ["Agent(Explore)", "Agent(my-agent)"]
   }
 }
 ```
 
 ## Foreground vs Background Execution
 
-- **Foreground**: Blocks main conversation. Permission prompts and questions pass through to user.
-- **Background**: Runs concurrently. Claude prompts for permissions before launching. Auto-denies anything not pre-approved. MCP tools not available. `AskUserQuestion` fails (but agent continues).
+- **Foreground** (default when fork mode is off): Blocks main conversation. Permission prompts and questions pass through to user. Full tool access.
+- **Background** (default when fork mode is on, since v2.1.232): Runs concurrently. Claude prompts for permissions before launching. Auto-denies anything not pre-approved. Reduced built-in tool set (keeps Read, Grep, Glob, Bash, PowerShell, Edit, Write, WebFetch, WebSearch, etc.). `AskUserQuestion` fails (but agent continues).
 
 If a background agent fails due to missing permissions, resume it in foreground.
 
 Controls:
 - Ask Claude to "run this in the background"
+- Set `background: true` in agent frontmatter to force background
 - `Ctrl+B` to background a running task
-- `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1` to disable all background tasks
+- `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1` to run subagents in the foreground (disables all background tasks)
 
 ## Background Execution
 
@@ -621,8 +663,6 @@ In `settings.json`:
 
 ## Restricting Spawnable Agents with Agent(agent_type)
 
-> **Note**: In v2.1.63, the Task tool was renamed to Agent. Existing `Task(...)` references in settings and agent definitions still work as aliases.
-
 When an agent runs as main thread with `claude --agent`, restrict which subagent types it can spawn:
 
 ```yaml
@@ -635,7 +675,7 @@ tools: Agent(worker, researcher), Read, Bash
 - This is an **allowlist**: only `worker` and `researcher` can be spawned
 - Use `Agent` without parentheses to allow all subagent types
 - Omit `Agent` entirely to prevent spawning any subagents
-- Only applies to main thread agents (`claude --agent`); in a subagent definition, listing `Agent` in `tools` lets that subagent spawn nested subagents (up to 5 levels deep)
+- Only applies to main thread agents (`claude --agent`); in a subagent definition, listing `Agent` in `tools` lets that subagent spawn nested subagents, up to the configured nesting depth (default 3 — see below)
 
 Also usable in permissions deny list:
 ```json
@@ -646,11 +686,45 @@ Also usable in permissions deny list:
 }
 ```
 
-## Nested Subagents (v2.1.172+)
+## Nested Subagents and Concurrency Limits (v2.1.172+)
 
-As of v2.1.172, subagents can spawn their own subagents. Depth is counted as the number of subagent levels below the main conversation. A subagent at depth 5 does not receive the Agent tool and cannot spawn further. **As of v2.1.181, foreground subagents also enforce this limit** (previously foreground chains were unbounded). The limit is fixed and not configurable.
+As of v2.1.172, subagents can spawn their own subagents. Depth is counted as the number of subagent levels below the main conversation.
 
-The subagent panel caps at 5 visible rows with scroll hints; idle agents auto-hide (v2.1.181).
+| Limit | Env var | Default |
+|-------|---------|---------|
+| Max nesting depth | `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` | 3 |
+| Max concurrent subagents | `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` | 20 (ultracode sessions exempt) |
+
+```json
+{
+  "env": {
+    "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "2",
+    "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS": "50"
+  }
+}
+```
+
+A subagent beyond the configured depth does not receive the Agent tool and cannot spawn further. **As of v2.1.181, foreground subagents also enforce this limit** (previously foreground chains were unbounded).
+
+Other spawn-related env vars:
+- `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1` — force all subagents to run in the foreground
+- `CLAUDE_CODE_DISABLE_EXPLORE_PLAN_AGENTS=1` — disable only the built-in Explore/Plan agents
+- `CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1` — disable all built-in agents (SDK/headless)
+
+The subagent panel caps at 5 visible rows with scroll hints; idle agents auto-hide 30 seconds after the whole panel goes idle (v2.1.181+; see [Agent Teams](#agent-teams-experimental) for the v2.1.199 refinement to this behavior).
+
+## What Loads at Subagent Startup
+
+**Non-fork subagent** gets:
+- Custom system prompt and the task delegation message from Claude
+- CLAUDE.md files (except Explore/Plan)
+- Git status snapshot (except Explore/Plan)
+- Preloaded skills (from the `skills` frontmatter field)
+- Sibling agent roster, if `SendMessage` is in its tools
+
+It does **not** get: conversation history, output style, auto memory, or the parent's context window size.
+
+**Fork subagent** gets everything a non-fork subagent gets, **plus** the full conversation history (see [Fork Subagents](#fork-subagents)).
 
 ## Agent Teams (Experimental)
 
@@ -697,17 +771,20 @@ Create an agent team to review PR #142. Spawn three reviewers:
 
 ### Display Modes
 
-| Mode | Setting | Description |
-|------|---------|-------------|
-| `auto` (default) | Split if in tmux, else in-process | Auto-detect |
-| `in-process` | All in main terminal | Shift+Down to cycle teammates |
-| `tmux` | Each teammate in own pane | Requires tmux or iTerm2 |
+| Mode | Description |
+|------|-------------|
+| `in-process` (default since v2.1.179) | All teammates in main terminal. Shift+Down (or arrow keys in the agent panel) to cycle teammates |
+| `auto` (default before v2.1.179) | Split panes if already in tmux, or terminal is iTerm2 with `it2` CLI; else in-process |
+| `tmux` | Each teammate in own pane. Requires tmux (auto-detects iTerm2 fallback) |
+| `iterm2` (v2.1.186+) | iTerm2 native split panes explicitly. Requires the `it2` CLI |
+
+Upgraded sessions that previously opened split panes under the old `auto` default now stay in one terminal unless `teammateMode` is set explicitly.
 
 ```json
 { "teammateMode": "in-process" }
 ```
 
-Or per-session: `claude --teammate-mode in-process`
+Or per-session: `claude --teammate-mode auto` (the `--teammate-mode` flag is experimental and doesn't appear in `claude --help`).
 
 ### Key Operations
 
@@ -724,12 +801,29 @@ Or per-session: `claude --teammate-mode in-process`
 
 ### Limitations
 
-- No session resumption with in-process teammates
-- One team per session, no nested teams
-- Lead is fixed for lifetime
+- No session resumption with in-process teammates (`/resume`/`/rewind` don't restore them)
+- One team per session, no nested teams (teammates cannot spawn their own teammates)
+- Lead is fixed for lifetime — can't promote a teammate to lead
 - Split panes not supported in VS Code terminal, Windows Terminal, or Ghostty
-- Permissions set at spawn (all teammates inherit lead's mode)
-- Team agents inherit the leader's model (v2.1.72)
+- Permissions set at spawn (all teammates inherit lead's mode; can change individual teammate modes after spawning, but not at spawn time)
+- No background subagents from in-process teammates — a teammate's own subagents run in the foreground only
+- Team agents inherit the leader's model (v2.1.72), unless the spawn prompt names a model or `CLAUDE_CODE_SUBAGENT_MODEL` is set
+
+**v2.1.234 BREAKING**: the "Default teammate model" (`teammateDefaultModel`) setting was removed from `/config`. Claude Code ignores any leftover value — name the model in your spawn prompt or set `CLAUDE_CODE_SUBAGENT_MODEL` instead; otherwise teammates run on the lead's current model.
+
+**v2.1.199**: an idle teammate's row stays visible in the panel while any other teammate/subagent is still working; once every agent is idle, rows hide after 30 seconds and reappear on the teammate's next turn (the teammate keeps running while hidden). More than three idle teammates collapse into a single `N idle agents` row.
+
+## Cross-Session Messaging (v2.1.224+)
+
+Lets Claude deliver a plain-text message from one of your Claude Code sessions to another — independent sessions you start and steer yourself (not subagents or teammates, which already message via the same `SendMessage` tool within one session/team). Requires v2.1.224+ on macOS/Linux/WSL2, v2.1.234+ on native Windows. Not available on Bedrock, Claude Platform on AWS, Google Cloud Agent Platform, or Microsoft Foundry.
+
+- **Tools**: `ListAgents` discovers reachable sessions; `SendMessage` delivers to one by name.
+- **@-mentions (v2.1.232+)**: type `@` followed by letters of a session's name to pick it from typeahead, the same way you `@`-mention a subagent. `SendMessage` also delivers on **bare exact session-name matches** without needing the picker.
+- **`notify_when_idle` (v2.1.236+)**: subscribe to a one-shot notice when a watched session (on this machine) next goes idle or exits — no polling. Only the main conversation can subscribe, and only to sessions on this machine; subagents/teammates cannot use it. The subscription expires unanswered after 12 hours if no notice arrives.
+- **`/list-agents` (also `/peers`)**: lists this session's own name (line 1) plus every reachable session — subagents, teammates (shown since v2.1.239), other local sessions, cloud sessions (while connected to Remote Control), and Remote Control sessions on other machines.
+- **Session naming**: names are unique per machine. Starting/resuming/renaming a session with a name another live session already holds auto-renames the new one to a `name-word-word` variant. Set a name explicitly with `/rename` or `--name`.
+- **Inbound control**: `crossSessionInbound` setting (`accept` / `hold` / `refuse`) governs what a session does with messages from your other sessions; also exposed as the `/config` row **"Messages from your other sessions"**.
+- Messages never carry conversation history or files — to move a whole conversation, resume the session instead.
 
 ## Worktree Base Branch (v2.1.133+)
 
@@ -872,6 +966,8 @@ Check if the task was completed successfully. Do NOT modify any files.
 ```
 
 ### Task System Orchestration
+
+> **v2.1.233 DEPRECATION**: `TaskCreate`/`TaskGet`/`TaskUpdate`/`TaskList` and `TodoWrite` are no longer available by default on Opus 4.8, Sonnet 5, Fable 5, Mythos 5+. Set `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` to re-enable them.
 
 The `/plan_w_team` pattern uses Claude Code's task system:
 
@@ -1030,7 +1126,7 @@ Pass context from orchestrating agent to subagents:
 ```markdown
 ### Launch Subagent
 
-Use Task tool with full context:
+Use Agent tool with full context:
 
 <subagent-prompt>
 **Context from parent:**

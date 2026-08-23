@@ -1,7 +1,64 @@
 {
-  "lastUpdateTimestamp": "2026-06-20T08:40:31Z",
-  "lastVersion": "2.1.183",
+  "lastUpdateTimestamp": "2026-08-23T16:00:00Z",
+  "lastVersion": "2.1.241",
   "updateHistory": [
+    {
+      "timestamp": "2026-08-23T16:00:00Z",
+      "version": "2.1.241",
+      "filesUpdated": [
+        "SKILL.md",
+        "HOOKS.md",
+        "SKILLS.md",
+        "SUBAGENTS.md",
+        "MCP.md",
+        "MEMORY.md",
+        "COMMANDS.md",
+        "WORKFLOWS.md",
+        "PROMPTING.md",
+        "DESKTOP.md",
+        "OUTPUT-STYLES.md",
+        "STATUS-LINES.md",
+        "cookbook/self-update.md"
+      ],
+      "changesApplied": 13,
+      "newFeatures": [
+        "31 hook events (was 22); PostToolBatch and DirectoryAdded were missing entirely",
+        "Five hook handler types: command, http, mcp_tool, prompt, agent",
+        "blockReason documented for Stop/SubagentStop/UserPromptSubmit/UserPromptExpansion/PostToolBatch/ElicitationResult",
+        "Task tool renamed to Agent tool (v2.1.63) — 6 stale references fixed",
+        "Subagent forking on by default (v2.1.232); /subtask forks manually",
+        "Cross-session messaging: @-mentions (v2.1.232), notify_when_idle (v2.1.236), /list-agents (v2.1.224)",
+        "Custom commands merged into skills — .claude/commands/x.md == .claude/skills/x/SKILL.md",
+        "Built-in Concise output style (v2.1.237)",
+        "70+ built-in commands catalogued",
+        "MCP client v2 default since v2.1.232; WebSocket transport; MCP servers as push channels"
+      ],
+      "correctionsOfFalseFacts": [
+        "OUTPUT-STYLES.md listed FABRICATED built-in styles (genui, table-based, yaml-structured); real set is Default/Proactive/Concise/Explanatory/Learning",
+        "STATUS-LINES.md documented a FABRICATED flat input schema (model as string, conversation, duration, line_changes); real schema is nested",
+        "MEMORY.md claimed CLAUDE.md precedence overrides; files are concatenated",
+        "MEMORY.md claimed import depth 5; actual 4",
+        "SUBAGENTS.md claimed nesting depth 5 fixed; actual 3 via CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH",
+        "SUBAGENTS.md claimed agent-team display default auto; actual in-process since v2.1.179",
+        "SUBAGENTS.md restricted effort to Opus 4.6; false, and xhigh was missing",
+        "SKILLS.md gave skill-listing budget as 2% of context; actual 1%",
+        "SKILLS.md used maxSkillDescriptionChars; renamed skillListingMaxDescChars",
+        "HOOKS.md matched PermissionDenied on denial type; it matches on tool name",
+        "cookbook claimed Fable 5 suspended and Opus 4.8 top model; Fable 5 redeployed 2026-07-01, Opus 5 shipped 2026-07-24",
+        "OUTPUT-STYLES.md said /output-style was only deprecated; removed in v2.1.91"
+      ],
+      "sourcesUnavailable": [
+        "https://claude.ai/changelog — HTTP 403 (authenticated session required)",
+        "https://support.anthropic.com/en/collections/4560928-claude-desktop — 301 to support.claude.com, then HTTP 404",
+        "GitHub releases page exposed only v2.1.232+; v2.1.184–v2.1.231 not retrievable from the changelog"
+      ],
+      "processChanges": [
+        "Agent count 9 -> 11 (OUTPUT-STYLES.md and STATUS-LINES.md were never reviewed)",
+        "SKILL.md and the cookbook itself now explicitly in scope",
+        "8 missing documentation URLs added to the source table",
+        "New mandatory step 5: hunt for fabrications, not just staleness"
+      ]
+    },
     {
       "timestamp": "2026-06-20T08:40:31Z",
       "version": "2.1.183",
@@ -171,7 +228,11 @@
     {
       "timestamp": "2026-04-16T12:00:00Z",
       "version": "2.1.92",
-      "filesUpdated": ["PROMPTING.md", "COMMANDS.md", "cookbook/self-update.md"],
+      "filesUpdated": [
+        "PROMPTING.md",
+        "COMMANDS.md",
+        "cookbook/self-update.md"
+      ],
       "changesApplied": 5,
       "newFeatures": [
         "Claude Opus 4.7 model (claude-opus-4-7) — released Apr 16 2026",
@@ -184,37 +245,85 @@
     {
       "timestamp": "2026-04-05T12:00:00Z",
       "version": "2.1.92",
-      "filesUpdated": ["SKILLS.md", "COMMANDS.md", "SUBAGENTS.md", "HOOKS.md", "MCP.md"],
+      "filesUpdated": [
+        "SKILLS.md",
+        "COMMANDS.md",
+        "SUBAGENTS.md",
+        "HOOKS.md",
+        "MCP.md"
+      ],
       "changesApplied": 24,
-      "newFeatures": ["See prior history in git"]
+      "newFeatures": [
+        "See prior history in git"
+      ]
     },
     {
       "timestamp": "2026-03-25T12:00:00Z",
       "version": "2.1.83",
-      "filesUpdated": ["SKILLS.md", "COMMANDS.md", "SUBAGENTS.md", "PROMPTING.md", "HOOKS.md", "MCP.md", "MEMORY.md", "STATUS-LINES.md", "SKILL.md"],
+      "filesUpdated": [
+        "SKILLS.md",
+        "COMMANDS.md",
+        "SUBAGENTS.md",
+        "PROMPTING.md",
+        "HOOKS.md",
+        "MCP.md",
+        "MEMORY.md",
+        "STATUS-LINES.md",
+        "SKILL.md"
+      ],
       "changesApplied": 22,
-      "newFeatures": ["See prior history in git"]
+      "newFeatures": [
+        "See prior history in git"
+      ]
     },
     {
       "timestamp": "2026-03-13T12:00:00Z",
       "version": "2.1.74",
-      "filesUpdated": ["SKILLS.md", "COMMANDS.md", "SUBAGENTS.md", "PROMPTING.md", "HOOKS.md", "MCP.md", "MEMORY.md", "OUTPUT-STYLES.md", "SKILL.md"],
+      "filesUpdated": [
+        "SKILLS.md",
+        "COMMANDS.md",
+        "SUBAGENTS.md",
+        "PROMPTING.md",
+        "HOOKS.md",
+        "MCP.md",
+        "MEMORY.md",
+        "OUTPUT-STYLES.md",
+        "SKILL.md"
+      ],
       "changesApplied": 18,
-      "newFeatures": ["See prior history in git"]
+      "newFeatures": [
+        "See prior history in git"
+      ]
     },
     {
       "timestamp": "2026-03-06T12:00:00Z",
       "version": "2.1.70",
-      "filesUpdated": ["SKILLS.md", "HOOKS.md", "PROMPTING.md", "MCP.md", "cookbook/self-update.md"],
+      "filesUpdated": [
+        "SKILLS.md",
+        "HOOKS.md",
+        "PROMPTING.md",
+        "MCP.md",
+        "cookbook/self-update.md"
+      ],
       "changesApplied": 12,
-      "newFeatures": ["See prior history in git"]
+      "newFeatures": [
+        "See prior history in git"
+      ]
     },
     {
       "timestamp": "2026-02-27T12:00:00Z",
       "version": "2.1.62",
-      "filesUpdated": ["SKILL.md", "MEMORY.md", "HOOKS.md", "SUBAGENTS.md", "cookbook/self-update.md"],
+      "filesUpdated": [
+        "SKILL.md",
+        "MEMORY.md",
+        "HOOKS.md",
+        "SUBAGENTS.md",
+        "cookbook/self-update.md"
+      ],
       "changesApplied": 8,
-      "newFeatures": ["See prior history in git"]
+      "newFeatures": [
+        "See prior history in git"
+      ]
     }
   ]
 }

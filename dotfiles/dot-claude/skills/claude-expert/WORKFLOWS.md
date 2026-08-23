@@ -8,6 +8,46 @@ Workflows are structured sequences of actions that guide Claude through complex,
 - Error handling
 - Reporting templates
 
+**Note**: everything below in this section describes a hand-authored markdown convention (YAML frontmatter + Variables/Instructions/Workflow/Report sections) for command/skill prompt files. It is a project authoring pattern, distinct from Claude Code's built-in **dynamic workflows** feature covered next.
+
+## Bundled Dynamic Workflows (Claude Code v2.1.154+)
+
+A **dynamic workflow** is a JavaScript script — written by Claude, not by you — that orchestrates many subagents in the background. Reach for one when a task needs more agents than a single conversation can coordinate (a codebase-wide audit, a large migration, a research question that needs sources cross-checked), or when the orchestration itself should be codified as a script you can read and rerun.
+
+### [Skill] vs. [Workflow] vs. built-in command
+
+Claude Code's bundled `/` commands are tagged by type:
+
+| Type | What it is | Who decides what runs next | Where results live |
+|---|---|---|---|
+| **[Skill]** | A prompt Claude follows; some skills also auto-invoke when relevant, unless marked invocation-only | Claude, turn by turn | Claude's context window |
+| **[Workflow]** | A JS script that fans work out across subagents and runs in the background | The script | Script variables |
+| Built-in command | Core CLI behavior, not backed by a skill or workflow file | — | — |
+
+### Bundled commands
+
+| Command | Type | Purpose |
+|---|---|---|
+| `/deep-research <question>` | [Workflow] | Fans out web searches on a question across several angles, fetches and cross-checks sources, votes on each claim, and returns a cited report with claims that didn't survive cross-checking filtered out. Requires the WebSearch tool. **Runs only when explicitly invoked** (changed in v2.1.218 — before that Claude could also start it on its own). |
+| `/batch <instruction>` | [Skill] | Orchestrates large-scale changes across a codebase: researches it, decomposes work into 5–30 independent units, presents a plan for approval, then spawns one background subagent per unit in its own isolated git worktree. Each subagent implements its unit, runs tests, and opens a PR. Requires a git repo. |
+| `/loop [interval] [prompt]` | [Skill] | Runs a prompt repeatedly while the session stays open. Omit the interval to let Claude self-pace between iterations; omit the prompt to run an autonomous maintenance check or the prompt in `.claude/loop.md` (where available). Alias: `/proactive`. |
+| `/goal [condition\|clear]` | Built-in command | Sets a completion condition Claude keeps working toward across turns, until it's met, a model judges it impossible, or an error occurs. No argument shows the current/most recent goal; `clear`/`stop`/`off`/`reset`/`none`/`cancel` removes it early. |
+
+### Triggering an ad hoc dynamic workflow
+
+Beyond `/deep-research`, you can have Claude write and run a one-off dynamic workflow for any task:
+- Include the keyword `ultracode` in a prompt, or ask in plain language ("use a workflow", "run a workflow")
+- Or set `/effort ultracode` so Claude plans a workflow for every substantive task in the session (requires a model that supports `xhigh` effort)
+
+Mechanics worth knowing:
+- The generated script is plain JavaScript with top-level `await`; `agent()` spawns one subagent, `pipeline()` runs one per item in a list
+- Limits: up to 16 concurrent agents (fewer under CPU constraints), 1,000 agents total per run
+- Watch and manage runs with `/workflows` (pause/resume, drill into an agent, stop, restart)
+- A good run can be saved as a reusable command by pressing `s` from `/workflows` — it lands in `.claude/workflows/` (project, shared) or `~/.claude/workflows/` (personal) and then runs as `/<name>` in future sessions
+- A size guideline (`unrestricted`/`small`/`medium`/`large`, default `medium`) advises Claude on agent-count scale without hard-capping it (v2.1.202+; setting itself requires v2.1.219+)
+
+Requires Claude Code v2.1.154+.
+
 ## Workflow Anatomy
 
 A complete workflow file has these sections:
@@ -200,7 +240,7 @@ Chain multiple sub-workflows:
 
 ### Task Tool Metrics (v2.1.30+)
 
-Task tool results now include metrics for monitoring:
+Agent tool results now include metrics for monitoring:
 - **Token count**: Input/output tokens used
 - **Tool uses**: Number of tool invocations
 - **Duration**: Execution time in milliseconds
@@ -214,9 +254,9 @@ Launch multiple operations simultaneously:
 
 ### Step 3: Execute Parallel Tasks
 
-Launch ALL tasks in a SINGLE message with multiple Task tool calls:
+Launch ALL tasks in a SINGLE message with multiple Agent tool calls:
 
-For EACH task, use Task tool with `subagent_type="general-purpose"`:
+For EACH task, use Agent tool with `subagent_type="general-purpose"`:
 
 <subagent-prompt>
 **YOUR ASSIGNED PORT: [UNIQUE_PORT]**

@@ -20,7 +20,7 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 | Commands | [COMMANDS.md](COMMANDS.md) | Creating /commands for quick invocation |
 | Hooks | [HOOKS.md](HOOKS.md) | Setting up PreToolUse, validation, notifications |
 | MCP | [MCP.md](MCP.md) | Adding MCP servers, tools, resources |
-| Sub-agents & Teams | [SUBAGENTS.md](SUBAGENTS.md) | Custom agents, Task tool, agent teams, orchestration |
+| Sub-agents & Teams | [SUBAGENTS.md](SUBAGENTS.md) | Custom agents, Agent tool, agent teams, orchestration |
 | Memory | [MEMORY.md](MEMORY.md) | Auto memory, CLAUDE.md hierarchy, rules, agent memory |
 | Status Lines | [STATUS-LINES.md](STATUS-LINES.md) | Custom terminal status displays, context bars |
 | Output Styles | [OUTPUT-STYLES.md](OUTPUT-STYLES.md) | Response formatting, GenUI, custom styles |
@@ -48,7 +48,7 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - **MANDATORY**: Every skill with external resources must include a self-update cookbook (see SKILLS.md Self-Update Pattern)
 
 ### Hooks
-- 22+ hook events covering the full lifecycle (Setup, SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, StopFailure, CwdChanged, FileChanged, Elicitation, etc.)
+- 30+ hook events covering the full lifecycle (Setup, SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, PermissionRequest, PermissionDenied, PostToolBatch, TaskCreated/TaskCompleted, TeammateIdle, ConfigChange, CwdChanged, DirectoryAdded, FileChanged, Elicitation, etc.)
 - Setup hook (`claude --init`) for repo initialization and dependency installation
 - Can `block`, `allow`, or `ask` for confirmation
 - Exit codes: 0=allow, 2=block, JSON output for decisions
@@ -68,8 +68,9 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - Toggle with `/memory` command or `autoMemoryEnabled` setting
 
 ### Sub-agents & Agent Teams
-- **Sub-agents**: Task tool, isolated context, report back to parent
-- **Agent teams** (experimental): multiple independent sessions, shared task list, direct messaging
+- **Sub-agents**: Agent tool, isolated context, report back to parent; **run in the background by default** and **fork the parent conversation by default** in interactive sessions
+- Nesting depth 3 (`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`), 20 concurrent by default (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`)
+- **Agent teams / cross-session messaging**: implicit team per session; `SendMessage`/`ListAgents` also reach other local, Remote Control, and cloud sessions (`@` to mention one)
 - Default to single agents; use multi-agent only for context protection, parallelization, or specialization
 - Custom agents in `.claude/agents/` or `~/.claude/agents/`
 
@@ -132,7 +133,7 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 **Read SUBAGENTS.md when:**
 - Creating custom agents
 - Configuring agent tools/permissions
-- Understanding Task tool options
+- Understanding Agent tool options
 - Setting up parallel agent execution
 - Managing multi-agent safety
 - Using agent teams (multi-session orchestration)

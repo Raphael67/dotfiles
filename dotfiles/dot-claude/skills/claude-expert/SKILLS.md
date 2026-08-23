@@ -15,6 +15,14 @@ Claude Code skills follow the [Agent Skills](https://agentskills.io) open standa
 
 **Critical**: The description determines if Claude will find and use your skill.
 
+## Custom Commands Have Merged Into Skills
+
+**Custom commands and skills are now the same mechanism.** A file at `.claude/commands/deploy.md` and a skill at `.claude/skills/deploy/SKILL.md` both create `/deploy` and work the same way. Existing `.claude/commands/` files keep working — nothing needs to migrate.
+
+Skills are the superset: they add optional features commands don't have — a directory for supporting files, frontmatter that controls who invokes them (user vs Claude, see [Invocation Control](#invocation-control)), and automatic loading by Claude when relevant. Files in `.claude/commands/` support the same frontmatter as `SKILL.md` except `name` and `paths`, which Claude Code ignores in a command file (the file name is always the command name).
+
+When a name collides across the two: a skill takes precedence over a same-named `.claude/commands/` file (e.g., with both `.claude/commands/deploy.md` and `.claude/skills/deploy/SKILL.md`, `/deploy` runs the skill). A skill or command from any local source also overrides a same-named skill synced from your claude.ai account.
+
 ## Directory Structure
 
 ### Standard Structure
@@ -103,21 +111,42 @@ Instructions and content...
 | `when_to_use` | No | Additional trigger phrases or example requests. Appended to `description` in the skill listing; combined text capped at 1,536 chars |
 | `paths` | No | Glob patterns that gate auto-activation. Skill loads only when Claude works with files matching the patterns. Comma-separated string or YAML list |
 | `shell` | No | `bash` (default) or `powershell`. PowerShell mode requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` |
+| `background` | No | Only applies with `context: fork`. Set to `false` to block the invoking turn on the forked subagent's result instead of running it in the background. Default: `true`. Requires v2.1.218+ |
+| `metadata` | No | Free-form YAML map for your own key-value data (e.g., catalog/entitlement fields) read by external tooling. Claude Code ignores its contents. Don't reuse other frontmatter field names as keys |
+| `license` | No | License covering the skill. Part of the Agent Skills spec; Claude Code accepts it but doesn't act on it |
+| `compatibility` | No | Environment requirements (product, packages, network), max 500 chars. Part of the Agent Skills spec; Claude Code accepts it but doesn't act on it |
+
+Boolean fields (`disable-model-invocation`, `user-invocable`, etc.) accept `yes`/`no`/`on`/`off`/`1`/`0` in any letter case, in addition to `true`/`false` (v2.1.218+; before that, only `true`/`false` were recognized).
+
+**Restricting to the open standard**: outside Claude Code (claude.ai skill uploads, the Skills API, `package_skill.py`), only six fields are valid: `name`, `description`, `license`, `compatibility`, `metadata`, `allowed-tools`. Any other field (e.g. `argument-hint`) causes a hard validation error on those paths — Claude Code itself accepts every field in the table above.
 
 ## Bundled Skills
 
-Bundled skills are listed alongside built-in commands and marked **Skill** in the Purpose column. Invoke any skill — bundled or custom — with `/<name>`. Browse them with `/skills` (v2.1.116+), which has a type-to-filter search box (v2.1.121+).
+Bundled skills are **prompt-based**: Claude Code hands Claude detailed instructions and lets it orchestrate the work with its own tools. This is the key difference from most built-in commands (like `/help`, `/compact`), which instead execute fixed logic directly rather than driving Claude through a prompt.
+
+Bundled skills are listed alongside built-in commands and marked **Skill** in the Purpose column. Invoke any skill — bundled or custom — with `/<name>`. Browse them with `/skills` (v2.1.116+), which has a type-to-filter search box (v2.1.121+). Claude invokes some bundled skills automatically when relevant; others (e.g. `/verify`) run only on explicit invocation, keeping you in control of when longer-running checks spend time and tokens.
+
+Bundled skills are available in every session. Set the `disableBundledSkills` setting to turn off every bundled skill except `/doctor` (which stays typable even when this is on, v2.1.205+; before that `/doctor` was a built-in command, not a bundled skill).
 
 Claude Code ships with these bundled skills:
 
 | Skill | Description |
 |-------|-------------|
 | `/simplify` | Cleanup-only review: runs quality/efficiency checks and applies fixes. Redesigned in v2.1.154 |
-| `/code-review [effort]` | Reports correctness bugs and cleanup at chosen effort level. `--fix` applies findings to working tree (v2.1.152) |
+| `/code-review [effort]` | Reports correctness bugs and cleanup at chosen effort level. `--fix` applies findings to working tree (v2.1.152). Runs as a forked subagent as of v2.1.218 (previously inline) |
 | `/batch <instruction>` | Orchestrates large-scale parallel changes across a codebase. Decomposes into 5-30 units, each in an isolated git worktree |
 | `/debug [description]` | Troubleshoots current Claude Code session by reading debug logs. Toggles debug logging on mid-session (v2.1.71) |
 | `/loop [interval] <prompt>` | Runs a prompt repeatedly on an interval (e.g., `/loop 5m check the deploy`). Schedules recurring cron tasks within the session (v2.1.71) |
 | `/claude-api` | Loads Claude API reference for your project's language (Python, TypeScript, Java, Go, Ruby, C#, PHP, cURL) + Agent SDK reference. Auto-activates on `anthropic`/`@anthropic-ai/sdk`/`claude_agent_sdk` imports |
+| `/run` | Launch and drive your app to see a change working — infers launch from project type, README, `package.json`, or `Makefile` |
+| `/verify` | Build and run the app to confirm a code change works, without falling back to tests/type checks. Runs only on explicit invocation |
+| `/run-skill-generator` | Records a per-project launch recipe (install commands, env vars, launch script) as `.claude/skills/run-<name>/`, so `/run`/`/verify` stop re-discovering the launch process each time |
+
+### Bundled Skills vs Built-in Commands vs Bundled Workflows
+
+- **Built-in commands** (`/help`, `/compact`, `/config`, …) execute fixed internal logic — not a prompt Claude reasons over.
+- **Bundled skills** (table above) are ordinary prompt-driven skills Anthropic ships with Claude Code. They can be overridden the same way any skill can (a project skill with the same name replaces the bundled one, though not its aliases — e.g. a project `code-review` skill replaces `/code-review` but typing the bundled alias `/review` never runs it).
+- **Bundled workflows** ship inside plugins as `workflows/` directories (see `workflows` field in `plugin.json`'s component-path table) — multi-step scripted sequences a plugin author packages, distinct from a single skill's prompt.
 
 ## Argument Substitution
 
@@ -145,6 +174,13 @@ ALL_ARGS: $ARGUMENTS
 - `${CLAUDE_SESSION_ID}` - Current session ID for logging/tracking
 - `${CLAUDE_EFFORT}` - Current effort level: `low`, `medium`, `high`, `xhigh`, or `max`. Adapt skill instructions to active effort setting (v2.1.133+)
 - `${CLAUDE_SKILL_DIR}` - Absolute path to the skill's directory (v2.1.69+). Use for referencing bundled scripts/files regardless of CWD
+
+### Skill Chaining (v2.1.199+)
+
+Stack several skills at the start of one message. Typing `/skill-a /skill-b do XYZ` loads every named skill in order and passes the trailing text (`do XYZ`) to each of them as `$ARGUMENTS`. Before v2.1.199, only the first skill loaded and the rest were treated as literal argument text.
+
+- Claude Code expands the first skill plus **up to five more stacked after it** — six skills total in one message.
+- Expansion stops at the first token that isn't an inline user-invocable skill: a skill that runs as a forked subagent (`context: fork`, e.g. `/code-review` as of v2.1.218) or one whose own arguments may start with a slash (e.g. `/loop`) ends the chain there. That token and everything after it becomes the argument text for every skill expanded so far.
 
 ### Dynamic Context Injection
 Use shell command output in skills:
@@ -193,6 +229,28 @@ Skill(deploy *)
 ```
 
 Disable all skills: add `Skill` to deny rules in `/permissions`.
+
+### Override Skill Visibility From Settings (`skillOverrides`)
+
+For skills whose `SKILL.md` you don't want to edit (e.g. checked into a shared repo), control visibility from settings instead of frontmatter. The `/skills` menu writes this for you: highlight a skill, press `Space` to cycle states, `Enter` to save to `.claude/settings.local.json`.
+
+| Value | Listed to Claude | In `/` menu |
+|-------|-------------------|-------------|
+| `"on"` (default if absent) | Name and description | Yes |
+| `"name-only"` | Name only | Yes |
+| `"user-invocable-only"` | Hidden | Yes |
+| `"off"` | Hidden | Hidden |
+
+```json
+{
+  "skillOverrides": {
+    "legacy-context": "name-only",
+    "deploy": "off"
+  }
+}
+```
+
+As of v2.1.199, `"off"` also hides the skill from Remote Control and Agent SDK command listings, not just the terminal `/` menu. Plugin skills are unaffected — manage those via `/plugin` instead.
 
 ## Skill Path Configuration
 
@@ -318,6 +376,10 @@ Specific with clear trigger words.
 ```
 [What it does] + [Use cases] + [Trigger keywords]
 ```
+
+Put the key use case **first** — the skill listing budget is limited (see [Environment Variables](#environment-variables)), and when it overflows, Claude Code truncates from the end and drops whole descriptions starting with your least-invoked skills. A front-loaded description survives truncation; a back-loaded one loses its trigger keywords first.
+
+If a skill doesn't trigger: check the description has natural-language keywords a user would say, confirm it shows up when you ask "What skills are available?", and run with `--debug` to catch a malformed-YAML frontmatter (which loads the skill body but with empty metadata, so `/skill-name` still works but auto-discovery can't match against it).
 
 ## Content Structure
 
@@ -759,6 +821,21 @@ my-plugin/
 - **Plugin Discovery tab** (v2.1.154): Shows commands, agents, skills, hooks, MCP/LSP servers before installing
 - **`pluginSuggestionMarketplaces`** managed setting (v2.1.152): Org-level allowlist for suggested plugins
 - **`skipLfs`** option (v2.1.153): Skip Git LFS downloads for GitHub/Git plugins
+- **`claude plugin init <name>`**: scaffolds a plugin under `~/.claude/skills/<name>/` that auto-loads with no marketplace or install step, appearing as `<name>@skills-dir`
+- **Plugins-directory skill layout**: any `<skills-dir>/<name>/.claude-plugin/plugin.json` loads as a plugin `<name>@skills-dir` (bundling agents, hooks, MCP servers) rather than a plain skill; in a project's `.claude/skills/`, this requires accepting the workspace-trust dialog first
+- **`workflows/`** plugin-root directory (`workflows` field in `plugin.json`): multi-step scripted sequences distinct from a single skill's prompt — a "bundled workflow"
+
+### Plugin Marketplaces
+
+Marketplaces are declared in a `marketplace.json` catalog; users add one with `/plugin marketplace add <owner/repo | url | path>`.
+
+- **`headersHelper`** (v2.1.238): marketplace entries can mint HTTP headers for catalog fetches instead of hardcoding a static token — useful when a private catalog needs a short-lived or rotated credential.
+- **GitLab marketplace support with nested subgroups** (v2.1.232): marketplaces and plugin sources can point at GitLab repositories, including ones nested under subgroups (`https://gitlab.com/group/subgroup/project.git`), the same way GitHub/Bitbucket sources work. Any git host works for hosting (`/plugin marketplace add https://gitlab.com/company/plugins.git`).
+- **Settings aliases** (v2.1.232): `additionalMarketplaces` and `allowedMarketplaces` are shorter aliases for `extraKnownMarketplaces` and `strictKnownMarketplaces` respectively — same semantics (auto-register a marketplace vs. lock users to an allowlist), just friendlier names.
+  - `extraKnownMarketplaces`: registers a marketplace automatically once a project is trusted — no separate `/plugin marketplace add` prompt.
+  - `strictKnownMarketplaces`: allowlist for which marketplaces users may add. Undefined = no restriction; `[]` = complete lockdown (blocks even the official Anthropic marketplace); a list = only matching sources allowed. Supports `github` (with owner-wildcard `owner/*`, v2.1.223+), `url`, `hostPattern`, and `pathPattern` source matchers — `hostPattern`/`pathPattern` are the recommended way to allow an internal GitHub Enterprise Server or self-hosted GitLab instance.
+  - `blockedMarketplaces`: denylist, same source-matcher shapes; also matches bare `https://` GitHub/GitLab clone URLs as of v2.1.232 (previously only matched fetched `marketplace.json` URLs).
+- **Cloud-synced plugins**: plugins enabled on claude.ai load with the identifier `<name>@synced` (renamed from `<name>@inline` in v2.1.239). They load only in Cowork and cloud sessions, are downloaded into `~/.claude/plugins/synced/`, and are managed with `claude plugin enable/disable <name>@synced`. A same-named plugin from another source takes precedence and the synced copy reports as not loaded.
 
 ### LSP Servers in Plugins (Code Intelligence)
 
@@ -826,13 +903,16 @@ Verify in `/plugin` → **Installed** tab. If **Errors** tab shows `Executable n
 
 ## Environment Variables
 
-- `SLASH_COMMAND_TOOL_CHAR_BUDGET` - Character budget for skill descriptions (scales to 2% of context window; fallback minimum 16,000 chars)
-- `skillListingBudgetFraction` - Setting (e.g. `0.02` = 2%) to raise the skill description context budget. Budget fills starting from most-recently-invoked skills
-- `maxSkillDescriptionChars` - Setting to override the 1,536-character cap on description+when_to_use per skill
+- `SLASH_COMMAND_TOOL_CHAR_BUDGET` - Fixed character budget for the skill listing (name + description) sent to Claude. The default budget scales at **1% of the model's context window** (not 2% — corrected from an earlier draft of this doc), with a fallback minimum. When the listing overflows, Claude Code drops descriptions starting with the skills you invoke least
+- `skillListingBudgetFraction` - Setting (e.g. `0.02` = 2%) to raise the skill-listing context budget as a fraction of the context window
+- `skillListingMaxDescChars` - Setting to override the 1,536-character cap on combined `description` + `when_to_use` text per skill (formerly documented here as `maxSkillDescriptionChars`; confirm current name against `/docs/en/settings-reference` for your installed version)
 - `CLAUDE_CODE_DISABLE_CRON` - Immediately stop scheduled cron jobs mid-session (v2.1.72)
 - `CLAUDE_CODE_PLUGIN_SEED_DIR` - Seed directory for plugins. Supports multiple directories (v2.1.79+)
 - `CLAUDE_CODE_SESSION_ID` - Available in Bash tool subprocesses so scripts can correlate with the parent session (v2.1.132+)
-- `disableSkillShellExecution` - Managed setting (v2.1.91+). Set to `true` to disable inline shell execution in skills and custom commands
+- `disableSkillShellExecution` - Managed setting (v2.1.91+). Set to `true` to disable inline shell execution (`` !`cmd` ``) in skills and custom commands from user/project/plugin/additional-directory sources; each command is replaced with `[shell command execution disabled by policy]`. Bundled and managed skills are unaffected
+- `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD` - Set to `1` to load CLAUDE.md files from `--add-dir` directories (off by default; skills/commands from those directories load regardless)
+
+Run `/doctor` for an estimate of the skill listing's context cost and its biggest contributors; `/context`'s Skills row reports the size *after* the budget is applied (accurate as of v2.1.196 — before that it counted full description text and could look several times larger than configured).
 
 ## Advanced Patterns
 

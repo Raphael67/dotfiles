@@ -1,311 +1,43 @@
-Global Claude Configuration
+# Global Claude Configuration
 
-## Personal Development Environment
+## Environment
 
-- **Shell**: Zsh with oh-my-zsh
-  - Source `~/.zshrc` at startup to load nvm and other shell configurations
-- **Terminal**: Ghostty
-- **Editor**: VSCode
-- **Package Manager**: Homebrew
-- **Timezone**: Europe/Paris (CET/CEST)
+- Shell: zsh + oh-my-zsh (source `~/.zshrc` to load nvm) · Terminal: Ghostty · Editor: VSCode
+- System packages: Homebrew · Node: nvm only — never `npm install -g` without nvm active
+- Timezone: Europe/Paris
 
-## Quick Reference
+## Universal Preferences
 
-| Task | Approach |
-|------|----------|
-| New TypeScript project | bun init, bun add |
-| New Python project | uv init, uv add |
-| Browser debugging | bdg CLI |
-| Library docs lookup | context7 MCP |
-| Code change impact / what functions changed | `sem` (entity diff, blast radius) — see below |
-| Run tests | Project-specific (check CLAUDE.md) |
-| Fetch secrets/passwords | `bw-fetch` (Touch ID per request) |
+- **Git**: never run `git commit`/`git push` from the main loop — always delegate to the `commit` subagent (hook-enforced). All commit rules (atomic commits, conventional messages, tests, fixups) live in that agent.
+- **Skills**: never modify a skill without an explicit user request.
+- **Planning**: before presenting any non-trivial plan or design, invoke `grill-me` (one question at a time).
+- **Questions**: use AskUserQuestion, exactly one question per turn — never batched lists.
+- **Agents**: prefer named subagents; after an agent's final report, terminate it (`shutdown_request`). For long-running parallel agents the user should watch, prefer `/pthread` (mprocs) over background subagents.
+- **Dependencies**: ask before installing new packages.
+- **Build/test failures**: fix the issue, never skip or ignore it.
+- **Verifying fixes**: reproduce the user's exact context (cwd, env files, shell) — never test in a sanitized environment.
+- **Test runs**: never launch duplicate identical test commands — one foreground run, or a single background run.
+- **Files**: generated files are never committed; temp files go to the session scratchpad or OS temp; persistent scripts in TypeScript > Python.
+- **Docs**: keep READMEs concise and practical.
 
-## Code Style Preferences
+## Secrets
 
-- **Indentation**: 4 spaces for JS/TS/JSON, 2 spaces for YAML
-- **JavaScript/TypeScript**:
-  - Prefer `const` over `let` when possible
-  - Use semicolons
-  - Prefer arrow functions for inline callbacks
-  - Use TypeScript strict mode
-  - Use bun as package manager (unless project CLAUDE.md specifies otherwise)
-- **Python**:
-  - Follow PEP 8
-  - always use uv as package manager
-- **Markdown**:
-  - Use ATX-style headers (#)
+- Never hardcode, log, echo, or commit a secret. Secrets are injected at runtime via `bw-inject` (never through Claude's stdout); discovery via `bw-fetch search`/`meta` only — full usage in the `bitwarden-expert` skill.
+- A secret needed in a `.env` file requires user confirmation first.
 
-## Workflow Preferences
+## Communication
 
-- **Agents**: Always check if a subagent is more appropriate to do a task. Prefer `/pthread` (mprocs) over background subagents so the user can see agent activity in real time and interact directly
-  - **Subagents always run as a team.** `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set in `~/.claude/settings.json`, so every session has an **implicit team** (Claude Code v2.1.178+). Spawn *named* agents (`Agent(name: "...", ...)`) — they run non-blocking and report back via `SendMessage` rather than as a tool result. The `TeamCreate`/`TeamDelete` tools were **removed** in v2.1.178 (teams are implicit now — never call them), and the `team_name` parameter is accepted but **ignored** (don't pass it).
-  - **Teammate placement is harness-controlled, NOT agent-controlled.** Where teammates appear is decided by `teammateMode` in `~/.claude/settings.json` (the harness's `TmuxBackend`), not by the agent running tmux commands — so never attempt to move, split, break, or rename teammate panes/tabs/windows yourself. This setup uses `teammateMode: in-process`: teammates run **in the main terminal with no tmux panes**, so the working tmux layout is never split. Cycle to / talk to each teammate with **Shift+Down**. (`teammateMode` only supports `auto | tmux | iterm2 | in-process` — there is no "new window/tab per teammate" mode; the tmux modes split the current window into panes.) Note: in-process teammates **cannot be session-resumed**.
-  - **Team agent cleanup**: After a team agent completes its work and sends a final summary, **always terminate it** using `SendMessage({to: "<agent-name>", message: {"type": "shutdown_request"}})`—don't leave team agents idle in the background.
-- **Skills**: Never update or alter a skill without explicit user request
-- **Planning**: When in plan mode (or otherwise about to present a non-trivial implementation plan or design), invoke the `grill-me` skill first — interview me one question at a time to resolve open decisions before finalizing the plan. Skip for trivial, single-step, or unambiguous tasks.
-- **Git**: Use conventional commits format. **Never run `git commit` or `git push` yourself from the main loop — always delegate to the `commit` subagent** (`Agent` with `subagent_type: 'commit'`), which groups changes into cohesive commits and writes the messages. A `PreToolUse` hook (`commit-delegation-gate.py`) enforces this: it blocks main-loop commit/push (subagents run freely). Only bypass by telling the user to run the git command via `!` in the prompt.
-- **Documentation**: Keep README files concise and practical
+<!-- Interim section — replaced by the communication contract (rebuild-claude-config, phase 5) -->
 
-## Role-Based Responsibilities
+- Working language: infer it from the project (its CLAUDE.md, code, docs); absent any signal, prefer French.
+- No acronyms: always write the full form (« pull request », not « PR ») to avoid misunderstandings.
+- One subject per response. Surface side-discoveries immediately as a one-liner so the user can decide — never accumulate them for the conclusion.
+- Task conclusions give a clear verdict (OK / not OK / blocked) on the original task only.
+- Default format: structured, sufficiently explained, with visual anchors when the subject warrants it. A deliverable targeting another medium (ticket, mail, message) is written in that medium's native format, ready to paste.
 
-### For Development Work (coding tasks):
-- **Testing**: Run tests before commits
-- **Linting**: Always run linters/formatters before commits
-- **Code Quality**: Follow established patterns and conventions
+## Tools
 
-### For Specification/Documentation Work:
-- **No Testing Required**: Specs and docs don't need code testing
-- **No Linting Required**: Focus on content quality, not code style
-- **Commit Immediately**: Push specifications and documentation when complete
-- **Quality Focus**: Ensure completeness, clarity, and alignment with requirements
-
-## File Safety
-
-- **Backup before modification**: ALWAYS create a backup copy of `.xlsx`, `.docx`, and `.pdf` files BEFORE any modification. Copy the original to `<filename>.backup.<YYYYMMDD-HHMMSS>.<ext>` (e.g., `report.backup.20260218-143052.xlsx`) in the same directory. Do this even for minor edits — these formats are binary and changes are hard to reverse.
-
-## Secrets & Credentials
-
-When you need an API key, password, token, or any secret:
-1. **Never hardcode** — always fetch at runtime via `bw-fetch`
-2. **Search first** if you don't know the exact item name: `bw-fetch search "<query>"`
-3. **Fetch by ID** if multiple items share a name: `bw-fetch password "<item-id>"`
-4. **Fetch by name** if unique: `bw-fetch password "<item-name>"`
-
-Each `bw-fetch` call triggers Touch ID — the user must approve with their fingerprint.
-
-```bash
-bw-fetch search "aws"                          # Find items → Touch ID
-bw-fetch password "AWS IAM"                    # Get password → Touch ID
-bw-fetch totp "AWS IAM"                        # Get TOTP code → Touch ID
-bw-fetch item "698ba95d-..."                   # Full item JSON by ID → Touch ID
-```
-
-**Rules:**
-- Never store fetched secrets in files, env vars, or shell history
-- Pipe secrets directly where needed (e.g., `bw-fetch password "X" | some-command`)
-- Never log or echo secrets — use `--raw` output silently
-- If a secret is needed in a `.env` file, ask the user to confirm before writing it
-
-## File Recovery (Emergency)
-
-Two recovery methods are available when files are lost or corrupted by Claude Code.
-
-### Method 1: claude-file-recovery (recommended)
-
-Reconstructs files by replaying Write/Edit/Read operations from session transcripts.
-
-```bash
-# Interactive TUI — browse, search, diff, and extract files
-claude-file-recovery tui
-
-# List all recoverable files (filter with glob/regex/fuzzy)
-claude-file-recovery list-files
-claude-file-recovery list-files -f "*.tsx"
-claude-file-recovery list-files -f "router" -m fuzzy
-
-# Recover files at a specific point in time
-claude-file-recovery list-files --before "2026-03-01 15:00"
-
-# Extract files to disk
-claude-file-recovery extract-files -f "src/components/*" -o /tmp/recovered
-```
-
-### Method 2: file-history-snapshot (raw backups)
-
-Claude Code saves pre-edit file snapshots in `~/.claude/file-history/<session-id>/`. Each backup is a plain copy of the file before modification.
-
-```bash
-# 1. Find the session ID from the transcript that modified your file
-grep -r "your-filename" ~/.claude/projects/*/sessions-index.json
-
-# 2. List backups for that session
-ls ~/.claude/file-history/<session-id>/
-
-# 3. Map backup filenames to original paths — look in the transcript
-cat ~/.claude/projects/<project>/<session-id>.jsonl | \
-  python3 -c "
-import json, sys
-for line in sys.stdin:
-    obj = json.loads(line)
-    if obj.get('type') == 'file-history-snapshot':
-        for path, info in obj['snapshot']['trackedFileBackups'].items():
-            print(f\"{info['backupFileName']} -> {path} ({info['backupTime']})\")"
-
-# 4. Copy the backup to restore it
-cp ~/.claude/file-history/<session-id>/<hash>@v1 /path/to/restore
-```
-
-**Key difference**: `claude-file-recovery` replays tool operations from transcripts (Write/Edit/Read). `file-history-snapshot` stores actual file copies taken before each edit. Use snapshots when the tool call replay doesn't capture the file (e.g., Bash-based edits).
-
-## Security & Best Practices
-
-- Never commit secrets or API keys
-- Use `bw-fetch` to retrieve credentials at runtime (see above)
-- Always review changes before committing
-- Prefer explicit imports over wildcards
-
-### Security Hook System (damage-control)
-
-All bash commands pass through a three-state security hook before execution:
-
-| Decision | Meaning | Examples |
-|----------|---------|---------|
-| `allow` | Run silently, no friction | git status, npm install, stow |
-| `confirm` | Ask user before running | rm -rf, git reset --hard, DROP TABLE |
-| `block` | Blocked unconditionally | mkfs, dd to /dev/, kill -9 -1 |
-
-Path-based rules (independent of bash patterns):
-- **Zero-access paths**: SSH keys (`~/.ssh/`), GPG (`~/.gnupg/`), cloud creds (`~/.aws/`, `~/.kube/`), cert files (`*.pem`, `*.key`) — blocked for all access including reads
-- **Read-only paths**: System dirs (`/etc/`, `/usr/`), lock files, build artifacts — writes blocked, reads allowed
-- **No-delete paths**: `~/.claude/`, git dir, license/readme files — reads/writes allowed, deletion blocked
-
-Config files: `~/.claude/hooks/damage-control/patterns.yaml` (patterns) and `bash-tool-damage-control.py` (logic).
-
-## Error Handling
-
-- **Build/Test failures**: Fix the issue, don't skip or ignore
-- **Missing dependencies**: Ask before installing new packages
-- **Ambiguous requirements**: Ask clarifying questions early
-- **Permission errors**: Report and suggest solutions, don't force
-
-## File Organization
-
-- **New source files**: Follow existing project structure
-- **Test files**: Colocate with source or in `tests/` (project-dependent)
-- **Config files**: Root directory unless project has specific convention
-- **Generated files**: Never commit (add to .gitignore)
-- **Temporary files**: Use OS temp folder (`/tmp` or `$TMPDIR`)
-- **One-shot scripts**: OS temp folder, delete after use
-- **Persistent scripts**: Store in the skill/project that requires them (self-contained)
-
-### Script Languages
-
-| Script Type | Language Priority |
-|-------------|-------------------|
-| Inline/temporary | Best for task (bash, python, ts, rust) |
-| Persistent (user-facing) | TypeScript > Python |
-| Skill scripts | Best for task (self-contained in skill) |
-
-Allowed languages: Python, Bash, TypeScript, Rust
-
-## Communication Style
-
-- Concise: bullet points over prose
-- Direct: state facts, skip preamble
-- Structured: use markdown (headers, tables, lists)
-- No filler: avoid gratitude, apologies, paraphrasing
-- No repetition: don't echo the question back
-- Examples when useful, not for padding
-
-## Asking the User Questions
-
-**Applies to the main agent and every spawned subagent.** When you need information from the user:
-
-1. **Always use the `AskUserQuestion` tool** — never ask in plain prose when the tool is available. It renders a proper interactive prompt with structured options.
-2. **Ask exactly ONE question at a time.** Send the question, wait for the user's answer, then ask the next one based on the reply.
-3. **Never batch questions** — no numbered lists ("1. ... 2. ... 3. ..."), no multi-part prompts, no "while we're at it, also..." follow-ups in the same turn.
-4. **Sequential, not parallel.** Even if you have five things you want to clarify, ask the first, get the answer, then decide whether the next question is still needed (often the first answer makes later ones obsolete).
-5. **If `AskUserQuestion` is not loaded** (e.g., a constrained subagent), fetch it via `ToolSearch` first, or fall back to a single plain-text question — still one at a time.
-
-Rationale: batched questions force the user to context-switch across unrelated decisions, and earlier answers usually reshape later questions. Sequential asking is faster end-to-end and produces better answers.
-
-## Available Tools
-
-### context7 MCP (Library Documentation)
-
-Fetch up-to-date documentation for libraries:
-- Before implementing unfamiliar APIs
-- When Stack Overflow answers seem outdated
-- For framework-specific patterns (React, NestJS, etc.)
-
-**Usage**: Use `resolve-library-id` to find the library, then `query-docs` to fetch relevant sections.
-
-**Key features:**
-- All 644 CDP protocol methods available
-- Self-documenting via `--list`, `--describe`, `--search`
-- JSON output by default (pipe to `jq` for processing)
-- Semantic exit codes for error handling
-
-### sem — Semantic Code Analysis (entity-level diff & blast radius)
-
-`sem` parses code with tree-sitter and diffs at the **entity level** (functions, classes,
-methods) instead of lines. Use it whenever you need to reason about *what code units changed*
-or *what a change might break* — far more precise than `git diff` for impact reasoning.
-
-**Prefer `sem` over `git diff` when** answering "what functions changed?", "what does this
-change affect?", or building context about a specific entity before editing it.
-
-```bash
-sem diff --staged              # Entity-level diff of staged changes (the pre-commit hook)
-sem diff                       # Working-tree changes
-sem diff --commit <sha>        # Changes in a specific commit
-sem impact <entity>            # Blast radius: everything depending on <entity>
-sem impact <entity> --deps     # Direct dependencies only
-sem impact <entity> --tests    # Affected tests
-sem blame <file>               # Who last changed each function/class
-sem log <entity>               # How a single entity evolved over time
-sem entities <file>            # List all code units in a file
-sem context <entity> --budget 4000   # Token-budgeted LLM context for an entity
-```
-
-- **For agents/automation, add `--format json`** (or `--json`) — e.g. `sem diff --staged --format json`.
-- **MCP**: the `sem` server (`sem mcp`, registered in `~/.mcp.json`) exposes 6 tools —
-  `sem_entities`, `sem_diff`, `sem_blame`, `sem_impact`, `sem_log`, `sem_context`. Use these
-  directly when available.
-- Installed via cargo on every platform (listed in `rust/packages.txt` in the dotfiles repo):
-  `cargo install sem-cli` — provides the `sem` binary.
-
-### GitNexus — manual code intelligence (human GUI/CLI tool)
-
-GitNexus indexes a repo into a knowledge graph and surfaces it through a **web UI, a wiki
-generator, and architecture maps**. Here it is a **manual human tool, not an agent tool** —
-there is no MCP server and no autonomous mandates. Claude's role is to **help you run it**
-through the `gnx` wrapper (`~/.local/bin/gnx`, stowed from `dotfiles/dot-local/bin/gnx`).
-
-> **When to use which:** for agentic *"what does this change touch?"* reasoning, prefer
-> **`sem`** (above) — always-fresh, zero-footprint, already in the pre-commit hook. Reach for
-> **GitNexus when *you* want to explore or document** a codebase: search execution flows,
-> browse the call graph in a UI, or generate a wiki.
-
-**Core workflow:**
-```bash
-gnx index <path>     # build/refresh the graph (+ local embeddings) for the repo at <path>
-gnx serve            # open the web UI at http://127.0.0.1:4747 (browses ALL indexed repos)
-gnx ui               # same, but serve in the background and open the browser
-```
-
-**All `gnx` commands** (run `gnx help` for details):
-
-| Command | Purpose |
-|---------|---------|
-| `gnx index <path> [--fast] [--force]` | Build/refresh a repo's index. Always `--index-only` (writes nothing into the repo); `--fast` skips embeddings |
-| `gnx serve [--port N] [--open]` | Start the web UI (serves every registered repo) |
-| `gnx ui` | Serve in background + open the browser |
-| `gnx refresh-all [--force]` | Re-index every registered repo |
-| `gnx wiki <path>` | Generate the markdown wiki for a repo |
-| `gnx status` / `gnx list` | Index freshness / all registered repos |
-| `gnx clean <path>` | Delete a repo's index |
-| `gnx doctor` | Runtime + embedding capabilities |
-
-**Storage & freshness:**
-- The index lives in `<repo>/.gitnexus/lbug` (LadybugDB — graph + full-text search + vector
-  embeddings, one file), gitignored. The only global state is `~/.gitnexus/registry.json`
-  (pointers to each repo) and `~/.config/gitnexus/config.json` (settings).
-- Indexes go **stale** as the repo changes — just re-run `gnx index <path>` before browsing
-  (idempotent: it skips repos already current with git HEAD).
-- Embeddings are **local and free** (ONNX). Repos with no embeddable content (pure
-  shell/Terraform) build structure-only; `gnx index` detects this and retries automatically.
-
-**Pre-warming on a new machine:**
-```bash
-bash ~/Projects/dotfiles/scripts/setup-gitnexus.sh   # indexes the repos listed in
-                                                     # scripts/setup-gitnexus.local (gitignored)
-```
-
-**Troubleshooting:**
-- **Stale index?** → `gnx status`; re-run `gnx index <path>`.
-- **Semantic search weak / no embeddings?** → `gnx doctor` shows capability; rebuild with `gnx index <path> --force`.
-- **UI won't load?** → check the port (`gnx serve --port N`); stop a stray server with `pkill -f 'gitnexus serve'`.
-
-@RTK.md
+- `rtk`: transparent PreToolUse hook rewrites commands for token savings. Meta commands: `rtk gain`, `rtk discover`, `rtk proxy <cmd>`.
+- Bash security: damage-control hook (allow/confirm/block) — config in `~/.claude/hooks/damage-control/`.
+- Lost/corrupted file recovery: `file-recovery` skill · manual code intelligence: `gitnexus-*` skills · `sem`: entity-level diff/impact — prefer over `git diff` for "what does this change touch" reasoning.
+- Browser automation: prefer `claude-in-chrome` over `pw-fast`; ask the user to launch Chrome if needed.

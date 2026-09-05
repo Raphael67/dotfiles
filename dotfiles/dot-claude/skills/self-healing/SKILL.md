@@ -5,7 +5,8 @@ description: >
   Three pipelines: learn (extract mistakes from transcripts → memory rules),
   hygiene (detect dead references, duplicates, and contradictions in project
   memories → propose deletions/merges), consolidate (detect facts recurring in
-  ≥2 projects → propose promotion to global rules or CLAUDE.md). Nothing is
+  ≥2 projects → propose promotion to global rules or CLAUDE.md). Findings about
+  how Claude communicates are delegated to the `claude-style` agent. Nothing is
   deleted, merged, or promoted without explicit user approval. Use for:
   "self-healing", "learn from mistakes", "clean up memories", "memory hygiene",
   "consolidate memories".
@@ -71,7 +72,21 @@ If there are 0 mistakes, stop here.
 
 ## Phase 3: Extract Solutions
 
-For each mistake category that has issues, spawn a **parallel Task subagent** (use `subagent_type: "task"`) with the solution extraction prompt from `prompts/solve.md`.
+### Delegate `COMMUNICATION_STYLE` first
+
+If the `COMMUNICATION_STYLE` category has issues, **remove it from the set handled here**
+and hand the whole group to the `claude-style` agent (`Agent` tool,
+`subagent_type: "claude-style"`, delegation mode), passing for each finding its
+description, `session_file`, and `line_number`.
+
+That agent owns `~/.claude/rules/communication.md` and is its only writer. Do not write
+style rules to `self-healing.md` and do not let a `COMMUNICATION_STYLE` finding reach the
+solve subagents below — a style rule living in two stores is how contradictory duplicates
+appear. Relay the agent's report to the user with the rest of the phase-3 results.
+
+### Remaining categories
+
+For each **other** mistake category that has issues, spawn a **parallel Task subagent** (use `subagent_type: "task"`) with the solution extraction prompt from `prompts/solve.md`.
 
 Each subagent receives:
 - The solution prompt

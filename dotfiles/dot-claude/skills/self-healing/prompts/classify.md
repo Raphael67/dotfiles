@@ -23,6 +23,8 @@ For each extraction, classify it as either `mistake` or `not_mistake`.
 - Made a syntax or config error
 - Ignored a permission or access constraint
 - Repeated the same failing approach multiple times
+- Answered badly: wrong length, wrong format, several subjects at once, repeated
+  what was already said, went outside the stated scope, or acted without being asked
 
 **`not_mistake`** = Normal operation, exploratory behavior, or unavoidable error. Examples:
 - First-time file-not-found while exploring a codebase
@@ -40,7 +42,24 @@ For each extraction, classify it as either `mistake` or `not_mistake`.
 - `SYNTAX_ERROR` - Code syntax, JSON, YAML, or format errors
 - `PERMISSION_ERROR` - Ignored access constraints or permissions
 - `REPEATED_FAILURE` - Tried the same failing approach multiple times
+- `COMMUNICATION_STYLE` - Claude did the right thing but communicated it badly: phrasing,
+  tone, length, over-structuring, repetition, out-of-scope content, an action the user
+  never asked for, or asking when it should have acted (and the reverse)
 - `OTHER` - Mistake that doesn't fit above categories
+
+### `COMMUNICATION_STYLE` vs `MISUNDERSTOOD_INTENT`
+
+The line is what Claude *did*, not how the user reacted:
+
+- `MISUNDERSTOOD_INTENT` - did something **other** than what was asked.
+  "I asked you to fix the test, you rewrote the whole module."
+- `COMMUNICATION_STYLE` - did the **right** thing, badly said or badly dosed.
+  "stop telling me about several subjects at once", "much shorter and no table",
+  "your conclusion repeats what you just said", "stop doing things I did not ask for".
+
+When the user complains about the answer itself rather than the work behind it, it is
+`COMMUNICATION_STYLE`. These are collected and handed to a dedicated curator, so keeping
+them out of the other categories matters.
 
 ## Output Format
 

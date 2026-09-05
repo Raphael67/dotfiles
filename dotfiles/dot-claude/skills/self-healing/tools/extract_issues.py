@@ -17,11 +17,19 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
+# Bilingual on purpose: style and phrasing corrections are typed in French in this
+# setup, and an English-only pattern set makes the batch path blind to them.
 CORRECTION_PATTERNS = re.compile(
     r"\b(no[,.]?\s|wrong|instead|actually|don'?t|shouldn'?t|stop|not that|"
     r"I said|I meant|I asked|that'?s not|please don'?t|why did you|"
     r"you should have|that was wrong|incorrect|try again|redo|"
-    r"that broke|you broke|revert|undo)\b",
+    r"that broke|you broke|revert|undo|"
+    # French
+    r"non[,.]?\s|arr[eê]tes? de|ne fais que|au lieu de|hors sujet|"
+    r"je n'?ai pas demand[eé]|pas ce que j'?ai demand[eé]|je t'?ai (dit|demand[eé])|"
+    r"trop long|plus court|beaucoup plus court|tu r[eé]p[eè]tes|concentre[- ]toi|"
+    r"pourquoi (tu|as-tu)|c'?est pas [cç]a|ce n'?est pas [cç]a|"
+    r"sans faire de modification|refais|annule)\b",
     re.IGNORECASE,
 )
 

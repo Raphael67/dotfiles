@@ -211,7 +211,7 @@
     ],
     "defaultMode": "acceptEdits"
   },
-  "model": "sonnet",
+  "model": "opus[1m]",
   "hooks": {
     "Notification": [
       {
@@ -369,6 +369,10 @@
     "type": "command",
     "command": "uv run ~/.claude/status_lines/status_line.py",
     "padding": 0
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "jq -r '.tasks[] | [(.name // .id // \"?\"), (.model // \"?\"), (.status // \"?\")] + (if (.permissionMode // \"\") == \"\" then [] else [.permissionMode] end) | join(\" · \")'"
   },
   "enabledPlugins": {
     "pyright-lsp@claude-plugins-official": true,

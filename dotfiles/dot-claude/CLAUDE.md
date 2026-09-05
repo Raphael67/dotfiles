@@ -19,21 +19,14 @@
 - **Test runs**: never launch duplicate identical test commands — one foreground run, or a single background run.
 - **Files**: generated files are never committed; temp files go to the session scratchpad or OS temp; persistent scripts in TypeScript > Python.
 - **Docs**: keep READMEs concise and practical.
+- **Rules/CLAUDE.md/memory**: keep atemporal — no dates, commit hashes, or
+  "recently fixed X" narration. State the current rule/fact only;
+  git log/blame is the history.
 
 ## Secrets
 
 - Never hardcode, log, echo, or commit a secret. Secrets are injected at runtime via `bw-inject` (never through Claude's stdout); discovery via `bw-fetch search`/`meta` only — full usage in the `bitwarden-expert` skill.
 - A secret needed in a `.env` file requires user confirmation first.
-
-## Communication
-
-<!-- Interim section — replaced by the communication contract (rebuild-claude-config, phase 5) -->
-
-- Working language: infer it from the project (its CLAUDE.md, code, docs); absent any signal, prefer French.
-- No acronyms: always write the full form (« pull request », not « PR ») to avoid misunderstandings.
-- One subject per response. Surface side-discoveries immediately as a one-liner so the user can decide — never accumulate them for the conclusion.
-- Task conclusions give a clear verdict (OK / not OK / blocked) on the original task only.
-- Default format: structured, sufficiently explained, with visual anchors when the subject warrants it. A deliverable targeting another medium (ticket, mail, message) is written in that medium's native format, ready to paste.
 
 ## Tools
 
@@ -41,3 +34,4 @@
 - Bash security: damage-control hook (allow/confirm/block) — config in `~/.claude/hooks/damage-control/`.
 - Lost/corrupted file recovery: `file-recovery` skill · manual code intelligence: `gitnexus-*` skills · `sem`: entity-level diff/impact — prefer over `git diff` for "what does this change touch" reasoning.
 - Browser automation: prefer `claude-in-chrome` over `pw-fast`; ask the user to launch Chrome if needed.
+- **Repository exploration**: when exploring external repos, clone them into /tmp rather than using browser tools. Use git and local file tools for analysis.

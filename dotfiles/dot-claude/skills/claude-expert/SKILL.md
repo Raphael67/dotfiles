@@ -18,6 +18,7 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 | Skills | [SKILLS.md](SKILLS.md) | Creating or editing Claude Code skills |
 | Workflows | [WORKFLOWS.md](WORKFLOWS.md) | Building multi-step workflow prompts |
 | Commands | [COMMANDS.md](COMMANDS.md) | Creating /commands for quick invocation |
+| CLI | [CLI.md](CLI.md) | `claude` binary flags, modes (print, bare, safe-mode, worktree...), subcommands |
 | Hooks | [HOOKS.md](HOOKS.md) | Setting up PreToolUse, validation, notifications |
 | MCP | [MCP.md](MCP.md) | Adding MCP servers, tools, resources |
 | Sub-agents & Teams | [SUBAGENTS.md](SUBAGENTS.md) | Custom agents, Agent tool, agent teams, orchestration |
@@ -108,6 +109,13 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - Creating /command shortcuts
 - Setting up prime or install commands
 - Understanding command vs skill differences
+
+**Read CLI.md when:**
+- Looking up a `claude` CLI flag or its exact syntax
+- Choosing between print, bare, safe-mode, worktree, cloud, or background mode
+- Scripting Claude Code (stream-json I/O, structured output, budget caps, fallback models)
+- Understanding flag interactions (e.g. system-prompt vs system-prompt-file, `--bare` auth, `--tools` vs `--allowedTools`)
+- Looking up a `claude` subcommand (`mcp`, `agents`, `plugin`, `auth`, `project purge`, `ultrareview`, …)
 
 **Read HOOKS.md when:**
 - Setting up security validation

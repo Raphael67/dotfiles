@@ -40,11 +40,12 @@ Beyond `/deep-research`, you can have Claude write and run a one-off dynamic wor
 - Or set `/effort ultracode` so Claude plans a workflow for every substantive task in the session (requires a model that supports `xhigh` effort)
 
 Mechanics worth knowing:
-- The generated script is plain JavaScript with top-level `await`; `agent()` spawns one subagent, `pipeline()` runs one per item in a list
-- Limits: up to 16 concurrent agents (fewer under CPU constraints), 1,000 agents total per run
+- The generated script is plain JavaScript with top-level `await`. Besides `agent()` (spawns one subagent) and `pipeline()` (runs one per item in a list), a script can call `parallel()` (runs a set of agent tasks at once and waits for all), `phase()` (groups the agents that follow under a title in the `/workflows` progress view), `log()` (shows a message above the phases), and read the `args` global (input passed to a saved workflow — see below)
+- If an `agent()` call passes a `schema`, that subagent returns JSON matching the shape instead of prose; Claude Code validates the schema up front and fails fast on a self-contradicting one (e.g. a `required` key `additionalProperties: false` rules out); if the subagent's output still fails validation after 5 attempts (configurable via `MAX_STRUCTURED_OUTPUT_RETRIES`), the call fails with the last validation error
+- Limits: up to 16 concurrent agents (fewer under CPU constraints), up to 4,096 items in a single `parallel()`/`pipeline()` call (a longer list is rejected with an error, not silently truncated), 1,000 agents total per run
 - Watch and manage runs with `/workflows` (pause/resume, drill into an agent, stop, restart)
-- A good run can be saved as a reusable command by pressing `s` from `/workflows` — it lands in `.claude/workflows/` (project, shared) or `~/.claude/workflows/` (personal) and then runs as `/<name>` in future sessions
-- A size guideline (`unrestricted`/`small`/`medium`/`large`, default `medium`) advises Claude on agent-count scale without hard-capping it (v2.1.202+; setting itself requires v2.1.219+)
+- A good run can be saved as a reusable command by pressing `s` from `/workflows` — it lands in `.claude/workflows/` (project, shared) or `~/.claude/workflows/` (personal) and then runs as `/<name>` in future sessions. Saved scripts can accept input via `args` (e.g. `Run /triage-issues on issues 1024, 1025`), and editing a saved script requires running the bundled `/workflow-authoring` skill first (v2.1.248+) to load the script-writing reference — `Date.now()`, `Math.random()`, and a no-arg `new Date()` all throw inside a script, so a relaunched run repeats the same `agent()` calls deterministically
+- A size guideline (`unrestricted`/`small` [<5 agents]/`medium` [<15, default]/`large` [<50]) advises Claude on agent-count scale without hard-capping it (v2.1.202+; setting itself requires v2.1.219+). A run scheduling more than 25 agents or projecting over 1.5M tokens shows a `Large workflow` warning in the task panel (advisory only, doesn't pause the run); sessions with ultracode on skip the warning
 
 Requires Claude Code v2.1.154+.
 

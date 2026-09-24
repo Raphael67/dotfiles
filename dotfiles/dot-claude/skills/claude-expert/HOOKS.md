@@ -13,7 +13,7 @@ by area:
 
 | Hook | Trigger | Use Case |
 |------|---------|----------|
-| `SessionStart` | Session begins/resumes | Environment setup (execution deferred at startup for performance). Can't block; supports `additionalContext`, `reloadSkills`, `sessionTitle` |
+| `SessionStart` | Session begins/resumes | Environment setup (execution deferred at startup for performance). Can't block; supports `additionalContext`, `reloadSkills`, `sessionTitle`. On a resume, the input also carries session staleness and the estimated prompt-cache re-cache cost (v2.1.251+), so a hook can warn or act differently on a stale/expensive resume |
 | `SessionEnd` | Session terminates | Cleanup, logging. Reasons: `clear`, `resume`, `logout`, `prompt_input_exit`, `bypass_permissions_disabled`, `other` |
 | `UserPromptSubmit` | When user sends a message | Logging, preprocessing. Can block (erases the prompt); supports `additionalContext` |
 | `UserPromptExpansion` | Before slash command expansion | Block or add context to command expansion. Matcher = command name |
@@ -57,6 +57,13 @@ by area:
 |------|---------|----------|
 | `ConfigChange` | Configuration file changes during session | React to settings/skills changes. Matchers: `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills` (v2.1.72+). Can block (except `policy_settings`) |
 | `InstructionsLoaded` | After CLAUDE.md/rules/skills loaded | Post-instruction setup (v2.1.69+). Fires at session start and lazily during session. Matchers: `session_start`, `nested_traversal`, `path_glob_match`, `include`, `compact` |
+
+**Model switching**
+
+| Hook | Trigger | Use Case |
+|------|---------|----------|
+| `PreModelSwitch` | Before a model switch takes effect (v2.1.251+) | Block, confirm, or annotate a model switch. Matcher = model name (e.g. `claude-opus-5`, `.*opus.*`). Can block |
+| `PostModelSwitch` | After a model switch completes (v2.1.251+) | React to the new model (e.g. re-check effort/tool assumptions). Matcher = model name. Feedback only |
 
 **MCP & elicitation**
 
@@ -315,6 +322,7 @@ Hooks are configured under the `hooks` key:
 | SessionEnd | Why session ended | `clear`, `resume`, `logout`, `prompt_input_exit`, `bypass_permissions_disabled`, `other` |
 | Notification | Notification type | `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog`, `elicitation_url_dialog`, `elicitation_complete`, `elicitation_response`, `agent_needs_input`, `agent_completed` |
 | SubagentStart, SubagentStop | Agent type | `general-purpose`, `Explore`, `Plan`, custom names, plugin-scoped `my-plugin:reviewer` |
+| `PreModelSwitch`, `PostModelSwitch` | Model name (v2.1.251+) | `claude-opus-5`, `.*opus.*` |
 | PreCompact, PostCompact | Trigger type | `manual`, `auto` |
 | `ConfigChange` | Configuration source | `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills` |
 | `DirectoryAdded` | How the directory was added | `slash_command`, `register_repo_root` |
@@ -540,6 +548,8 @@ Each hook type has different blocking capabilities:
 | UserPromptSubmit | Yes | Blocks prompt processing, erases the prompt | `decision`/`reason` (`approve`/`block`); `hookSpecificOutput.additionalContext` |
 | UserPromptExpansion | Yes | Blocks the expansion | `decision`/`reason` |
 | PreToolUse | Yes | Blocks tool, feeds stderr to Claude | `hookSpecificOutput.permissionDecision`: `allow`/`deny`/`ask`/`defer` (v2.1.89+) |
+| PreModelSwitch | Yes | Blocks the switch, tells Claude why | `hookSpecificOutput.permissionDecision`: `allow`/`deny`; `blockReason` (v2.1.251+) |
+| PostModelSwitch | Feedback only | stderr shown to user only | `additionalContext` (v2.1.251+) |
 | PostToolUse | Feedback only | Shows error to Claude (tool already ran) | `decision: "block"` (prompts Claude); `additionalContext` |
 | PostToolUseFailure | Feedback only | Shows error to Claude (tool already failed) | `additionalContext` |
 | PostToolBatch | Yes | Stops the agentic loop before the next model call | `continue` |
@@ -599,6 +609,7 @@ Confirmed on the hooks docs page for these events:
 | `UserPromptExpansion` | Blocks the expansion and explains why |
 | `PostToolBatch` | Stops the agentic loop after the batch, with a reason |
 | `ElicitationResult` | Blocks the response (becomes a decline), with a reason |
+| `PreModelSwitch` | Blocks the model switch and explains why (v2.1.251+) |
 
 ```json
 {

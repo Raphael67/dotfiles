@@ -1,6 +1,6 @@
 # Claude Desktop App
 
-> **Sources unreachable (2026-08-23)**: this cycle's self-update could not refresh Desktop-specific sources — `https://claude.ai/changelog` returned HTTP 403 and the support collection 404'd after redirecting to support.claude.com. Desktop-specific sections below (Cowork architecture, scheduled tasks, preferences) were **not re-verified** and may lag actual behavior. Only the model-landscape facts in this file were corrected this cycle, using Anthropic's general news source. Treat Desktop-specific claims with extra caution until sources are reachable again.
+> **`claude.ai/changelog` and the support collection remain unreachable (last checked 2026-09-09)**: `https://claude.ai/changelog` returns HTTP 403 (needs an authenticated session) and `https://support.claude.com/en/collections/4560928-claude-desktop` 404s. This cycle instead pulled verified content from the **official `code.claude.com/docs/en/desktop` reference page** (see the new "Official Desktop Reference" section below) plus Desktop-relevant entries from the `claude-code` GitHub release notes — both fetched successfully. The Cowork internals section below is still reverse-engineered and unofficial; the Official Desktop Reference section is sourced from Anthropic's own docs.
 
 Reference for Claude Desktop application features and capabilities — with deep architectural notes on **Cowork mode** that are not documented anywhere else and that Claude consistently forgets between sessions.
 
@@ -234,12 +234,88 @@ Notable preference keys observed in production configs:
 | 2026-06-30 / 2026-07-01 | Claude Fable 5 redeployed | Announced 2026-06-30 and redeployed globally from 2026-07-01, ending the suspension above. Biology-safeguard improvements 2026-08-07; updated jailbreak severity scoring framework built with Amazon, Microsoft, and Google. |
 | 2026-07-24 | Claude Opus 5 released | "A step change improvement for the Opus tier powering long-running agents" — now the top generally-available model, superseding Opus 4.8. |
 | 2026-08-14 | Claude text watermark technology disclosed | — |
+| 2026-09-01 | Claude Fable 5.1 (and Mythos 5.1) released | Model ID `claude-fable-5-1`. Now the **default Fable model** in `/model` — 1M context, $10/$50 per MTok with $0.25/MTok cache reads. Gateways not yet configured for Fable 5.1 still resolve `fable`/`best` to Fable 5 until updated. Opus 5 remains the top generally-available model overall. |
+
+## Official Desktop Reference (code.claude.com/docs/en/desktop)
+
+Unlike the Cowork internals above (reverse-engineered), this section is sourced from Anthropic's official Desktop documentation page.
+
+### Three Tabs
+
+The Desktop app has three main tabs: **Chat** (conversations), **Cowork** (Dispatch and longer agentic work), **Code** (software development).
+
+### MCP Configuration Sources
+
+MCP servers reach Desktop through: `claude_desktop_config.json` (loaded into local Code-tab sessions), `~/.claude.json`/`.mcp.json` (standard config), the Connectors UI (graphical setup for local/SSH sessions), and `managedMcpServers` (managed settings, for third-party deployments). If the same server is defined in both `claude_desktop_config.json` and a standard config, the `claude_desktop_config.json` definition wins in local Code-tab sessions.
+
+### Features Not Available in Desktop
+
+| Feature | Status |
+|---------|--------|
+| Third-party providers | Desktop uses Anthropic's API by default; gateway routing available |
+| Computer Use on Linux | Beta; not yet available |
+| Inline code suggestions | Not available; uses conversational prompts instead |
+| Agent teams | CLI only; Desktop uses [dynamic workflows](#) instead |
+| Terminal-dialog commands | Different behavior; `/permissions` returns "isn't available in this environment" |
+| Scripting/automation | Not available; Desktop is interactive only |
+| `--print` flag output | Not available |
+
+### Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Cmd/Ctrl + /` | Show all keyboard shortcuts |
+| `Cmd/Ctrl + N` | New session |
+| `Cmd/Ctrl + W` | Close session |
+| `Ctrl + Tab` / `Ctrl + Shift + Tab` | Next/previous session |
+| `Cmd/Ctrl + Shift + D` | Toggle diff pane |
+| `Cmd/Ctrl + Shift + B` | Toggle Browser pane |
+| `Cmd/Ctrl + Shift + S` | Select element in Browser |
+| `` Ctrl + ` `` | Toggle terminal pane |
+| `` Cmd/Ctrl + \ `` | Close focused pane |
+| `Cmd/Ctrl + ;` | Open side chat |
+| `Ctrl + O` | Cycle view modes |
+| `Cmd/Ctrl + Shift + M` | Open permission mode menu |
+| `Cmd/Ctrl + Shift + I` | Open model menu |
+| `Cmd/Ctrl + Shift + E` | Open effort menu |
+| `1`–`9` | Select item in open menu |
+
+### Permission Modes
+
+| Mode | Auto-approves |
+|------|---------------|
+| Manual | Nothing; prompts for all actions |
+| Accept edits | File edits + filesystem commands (`mkdir`, `touch`, `mv`) |
+| Plan | Explores then proposes approach without editing source |
+| Auto | All actions with background safety checks |
+| Bypass permissions | All except safety classifiers and desktop actions |
+
+### Session Management & Code Review
+
+Parallel sessions with git-worktree isolation; split view (hold `Cmd/Ctrl` and click a session); cross-session messaging; side chats (`Cmd/Ctrl + ;`) for a context-aware question that doesn't derail the main conversation. Diff review supports line comments submitted with `Cmd/Ctrl + Enter`; a "Review code" button runs an automatic high-signal review; a CI status bar offers auto-fix/auto-merge toggles (requires `gh` installed and authenticated).
+
+### Browser Pane & Computer Use
+
+A tabbed browser pane for docs, issue trackers, and live previews; first access to an external site needs "Allow once"/"Always allow" approval, and runs in a separate clean browser profile with safety classifiers reviewing Claude's write actions. Custom dev server commands go in `.claude/launch.json`. Computer Use (Pro/Max plans) is toggled in Settings > General; macOS needs Accessibility + Screen Recording permissions; apps are tiered view-only / click-only / full-control, with every action safety-checked and flagged for potential prompt injection.
+
+### Environment Options
+
+Local (on your machine, requires Git on Windows), Cloud (Anthropic-managed, continues when the app is closed, supports multiple repos), SSH (remote machines, Linux/macOS only, auto-installs Claude Code), WSL (Windows-only, native Linux toolchain and paths).
+
+### Dispatch Integration
+
+A persistent Cowork-tab conversation that spawns Code sessions for development work (bug fixes, dependency bumps, tests, PRs). Supports phone push notifications and 30-minute app approvals for computer use. Pro/Max plans only.
+
+### Network Requirements
+
+`anthropic.com`, `*.anthropic.com`, `claude.ai`, `*.claude.ai`, `claude.com`, `*.claude.com`, `*.claudeusercontent.com`, `*.claudemcpcontent.com` — all HTTPS on port 443.
 
 ## Sources
 
+- Official Desktop docs: https://code.claude.com/docs/en/desktop (fetched successfully 2026-09-09 — see Official Desktop Reference above)
 - Download: https://www.anthropic.com/download
 - News: https://www.anthropic.com/news
-- Support: https://support.claude.com/en/collections/4560928-claude-desktop
+- Support (unreachable, see note at top of file): https://support.claude.com/en/collections/4560928-claude-desktop
 - Cowork architectural facts above are reverse-engineered from `~/Library/Application Support/Claude/` and the bundled plugins under `local-agent-mode-sessions/skills-plugin/` — not officially documented; verify on your own machine before relying on them.
 
 ## Common forgetting traps (read before designing anything for Cowork)

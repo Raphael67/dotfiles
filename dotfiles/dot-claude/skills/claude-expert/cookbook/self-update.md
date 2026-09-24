@@ -34,6 +34,7 @@ CHANGELOG_URL = https://github.com/anthropics/claude-code/releases
 | Hooks Guide | https://code.claude.com/docs/en/hooks-guide | HOOKS.md |
 | **Docs index** | https://code.claude.com/docs/llms.txt | discover pages whose slug moved |
 | Anthropic News | https://www.anthropic.com/news | All files (model updates, product launches) |
+| Claude Desktop Docs (official, works via WebFetch) | https://code.claude.com/docs/en/desktop | DESKTOP.md |
 | Claude Desktop Release Notes | https://www.anthropic.com/download | DESKTOP.md |
 | Claude Desktop Changelog | https://claude.ai/changelog | DESKTOP.md |
 | Claude Desktop Support | https://support.anthropic.com/en/collections/4560928-claude-desktop | DESKTOP.md |
@@ -43,11 +44,16 @@ CHANGELOG_URL = https://github.com/anthropics/claude-code/releases
 Track Claude Desktop app features, updates, and new capabilities:
 - https://claude.ai/changelog — official changelog for Claude.ai and Desktop.
   **Known broken for WebFetch**: returns HTTP 403 (needs an authenticated session).
-  Last confirmed failing 2026-08-23. Use a browser or an authenticated tool instead.
+  Last confirmed failing 2026-09-09. Use a browser or an authenticated tool instead.
 - https://www.anthropic.com/news — product announcements (filter for Desktop-related posts)
 - https://support.claude.com/en/collections/4560928-claude-desktop — help articles.
   The old `support.anthropic.com` URL 301-redirects here, and this URL returned
-  **HTTP 404** on 2026-08-23. Find the current collection via https://support.claude.com.
+  **HTTP 404** again on 2026-09-09. Find the current collection via https://support.claude.com.
+- https://code.claude.com/docs/en/desktop — **works via WebFetch** and is the best substitute
+  for the two broken sources above: official Desktop feature reference (tabs, MCP config,
+  keyboard shortcuts, permission modes, features not available in Desktop). Use this as the
+  primary Desktop source; only fall back to the changelog/support pages if this page is also
+  down.
 
 When both Desktop sources fail, do **not** invent Desktop features: leave DESKTOP.md alone
 apart from corrections other sources support, and record the failure in the report.
@@ -55,13 +61,16 @@ apart from corrections other sources support, and record the failure in the repo
 ### Model-Specific Sources
 
 For model updates and capabilities, also check:
-Verified against https://www.anthropic.com/news on 2026-08-23:
+Verified against https://www.anthropic.com/news on 2026-09-09:
 
 - **Claude Opus 5** — announced **2026-07-24**, "a step change improvement for the Opus tier
-  powering long-running agents". Current top model.
+  powering long-running agents". Still the top generally-available model.
 - **Claude Sonnet 5** — announced **2026-06-30**.
-- **Fable 5** — announced 2026-06-30 and **redeployed globally from 2026-07-01**. The earlier
-  export-control suspension (2026-06-12) is over; do not repeat it as current.
+- **Claude Fable 5.1** (`claude-fable-5-1`) — announced **2026-09-01**, now the **default Fable
+  model** in `/model` (1M context, $10/$50 per MTok, $0.25/MTok cache reads). Fable 5 (the
+  earlier 2026-06-30 release) is superseded but gateways not yet configured for 5.1 still
+  resolve `fable`/`best` to Fable 5 until updated. The 2026-06-12 export-control suspension is
+  long over; do not repeat it as current.
 - Look for new model announcements on https://www.anthropic.com/news
 
 > Pricing per MTok is not published on the news index. Do not assert a price you have not

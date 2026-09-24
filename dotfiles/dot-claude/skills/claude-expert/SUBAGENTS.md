@@ -217,6 +217,35 @@ Always respond with:
 | `effort` | No | Effort level when agent is active. Overrides session effort. Options: `low`, `medium`, `high`, `xhigh`, `max` |
 | `initialPrompt` | No | Auto-submit prompt for first turn (v2.1.83+). Agent starts working immediately without manual trigger |
 | `color` | No | Display color for the agent in the task/agent panel |
+| `experimental.cacheTtl` | No | Map for experimental options; `cacheTtl: 5m` or `1h` sets a per-agent prompt-cache TTL used when no subagent-wide TTL setting is configured (v2.1.248+) |
+
+### Model Resolution Order
+
+When Claude spawns a subagent, its model is resolved in this order (highest priority first):
+
+1. Per-invocation `model` parameter Claude passes to the Agent tool call
+2. The subagent definition's `model` frontmatter field
+3. The `CLAUDE_CODE_SUBAGENT_MODEL` environment variable
+4. The main conversation's current model
+
+```json
+{ "env": { "CLAUDE_CODE_SUBAGENT_MODEL": "haiku" } }
+```
+
+As of **v2.1.251**, `CLAUDE_CODE_SUBAGENT_MODEL` sets only the *default* — an agent definition's `model:` field and an explicit per-invocation model still take precedence over it (previously it silently overrode both).
+
+**To force every subagent onto one model regardless of definition or per-invocation overrides**, also set `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` (v2.1.257+):
+
+```json
+{
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "haiku",
+    "CLAUDE_CODE_SUBAGENT_MODEL_FORCE": "1"
+  }
+}
+```
+
+With the force flag set, every subagent runs on the specified model (or the main conversation's model if only the force flag is set, with no `CLAUDE_CODE_SUBAGENT_MODEL`). It ignores the subagent definition's `model` field and any per-invocation model parameter. It does **not** affect forks with `model: inherit` or skills running as forked subagents.
 
 ### Permission Modes
 
@@ -593,7 +622,7 @@ Add to permissions deny list:
 ## Foreground vs Background Execution
 
 - **Foreground** (default when fork mode is off): Blocks main conversation. Permission prompts and questions pass through to user. Full tool access.
-- **Background** (default when fork mode is on, since v2.1.232): Runs concurrently. Claude prompts for permissions before launching. Auto-denies anything not pre-approved. Reduced built-in tool set (keeps Read, Grep, Glob, Bash, PowerShell, Edit, Write, WebFetch, WebSearch, etc.). `AskUserQuestion` fails (but agent continues).
+- **Background** (default when fork mode is on, since v2.1.232): Runs concurrently. Claude prompts for permissions before launching. Auto-denies anything not pre-approved. Reduced built-in tool set — keeps only `Read, Grep, Glob, Bash, PowerShell, Edit, Write, NotebookEdit, WebFetch, WebSearch, TodoWrite, Skill, ToolSearch, EnterWorktree, ExitWorktree, Monitor, TaskStop, SendMessage, Artifact`, plus all MCP tools. `AskUserQuestion` fails (but agent continues).
 
 If a background agent fails due to missing permissions, resume it in foreground.
 
@@ -615,6 +644,8 @@ CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=85
 ```
 ~/.claude/projects/{project}/{sessionId}/subagents/agent-{agentId}.jsonl
 ```
+
+As of **v2.1.259**, a background subagent nested inside another subagent has its result saved in the *parent subagent's* transcript — so a resumed parent subagent keeps the nested result, and a shared transcript shows the delivery. A subagent that stops at its `maxTurns` limit (v2.1.152) returns its output marked as partial, with a hint to continue it via `SendMessage`, instead of appearing finished.
 
 ### Controls
 - `Ctrl+B` - Background running task

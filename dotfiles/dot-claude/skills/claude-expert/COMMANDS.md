@@ -386,9 +386,9 @@ PROMPT: $2
 | Discovery | Explicit only | Auto or explicit |
 | Use case | Quick actions | Complex domains |
 
-## Built-in Commands (Current, v2.1.241) — 70+ Commands
+## Built-in Commands (Current, v2.1.267) — 70+ Commands
 
-As of v2.1.241 there are **70+ built-in commands**, grouped below by category. `[Skill]` marks
+`[Skill]` marks
 a **bundled skill** (loaded/invoked like any skill, ships with Claude Code); `[Workflow]` marks
 a bundled skill that only runs multi-step orchestration and is not auto-invoked; unmarked rows
 execute fixed logic directly and are pure built-ins. `Hidden` means it does not appear in the
@@ -430,7 +430,7 @@ execute fixed logic directly and are pure built-ins. `Hidden` means it does not 
 | `/review` | **[Skill]** Alias for `/code-review` | — |
 | `/simplify [low\|medium\|high\|xhigh\|max] [--fix] [path]` | **[Skill]** Simplify code for readability, performance, or bundle size at an effort level; `--fix` applies changes; quality-only, does not hunt bugs | — |
 | `/security-review` | Check the current diff for security vulnerabilities | — |
-| `/diff` | Interactive diff viewer for uncommitted changes and per-turn diffs | Auto-refresh v2.1.198+ |
+| `/diff` | Interactive diff viewer for uncommitted changes and per-turn diffs; opens as a panel beside the conversation in fullscreen mode | Auto-refresh v2.1.198+; panel view v2.1.260+ |
 | `/verify` | **[Skill]** Runs only when explicitly invoked (no longer auto-triggers) | Auto-invocation removed v2.1.215+ |
 
 ### Context & Workflow Management
@@ -462,6 +462,7 @@ execute fixed logic directly and are pure built-ins. `Hidden` means it does not 
 | `/design-sync [hint]` | **[Skill]** Convert a React design system and upload it to Claude Design | — |
 | `/design-login` | Authorize design-system access for `/design-sync` | — |
 | `/chrome` | Configure Claude in Chrome / select connected browser | — |
+| `/workflow-authoring` | **[Skill]** Loads the dynamic-workflow script-writing reference; run before editing a saved `.claude/workflows/*.js` script | v2.1.248+ |
 
 ### Debugging & Troubleshooting
 | Command | Description | Version |
@@ -528,6 +529,7 @@ execute fixed logic directly and are pure built-ins. `Hidden` means it does not 
 | `/reload-plugins` | Reload active plugins | — |
 | `/reload-skills` | Re-scan skill directories without restarting Claude Code | v2.1.152 |
 | `/skills` | Browse and filter available skills, type-to-filter search box | v2.1.121+ |
+| `/skill-doctor` | Show which loaded skills go unused and what they cost in context, so you can prune them; not available over Remote Control | v2.1.261+ |
 | `/terminal-setup` | Enable iTerm2 clipboard access and other terminal integrations | v2.1.121+ |
 | `/pr-comments [PR]` | **Removed** in v2.1.91 | Removed |
 

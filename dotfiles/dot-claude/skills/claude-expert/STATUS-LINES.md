@@ -48,6 +48,8 @@ The script runs once when a session starts (including on resume), then again whe
 - The permission mode changes
 - Vim mode toggles
 - A `refreshInterval` timer elapses, if set
+- A rate-limit window in the data your script last received reaches its `resets_at` time
+- A warm `prompt_cache` in the data your script last received reaches its `expires_at` time (v2.1.251+)
 
 Updates are **debounced at 300ms**: rapid changes batch together and the script runs once after they stop. If a new update triggers while the script is still running, Claude Code **cancels the in-flight script**. Editing the script file itself takes effect on the next trigger — no restart needed.
 
@@ -85,6 +87,8 @@ Status lines receive JSON via stdin. Key fields (see the [full accordion schema 
 | `thinking.enabled` | Whether extended thinking is on |
 | `rate_limits.five_hour.used_percentage`, `.resets_at` | 5-hour rolling rate-limit window (Claude.ai Pro/Max subscribers only, after first API response) |
 | `rate_limits.seven_day.used_percentage`, `.resets_at` | 7-day rate-limit window |
+| `rate_limits.spend_limit.used_percentage`, `.resets_at` | Behind a Claude apps gateway with spend limits: percentage used (can exceed 100) and reset time of the spend limit that applies to you. Requires v2.1.251+ |
+| `prompt_cache` | Session prompt-cache stats for the **main conversation** (subagent requests aren't counted): `warm`, `caching_observed`, `ttl`, `expires_at`, `requests`, `misses`, `expected_rebuilds`, `hit_ratio`, `cache_write_tokens`, `miss_recache_tokens`, `last_miss_at`, `last_miss_cause` (v2.1.260+: `causes` array e.g. `tools_changed`/`system_prompt_changed`/`ttl_expired_5m`/`likely_server_side`), `miss_causes`, `recache_tokens_if_cold`. Absent until the main conversation's first API response. Requires v2.1.251+ |
 | `session_id` | Unique session identifier |
 | `session_name` | Custom (`--name`/`/rename`) or AI-generated session title. Absent for the default display name |
 | `prompt_id` | UUID of the current user prompt. Absent until first input. Requires v2.1.196+ |
@@ -97,7 +101,7 @@ Status lines receive JSON via stdin. Key fields (see the [full accordion schema 
 | `pr.review_state` | `approved`, `pending`, `changes_requested`, or `draft` |
 | `worktree.name/path/branch/original_cwd/original_branch` | Present only during `--worktree` sessions |
 
-**Fields that may be absent entirely**: `session_name`, `prompt_id`, `workspace.git_worktree`, `workspace.repo`, `effort`, `vim`, `agent`, `pr` (and its sub-fields), `worktree`, `rate_limits`. Always guard with `// 0` / `// empty` (jq) or `?.` (JS) / `.get()` (Python).
+**Fields that may be absent entirely**: `session_name`, `prompt_id`, `workspace.git_worktree`, `workspace.repo`, `effort`, `vim`, `agent`, `pr` (and its sub-fields), `worktree`, `rate_limits` (and independently, `rate_limits.spend_limit`), `prompt_cache`. Always guard with `// 0` / `// empty` (jq) or `?.` (JS) / `.get()` (Python).
 
 **Fields that may be `null`**: `context_window.current_usage`, `context_window.used_percentage`, `context_window.remaining_percentage` — before the first API response, or right after `/compact` until the next call repopulates them.
 

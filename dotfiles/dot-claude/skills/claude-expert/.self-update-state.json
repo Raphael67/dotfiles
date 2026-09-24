@@ -1,7 +1,49 @@
 {
-  "lastUpdateTimestamp": "2026-08-23T16:00:00Z",
-  "lastVersion": "2.1.241",
+  "lastUpdateTimestamp": "2026-09-09T00:00:00Z",
+  "lastVersion": "2.1.267",
   "updateHistory": [
+    {
+      "timestamp": "2026-09-09T00:00:00Z",
+      "version": "2.1.267",
+      "filesUpdated": [
+        "HOOKS.md",
+        "MCP.md",
+        "SUBAGENTS.md",
+        "DESKTOP.md",
+        "STATUS-LINES.md",
+        "WORKFLOWS.md",
+        "COMMANDS.md",
+        "SKILLS.md",
+        "cookbook/self-update.md"
+      ],
+      "changesApplied": 22,
+      "newFeatures": [
+        "PreModelSwitch/PostModelSwitch hook events (v2.1.251) — block/confirm/annotate model switches",
+        "SessionStart resume hooks now receive session staleness + estimated re-cache cost (v2.1.251)",
+        "managedMcpServers managed setting: org-wide HTTP/SSE MCP servers, lowest precedence (v2.1.259)",
+        "MCP http-configured servers now fall back to legacy HTTP+SSE transport automatically (v2.1.265)",
+        "headersHelper Authorization-header servers no longer wrongly fall into OAuth discovery on 401 (v2.1.248 fix)",
+        "Subagent model resolution order corrected: CLAUDE_CODE_SUBAGENT_MODEL is a default, not an override — agent-definition model: and per-invocation model win (v2.1.251); CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1 added to force every subagent regardless (v2.1.257)",
+        "experimental.cacheTtl subagent frontmatter field (v2.1.248)",
+        "Background subagent tool list corrected to the documented set (NotebookEdit, TodoWrite, Skill, ToolSearch, EnterWorktree/ExitWorktree, Monitor, TaskStop, SendMessage, Artifact were missing)",
+        "Nested background subagent results now saved in parent subagent's transcript (v2.1.259)",
+        "/skill-doctor bundled command: context cost + unused-skill report (v2.1.252/261)",
+        "/workflow-authoring bundled skill: script-writing reference required before editing saved workflow .js files (v2.1.248)",
+        "Dynamic workflow script functions documented: phase(), log(), args global, schema-validated agent() structured output, 4,096-item parallel()/pipeline() cap, Large workflow warning thresholds",
+        "skillOverrides alias-keyed entries and Skill(<dir>:name) deny rules fixed (v2.1.260)",
+        "status line prompt_cache object (hit ratio, misses, last_miss_cause) and rate_limits.spend_limit field (v2.1.251/260)",
+        "Claude Fable 5.1 (claude-fable-5-1) released 2026-09-01 — now default Fable model, 1M context, $10/$50 per MTok",
+        "Desktop official docs page (code.claude.com/docs/en/desktop) added as a working substitute source for the still-broken claude.ai/changelog (403) and support.claude.com collection (404); pulled official tabs/MCP/shortcuts/permission-modes content into DESKTOP.md"
+      ],
+      "sourcesUnavailable": [
+        "https://claude.ai/changelog — HTTP 403 again (authenticated session required)",
+        "https://support.claude.com/en/collections/4560928-claude-desktop — HTTP 404 again"
+      ],
+      "processChanges": [
+        "Reviewed files directly against freshly fetched official docs + GitHub release notes for v2.1.245-v2.1.267 instead of dispatching to 11 haiku subagents this cycle, to keep source verification in one place and avoid re-fetching the same large doc pages per agent",
+        "MEMORY.md, OUTPUT-STYLES.md, PROMPTING.md, CLI.md, SKILL.md reviewed against sources and found already accurate — no changes applied"
+      ]
+    },
     {
       "timestamp": "2026-08-23T16:00:00Z",
       "version": "2.1.241",

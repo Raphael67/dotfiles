@@ -27,8 +27,27 @@ When the same server is defined in more than one place, Claude Code connects to 
 3. User scope
 4. Plugin-provided servers
 5. claude.ai connectors
+6. Managed MCP servers (`managedMcpServers`, requires v2.1.259+ — see below)
 
 Local/project/user scopes match duplicates by **name**; plugins and claude.ai connectors match by **endpoint** (same URL or command counts as a duplicate).
+
+### `managedMcpServers` — Organization-Wide HTTP/SSE Servers (v2.1.259+)
+
+Organizations can push MCP servers to every user through managed settings, using the same entry shape as `.mcp.json`:
+
+```json
+{
+  "managedMcpServers": {
+    "company-api": {
+      "type": "http",
+      "url": "https://mcp.company.com",
+      "headers": { "Authorization": "Bearer ${COMPANY_API_TOKEN}" }
+    }
+  }
+}
+```
+
+Entries that name a command to run (stdio) are skipped — only HTTP/SSE servers are supported here. `managedMcpServers` sits at the **bottom** of the precedence order above, so a user's local/project/user-scope server, a plugin server, or a claude.ai connector with the same name wins over it. `allowedMcpServers` governs only servers users add themselves — as of v2.1.259, it no longer filters out a literal `managedMcpServers` entry; use `deniedMcpServers` to keep a managed server off instead.
 
 **Project server approvals & workspace trust (v2.1.196+)**: `claude mcp list`/`claude mcp get` only read `.mcp.json` approvals from settings files that aren't checked into the repo, until you trust the workspace. A freshly cloned repo can't self-approve its own `.mcp.json` servers via a committed `enableAllProjectMcpServers`/`enabledMcpjsonServers` — they stay `⏸ Pending approval` until you run `claude` interactively and accept the trust dialog. Approvals from `~/.claude/settings.json`, managed settings, or `--settings` still apply in an untrusted folder. `claude -p`, Agent SDK runs, and cloud sessions can't show the approval prompt at all, so they load project-scoped servers without asking (unless `disabledMcpjsonServers` blocks them, or `--setting-sources`/`settingSources` excludes project settings).
 
@@ -228,6 +247,8 @@ claude mcp add-json events-server \
 ### Common Configuration Errors
 
 A JSON entry with a `url` but no `type` is read as a **stdio** server and is skipped, with the error `MCP server "<name>" has a "url" but no "type"; add "type": "http" (or "sse" / "ws") to this entry` (before v2.1.202: `command: expected string, received undefined`). Always set `type` explicitly for remote servers.
+
+**HTTP servers that only speak legacy HTTP+SSE (v2.1.265 fix)**: a server configured as `"type": "http"` that only supports the older HTTP+SSE transport used to never connect. Claude Code now falls back to SSE automatically when the HTTP handshake indicates the server needs it, as the MCP spec describes — no config change needed.
 
 ## Common MCP Servers
 
@@ -609,6 +630,8 @@ For auth schemes other than OAuth (Kerberos, short-lived tokens, internal SSO), 
 ```
 
 The helper runs in a shell with a 10-second timeout. It must write a JSON object of string key-value pairs to stdout. Dynamic headers override static `headers` with the same name. Claude Code sets `CLAUDE_CODE_MCP_SERVER_NAME` and `CLAUDE_CODE_MCP_SERVER_URL` env vars so a single helper script can serve multiple servers.
+
+**Fixed in v2.1.248**: a server whose `headersHelper` supplies the `Authorization` header used to fall into OAuth discovery on a 401 response instead of re-running the helper and retrying the call. It now re-runs the helper and retries as documented.
 
 ### `oauth.scopes` — Restrict OAuth Scope
 

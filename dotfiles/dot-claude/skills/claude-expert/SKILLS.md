@@ -141,6 +141,8 @@ Claude Code ships with these bundled skills:
 | `/run` | Launch and drive your app to see a change working — infers launch from project type, README, `package.json`, or `Makefile` |
 | `/verify` | Build and run the app to confirm a code change works, without falling back to tests/type checks. Runs only on explicit invocation |
 | `/run-skill-generator` | Records a per-project launch recipe (install commands, env vars, launch script) as `.claude/skills/run-<name>/`, so `/run`/`/verify` stop re-discovering the launch process each time |
+| `/skill-doctor` | Shows context cost per skill, invocation frequency, and unused skills; recommends disabling high-cost unused ones. Requires v2.1.252+; not available over Remote Control |
+| `/workflow-authoring` | Loads the script-writing reference for editing a saved dynamic-workflow `.js` file. Requires a feature flag / v2.1.248+ |
 
 ### Bundled Skills vs Built-in Commands vs Bundled Workflows
 
@@ -251,6 +253,8 @@ For skills whose `SKILL.md` you don't want to edit (e.g. checked into a shared r
 ```
 
 As of v2.1.199, `"off"` also hides the skill from Remote Control and Agent SDK command listings, not just the terminal `/` menu. Plugin skills are unaffected — manage those via `/plugin` instead.
+
+**Fixed in v2.1.260**: a `skillOverrides` entry keyed on a bundled skill's alias (e.g. `checkup` for `/doctor`) now applies correctly, and a `Skill(name)` deny rule now covers a nested skill listed under its `<dir>:name` qualified name (previously it didn't match).
 
 ## Skill Path Configuration
 

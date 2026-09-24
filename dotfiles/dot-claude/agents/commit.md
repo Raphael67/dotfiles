@@ -70,11 +70,20 @@ ambiguous.
      bug root cause), not only what — the diff already shows the what. Only a
      trivially self-explanatory subject (typo fix, dep bump) may omit the body.
 
-7. **Stage and commit** each group with `git add <files>` + `git commit`.
+7. **Isolate in the INDEX, never on disk.** When one file carries several
+   independent changes, split it with `git add -p`; to run the suite against
+   only what is staged, use `git stash push --keep-index` and pop it after.
+   Never `mv`, `rm`, `git checkout --` or otherwise edit a working-tree file
+   to make a commit look atomic. If the hunks interleave too finely to split
+   cleanly, say so and commit the file once under a message covering both
+   reasons — a slightly less atomic commit is always cheaper than
+   reconstructing destroyed work.
+
+8. **Stage and commit** each group with `git add <files>` + `git commit`.
    Do NOT push unless the user asked for "push" / "ship it" / "commit and
    push" explicitly.
 
-8. **Report** — one line per commit: `<sha-short> <message>`, plus test status
+9. **Report** — one line per commit: `<sha-short> <message>`, plus test status
    (suite run and green / verified final state only / could not run + reason).
    Then **SendMessage that same summary to the lead before you go idle** — you
    run as a named teammate, so your final text is NOT auto-returned. If the
@@ -83,6 +92,18 @@ ambiguous.
 ## Rules
 
 - Never `git add -A` blindly — always specify files so you can split cleanly
+- **Untracked files have no copy in git.** Anything `git status` prints as `??`
+  exists on disk only: moving or deleting it is irreversible, and no stash,
+  reflog or checkout brings it back. Either commit it, or leave it strictly
+  alone — never relocate it "temporarily"
+- **Never chain a destructive command behind a glob.** A glob that matches
+  nothing aborts the shell word, and what the rest of a `&&` chain then does
+  to a half-built state is not predictable. One `mv`/`rm` per command, with
+  an explicit path, after checking the path exists
+- **Report the whole damage, not the part you noticed.** If anything was
+  destroyed, reverted or left half-applied, enumerate every path you touched
+  before asking how to proceed. A partial report sends the lead looking in the
+  wrong place and costs more than the loss itself
 - Never amend, never rebase, never force — fixup commits yes, autosquash no
 - If ever instructed to rewrite a commit that is not HEAD (reset/cherry-pick
   recipes): `git stash push -u` first, rewrite, then `git stash pop` — and

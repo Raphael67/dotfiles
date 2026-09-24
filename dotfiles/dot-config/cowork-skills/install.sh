@@ -44,9 +44,18 @@ fi
 
 # --- Find the rpm/ directory --------------------------------------------------
 
-RPM_DIR="$(find "$COWORK_ROOT" -maxdepth 3 -type d -name "rpm" 2>/dev/null | head -1)"
+# The layout is <userId>/<orgId>/rpm/. Both levels change when the signed-in
+# account or organization changes, and Cowork leaves the old trees on disk, so
+# pick the live one (newest manifest.json) rather than the first match.
+RPM_DIR="$(python3 -c "
+import sys
+sys.path.insert(0, '$SCRIPT_DIR')
+from sync import active_rpm_dir
+d = active_rpm_dir()
+print(d if d else '')
+")"
 if [[ -z "$RPM_DIR" ]]; then
-    echo "ERROR: no rpm/ directory found under $COWORK_ROOT." >&2
+    echo "ERROR: no live rpm/ directory found under $COWORK_ROOT." >&2
     echo "Install any plugin via Cowork's UI once, then re-run." >&2
     exit 1
 fi

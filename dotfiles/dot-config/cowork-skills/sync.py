@@ -28,18 +28,40 @@ COWORK_BUNDLED = {
 }
 
 
-def _find_installed_plugin() -> Path | None:
-    """Locate the installed plugin at .../<user>/<plugin>/rpm/plugin_claude-code-skills-bridge/."""
+def active_rpm_dir() -> Path | None:
+    """Return the rpm/ directory of the *live* Cowork tree.
+
+    The layout is .../local-agent-mode-sessions/<userId>/<orgId>/rpm/. Both
+    levels change when the signed-in account or organization changes, and the
+    old trees are left behind on disk. Picking the first match found would
+    target a dead tree, so select the rpm/ whose manifest.json was written most
+    recently. Directories renamed to *.preexisting.bak.* are Cowork's own
+    backups and are never live.
+    """
     if not COWORK_ROOT.exists():
         return None
+    candidates: list[tuple[float, Path]] = []
     for user_dir in COWORK_ROOT.iterdir():
         if not user_dir.is_dir() or user_dir.name == "skills-plugin":
             continue
-        for plugin_uuid_dir in user_dir.iterdir():
-            candidate = plugin_uuid_dir / "rpm" / PLUGIN_DIRNAME
-            if candidate.is_dir():
-                return candidate
-    return None
+        for org_dir in user_dir.iterdir():
+            if not org_dir.is_dir() or ".preexisting.bak." in org_dir.name:
+                continue
+            manifest = org_dir / "rpm" / "manifest.json"
+            if manifest.is_file():
+                candidates.append((manifest.stat().st_mtime, org_dir / "rpm"))
+    if not candidates:
+        return None
+    return max(candidates, key=lambda c: c[0])[1]
+
+
+def _find_installed_plugin() -> Path | None:
+    """Locate the installed plugin inside the live Cowork tree."""
+    rpm = active_rpm_dir()
+    if rpm is None:
+        return None
+    candidate = rpm / PLUGIN_DIRNAME
+    return candidate if candidate.is_dir() else None
 
 
 def _is_cowork_bundled_symlink(skill_dir: Path) -> bool:

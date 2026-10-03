@@ -12,7 +12,7 @@
 - **Skills**: never modify a skill without an explicit user request.
 - **Planning**: before presenting any non-trivial plan or design, invoke `grill-me` (one question at a time).
 - **Questions**: use AskUserQuestion, exactly one question per turn — never batched lists.
-- **Agents**: prefer named subagents; after an agent's final report, terminate it (`shutdown_request`). For long-running parallel agents the user should watch, prefer `/pthread` (mprocs) over background subagents.
+- **Agents**: prefer named subagents; after an agent's final report, terminate it (`shutdown_request`) — load `SendMessage` via `ToolSearch("select:SendMessage")` first, then pass `message` as an object `{"type":"shutdown_request"}`, never as a JSON string. For long-running parallel agents the user should watch, prefer `/pthread` (mprocs) over background subagents.
 - **Dependencies**: ask before installing new packages.
 - **Build/test failures**: fix the issue, never skip or ignore it.
 - **Verifying fixes**: reproduce the user's exact context (cwd, env files, shell) — never test in a sanitized environment.

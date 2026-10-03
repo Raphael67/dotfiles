@@ -75,3 +75,6 @@ openspec/specs/
 # Python bytecode
 __pycache__/
 *.pyc
+
+# ccnotify runtime state (notification DB and logs, may hold session content)
+dotfiles/dot-claude/ccnotify/

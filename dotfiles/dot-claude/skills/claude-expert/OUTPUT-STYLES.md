@@ -6,12 +6,13 @@ Output styles are markdown files that modify Claude's system prompt to change ho
 
 ## Configuration
 
-> **Deprecated (v2.1.73), removed (v2.1.91)**: the standalone `/output-style` command is gone. Use `/config` or set the `outputStyle` field directly in a settings file.
-
 Activate a style:
 ```bash
-/config    # Select "Output style" from the menu (writes to .claude/settings.local.json)
+/output-style concise   # switch by name (case-insensitive); no argument lists styles and marks the current one
+/config                 # or select "Output style" from the menu (writes to .claude/settings.local.json)
 ```
+
+`/output-style [name]` was removed in v2.1.91 and **re-added in v2.1.269**. It also works in non-interactive mode, Agent SDK sessions, and over Remote Control (mobile/web), where only built-in styles can be listed and selected. In the VS Code extension, pick **Output styles** from the `/` command menu (v2.1.257+).
 
 Or set it directly in a settings file:
 ```json
@@ -20,7 +21,7 @@ Or set it directly in a settings file:
 }
 ```
 
-Output style is part of the system prompt, which Claude Code reads once at session start — changes take effect after `/clear` or a new session, not mid-session. This is a **cache tradeoff**: switching styles mid-session doesn't retroactively apply until the prompt is rebuilt at the next session/`/clear`, which also invalidates the cached system-prompt prefix for that session.
+When you switch styles mid-session, Claude uses the new style starting with your next message (v2.1.251+; before that it applied only after `/clear` or a new session). That first message pays a prompt-cache cost, since the style is part of the system prompt. Style **files** are read at startup: create or edit one mid-session and restart Claude Code to pick it up. The `outputStyle` settings value is case-sensitive (`Proactive`, `Concise`, `Explanatory`, `Learning`); a non-matching value such as `explanatory` falls back to Default.
 
 In the Desktop app, running `/config` opens **Settings > Claude Code** instead of a terminal menu; set `outputStyle` in a settings file there too.
 

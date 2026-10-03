@@ -150,7 +150,9 @@ claude --agents '{
 }'
 ```
 
-Accepted fields in the JSON definition: `prompt`, `description`, `tools`, `disallowedTools`, `model`, `permissionMode`, `mcpServers`, `hooks`, `maxTurns`, `skills`, `isolation`, `memory`, `background`, `effort`, `initialPrompt`.
+Accepted fields in the JSON definition: `prompt`, `description`, `tools`, `disallowedTools`, `model`, `permissionMode`, `mcpServers`, `hooks`, `maxTurns`, `skills`, `isolation`, `memory`, `background`, `effort`, `initialPrompt`, `omitClaudeMd`. `color` and `experimental` are ignored here.
+
+With `-p`, `--agents` also accepts the path to a JSON file instead of inline JSON, and `prompt` may be empty (v2.1.281+).
 
 ### Directory Structure
 ```
@@ -217,6 +219,7 @@ Always respond with:
 | `effort` | No | Effort level when agent is active. Overrides session effort. Options: `low`, `medium`, `high`, `xhigh`, `max` |
 | `initialPrompt` | No | Auto-submit prompt for first turn (v2.1.83+). Agent starts working immediately without manual trigger |
 | `color` | No | Display color for the agent in the task/agent panel |
+| `omitClaudeMd` | No | `true` launches the subagent without user, project and local CLAUDE.md files (and project `AGENTS.md`); managed policy files still load, except for managed subagents. Ignored when the agent runs as the main session agent via `--agent` (v2.1.271+) |
 | `experimental.cacheTtl` | No | Map for experimental options; `cacheTtl: 5m` or `1h` sets a per-agent prompt-cache TTL used when no subagent-wide TTL setting is configured (v2.1.248+) |
 
 ### Model Resolution Order
@@ -622,7 +625,7 @@ Add to permissions deny list:
 ## Foreground vs Background Execution
 
 - **Foreground** (default when fork mode is off): Blocks main conversation. Permission prompts and questions pass through to user. Full tool access.
-- **Background** (default when fork mode is on, since v2.1.232): Runs concurrently. Claude prompts for permissions before launching. Auto-denies anything not pre-approved. Reduced built-in tool set — keeps only `Read, Grep, Glob, Bash, PowerShell, Edit, Write, NotebookEdit, WebFetch, WebSearch, TodoWrite, Skill, ToolSearch, EnterWorktree, ExitWorktree, Monitor, TaskStop, SendMessage, Artifact`, plus all MCP tools. `AskUserQuestion` fails (but agent continues).
+- **Background** (default when fork mode is on, since v2.1.232): Runs concurrently. Claude prompts for permissions before launching. Auto-denies anything not pre-approved. Reduced built-in tool set — keeps only `Read, Grep, Glob, LSP, Bash, PowerShell, Edit, Write, NotebookEdit, WebFetch, WebSearch, TodoWrite, Skill, ToolSearch, EnterWorktree, ExitWorktree, Monitor, TaskStop, SendMessage, Artifact` (plus `SubagentHandback` when the subagent reports through it; `LSP` since v2.1.280), plus all MCP tools. `AskUserQuestion` fails (but agent continues).
 
 If a background agent fails due to missing permissions, resume it in foreground.
 
@@ -748,7 +751,7 @@ The subagent panel caps at 5 visible rows with scroll hints; idle agents auto-hi
 
 **Non-fork subagent** gets:
 - Custom system prompt and the task delegation message from Claude
-- CLAUDE.md files (except Explore/Plan)
+- CLAUDE.md files, including any `AGENTS.md` loaded as project instructions (except Explore/Plan; an `omitClaudeMd: true` agent gets only managed policy files)
 - Git status snapshot (except Explore/Plan)
 - Preloaded skills (from the `skills` frontmatter field)
 - Sibling agent roster, if `SendMessage` is in its tools
@@ -876,9 +879,14 @@ Set in settings:
 
 Subagents now correctly discover skills from project, user, and plugin skill directories. Previously, subagents would only see bundled skills in some configurations.
 
-## TaskOutput Deprecation (v2.1.83+)
+## TaskOutput Removed (v2.1.277)
 
-The `TaskOutput` tool is deprecated. Use `Read` on the task output file path instead for reading agent results.
+The `TaskOutput` tool (deprecated since v2.1.83) was removed in v2.1.277. Claude reads a background task's output file with `Read`. The `taskOutputMaxChars` setting and `TASK_MAX_OUTPUT_LENGTH` no longer have any effect.
+
+## Subagent Result Framing (v2.1.271+ / v2.1.277+)
+
+- Subagent results reach the main agent under a header marking them as subagent output, with the result indented, so text inside a result cannot pass as the session's own instructions (v2.1.277).
+- In auto mode, a subagent reports back through a dedicated hand-back call that the safety classifier reviews, instead of its last message being reviewed after the fact (v2.1.271).
 
 ## Side Questions with /btw
 
@@ -998,7 +1006,7 @@ Check if the task was completed successfully. Do NOT modify any files.
 
 ### Task System Orchestration
 
-> **v2.1.233 DEPRECATION**: `TaskCreate`/`TaskGet`/`TaskUpdate`/`TaskList` and `TodoWrite` are no longer available by default on Opus 4.8, Sonnet 5, Fable 5, Mythos 5+. Set `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` to re-enable them.
+> **Model-gated (v2.1.268)**: `TaskCreate`/`TaskGet`/`TaskUpdate`/`TaskList` and `TodoWrite` are offered only on Claude 3.x, Opus 4.0–4.7, Sonnet 4.0–4.6 and Haiku 4.5 (first restricted in v2.1.233). Set `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` to enable them on other models.
 
 The `/plan_w_team` pattern uses Claude Code's task system:
 

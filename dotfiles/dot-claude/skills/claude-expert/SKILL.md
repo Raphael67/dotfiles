@@ -62,8 +62,9 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 
 ### Memory
 - **Auto memory**: Claude automatically saves learnings to `~/.claude/projects/<project>/memory/`
-- **MEMORY.md**: First 200 lines loaded at startup; topic files loaded on-demand
-- **CLAUDE.md hierarchy**: managed policy > project > user > local (more specific wins)
+- **MEMORY.md**: first 200 lines or 25KB (whichever is smaller) loaded at startup; topic files loaded on-demand
+- **CLAUDE.md hierarchy**: managed policy → user → project → local, **concatenated** in that order (no file overrides another)
+- **AGENTS.md** (v2.1.277+): read natively when no CLAUDE.md/CLAUDE.local.md exists; change with **Project instructions** in `/config`
 - **Rules**: `.claude/rules/*.md` with optional path-scoped frontmatter
 - **Agent memory**: `memory: user|project|local` in agent frontmatter
 - Toggle with `/memory` command or `autoMemoryEnabled` setting
@@ -73,7 +74,7 @@ Expert guidance for Claude prompting techniques, Claude Code extensibility, and 
 - Nesting depth 3 (`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`), 20 concurrent by default (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`)
 - **Agent teams / cross-session messaging**: implicit team per session; `SendMessage`/`ListAgents` also reach other local, Remote Control, and cloud sessions (`@` to mention one)
 - Default to single agents; use multi-agent only for context protection, parallelization, or specialization
-- Custom agents in `.claude/agents/` or `~/.claude/agents/`
+- Custom agents in `.claude/agents/` or `~/.claude/agents/`; `omitClaudeMd: true` launches one without user/project/local CLAUDE.md (v2.1.271+)
 
 ### Workflows
 - Variables at top for constants

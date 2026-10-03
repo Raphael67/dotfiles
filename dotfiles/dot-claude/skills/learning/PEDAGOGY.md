@@ -28,6 +28,8 @@ Methodologies and techniques for designing effective learning plans. Read this f
 - Pair-style learning (agent demonstrates, user reproduces)
 - Problem-solving with progressive hints
 
+**Guidance fading (expertise reversal)**: Novices (LEVEL_SCORE < 4) learn more from fully worked examples than from solving problems alone; the same worked examples slow down more advanced learners. Start each new concept with a worked example, then fade it: complete example → partially completed example (learner fills the missing steps) → problem solved without help. Once the learner scores > 70%, remove worked examples entirely.
+
 **Exercise types**: Code-Along, Mini-Project, Debug Challenge
 
 **Feynman check**: Can the learner solve a novel problem using these concepts?
@@ -59,6 +61,8 @@ Methodologies and techniques for designing effective learning plans. Read this f
 | Capstone Project | Mastery | User designs and implements a real project. Agent acts as mentor (reviews, suggests, unblocks). | 2-4 hours |
 | Teach-Back | Mastery | User writes a mini-tutorial or explains a concept as if teaching. Agent evaluates completeness and clarity. | 20-30 min |
 | Code Review | Mastery | Agent provides real-world code. User reviews for quality, patterns, and improvements. Agent discusses trade-offs. | 15-30 min |
+| Pretest | Foundation | Before any teaching, agent asks 3-5 questions on the module's content. Wrong answers are expected; agent gives the correct answer after each one. | 5 min |
+| Confidence-Rated Recall | Any | Learner answers and rates confidence (1-5). Agent spends most correction time on high-confidence errors, then re-asks those questions at the end of the same session. | 5-10 min |
 
 ## File-based exercises (code-project courses)
 
@@ -90,6 +94,10 @@ After each module, assess performance:
 - Time taken vs estimated time
 - User's self-reported confidence
 
+## Interleaving
+
+After two or more related modules, mix their problem types in one exercise set instead of practising them one block at a time, so the learner must first decide *which* concept applies. Interleaving works best for concepts that are similar and easy to confuse (visual categories, similar algorithms, syntax variants). It works poorly for vocabulary or word lists, where blocked practice is better.
+
 ## Spaced Repetition Schedule
 
 After completing a module, schedule reviews at these intervals:
@@ -101,6 +109,10 @@ After completing a module, schedule reviews at these intervals:
 | Day 7 | Explain from memory — Feynman technique | 10 min |
 | Day 14 | Apply to new context — transfer learning | 20 min |
 | Day 30 | Teach someone — deepest processing | 30 min |
+
+**Why expanding intervals**: The best gap between reviews grows with how long the learner needs to retain the material. It is about 20-40% of that period when the goal is one week, and about 5-10% when the goal is one year. The 1/3/7/14/30 schedule suits goals of one to three months. For Career or Deep Understanding goals (retention over a year), add a Day 90 and a Day 180 review. For a Quick Start with a deadline (exam, interview), compress the schedule to fit before that date.
+
+For fact-heavy topics (vocabulary, formulas, definitions), recommend exporting key facts as flashcards to an FSRS scheduler (Anki >= 23.10, RemNote), with desired retention set to 90%. FSRS adapts each card's interval to the learner's own forgetting and needs fewer reviews than fixed schedules for the same retention.
 
 ## SMART Objectives Template
 
@@ -128,6 +140,18 @@ Based on proven meta-learning research, structure plans around these cycles:
 8. **Play around** — Experiment, break things, generate questions
 9. **Learn enough to do something useful** — Deepen based on questions from step 8
 10. **Teach** — Explain to others to reveal gaps and solidify understanding
+
+## Evidence-Based Technique Priorities
+
+When choosing activities, prefer high-utility techniques and keep low-utility ones as support only:
+
+| Utility | Techniques | Use in plans |
+|---------|-----------|--------------|
+| High | Practice testing (retrieval), distributed practice | Every module ends with retrieval; reviews are spaced, never massed |
+| Moderate | Elaborative interrogation ("why is this true?"), self-explanation, interleaved practice | Weave into Explain-It and Debug Challenge |
+| Low | Rereading, highlighting, summarizing, keyword mnemonics | Never the sole activity of a module |
+
+Rule: a module whose only activity is reading or watching is incomplete — add at least one retrieval exercise.
 
 ## Non-Tech Adaptations
 

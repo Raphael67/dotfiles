@@ -73,7 +73,9 @@ For each calibration question response:
 
 **Normalized score**: Total points / (number of questions x 4) x 10
 
-Combine with self-assessment: **Final level = (self-assessment + normalized score) / 2**
+Combine with self-assessment: **Final level = 0.3 × self-assessment + 0.7 × normalized score**
+
+Self-ratings correlate only moderately with real performance (r ≈ 0.29 across 22 meta-analyses), so the calibration score gets more weight. If the two differ by 3 points or more, say so to the learner and trust the calibration score.
 
 ## Goal Categorization
 

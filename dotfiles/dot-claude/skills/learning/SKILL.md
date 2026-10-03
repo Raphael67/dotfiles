@@ -11,7 +11,7 @@ description: >
   restore it from archive/dot-claude/agents/ before a tutoring session.
 user-invocable: true
 argument-hint: [topic]
-version: 1.1.0
+version: 1.2.0
 model: opus
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Agent, WebSearch, WebFetch,
   AskUserQuestion, TaskCreate, TaskGet, TaskList, TaskOutput, TaskStop, TaskUpdate,

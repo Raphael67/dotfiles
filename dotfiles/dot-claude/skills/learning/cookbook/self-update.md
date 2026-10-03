@@ -14,7 +14,7 @@ Update the learning skill's reference files with the latest pedagogical research
 |--------|-----|---------|
 | Learn Anything | https://learn-anything.xyz | Learning path curation, new topics |
 | OpenClassrooms - Learn How to Learn | https://openclassrooms.com/en/courses/5281811-learn-how-to-learn | Meta-learning techniques |
-| Reddit GetStudying | https://www.reddit.com/r/GetStudying/top/?t=month | Community learning tips |
+| The Learning Scientists | https://www.learningscientists.org | Research-based learning strategies |
 
 ## Update Procedure
 

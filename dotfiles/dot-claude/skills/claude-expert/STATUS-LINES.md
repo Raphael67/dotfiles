@@ -47,11 +47,12 @@ The script runs once when a session starts (including on resume), then again whe
 - `/compact` finishes
 - The permission mode changes
 - Vim mode toggles
+- The `command` in your `statusLine` settings changes
 - A `refreshInterval` timer elapses, if set
 - A rate-limit window in the data your script last received reaches its `resets_at` time
 - A warm `prompt_cache` in the data your script last received reaches its `expires_at` time (v2.1.251+)
 
-Updates are **debounced at 300ms**: rapid changes batch together and the script runs once after they stop. If a new update triggers while the script is still running, Claude Code **cancels the in-flight script**. Editing the script file itself takes effect on the next trigger — no restart needed.
+Updates are **debounced at 300ms**: rapid changes batch together and the script runs once after they stop. A change to the `command` itself skips the debounce and runs the new command right away. If a new update triggers while the script is still running, Claude Code **cancels the in-flight script**. Editing the script file itself takes effect on the next trigger — no restart needed.
 
 ## Terminal Size: COLUMNS / LINES (v2.1.153+)
 

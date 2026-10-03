@@ -44,11 +44,11 @@ CHANGELOG_URL = https://github.com/anthropics/claude-code/releases
 Track Claude Desktop app features, updates, and new capabilities:
 - https://claude.ai/changelog — official changelog for Claude.ai and Desktop.
   **Known broken for WebFetch**: returns HTTP 403 (needs an authenticated session).
-  Last confirmed failing 2026-09-09. Use a browser or an authenticated tool instead.
+  Last confirmed failing 2026-09-24. Use a browser or an authenticated tool instead.
 - https://www.anthropic.com/news — product announcements (filter for Desktop-related posts)
 - https://support.claude.com/en/collections/4560928-claude-desktop — help articles.
   The old `support.anthropic.com` URL 301-redirects here, and this URL returned
-  **HTTP 404** again on 2026-09-09. Find the current collection via https://support.claude.com.
+  **HTTP 404** again on 2026-09-24. Find the current collection via https://support.claude.com.
 - https://code.claude.com/docs/en/desktop — **works via WebFetch** and is the best substitute
   for the two broken sources above: official Desktop feature reference (tabs, MCP config,
   keyboard shortcuts, permission modes, features not available in Desktop). Use this as the
@@ -60,17 +60,16 @@ apart from corrections other sources support, and record the failure in the repo
 
 ### Model-Specific Sources
 
-For model updates and capabilities, also check:
-Verified against https://www.anthropic.com/news on 2026-09-09:
+For model updates and capabilities, also check
+https://platform.claude.com/docs/en/about-claude/models/overview (fetchable as raw markdown by
+appending `.md`). Current lineup per that page:
 
-- **Claude Opus 5** — announced **2026-07-24**, "a step change improvement for the Opus tier
-  powering long-running agents". Still the top generally-available model.
-- **Claude Sonnet 5** — announced **2026-06-30**.
-- **Claude Fable 5.1** (`claude-fable-5-1`) — announced **2026-09-01**, now the **default Fable
-  model** in `/model` (1M context, $10/$50 per MTok, $0.25/MTok cache reads). Fable 5 (the
-  earlier 2026-06-30 release) is superseded but gateways not yet configured for 5.1 still
-  resolve `fable`/`best` to Fable 5 until updated. The 2026-06-12 export-control suspension is
-  long over; do not repeat it as current.
+- **Claude Opus 5.5** (`claude-opus-5-5`) — added in Claude Code v2.1.280 as the **default Opus
+  model** and the recommended starting model: 1M context, 128K output, $4/$20 per MTok, $0.20/MTok
+  cache reads, **default effort `medium`** (Opus 5 and earlier default to `high`).
+- **Claude Fable 5.1** (`claude-fable-5-1`) — announced 2026-09-01; 1M context, $10/$50 per MTok.
+- **Claude Sonnet 5** (`claude-sonnet-5`) — announced 2026-06-30; $2/$10 per MTok.
+- Legacy but available: Fable 5, Opus 5 (announced 2026-07-24), Opus 4.8, Opus 4.7.
 - Look for new model announcements on https://www.anthropic.com/news
 
 > Pricing per MTok is not published on the news index. Do not assert a price you have not
@@ -86,6 +85,11 @@ Read `$STATE_FILE` to get last update timestamp and version.
 - Extract `lastUpdateTimestamp` and `lastVersion` for comparison
 
 ### Step 1: Fetch Changelog
+
+The full changelog is available as raw markdown at
+`https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md` (no auth needed;
+`gh api` requires a login). Every `code.claude.com/docs/en/<page>` also serves raw markdown at
+`<page>.md`, which is easier to grep for verification than a WebFetch summary.
 
 Use WebFetch to retrieve GitHub releases:
 
@@ -111,6 +115,13 @@ Launch 7 parallel WebFetch calls:
 ### Step 3: Launch Parallel Subagents
 
 Launch **11 parallel Agent-tool subagents** (subagent_type: general-purpose, model: haiku) to review each reference file.
+
+When this cookbook runs inside a teammate session, omit the Agent tool's `name` parameter:
+teammates cannot spawn named teammates, only plain subagents.
+
+**Verify every reviewer finding against the fetched docs before applying it.** Haiku reviewers
+return plausible but wrong corrections (see "Why the fabrication check exists" below); treat
+their output as leads, not edits.
 
 Each agent receives:
 - Combined changelog + relevant documentation as context
@@ -308,6 +319,12 @@ stale, and that had survived several self-update cycles unchallenged:
 
 The same cycle also found this cookbook itself asserting that Fable 5 was suspended and that
 Opus 4.8 was the top model, months after both had ceased to be true.
+
+The 2.1.281 cycle showed the reviewers themselves fabricate: they proposed that project
+CLAUDE.md is not loaded into subagents by default, that `/insights` works in cloud sessions,
+and that DESKTOP.md's bypass-mode row was wrong. All three contradicted the fetched docs and
+were rejected. The same cycle found `CLI.md` calling `--system-prompt-file` "undocumented" and
+`MEMORY.md` stating Claude Code never reads `AGENTS.md`; both were false by then.
 
 **The lesson: a self-updating skill fossilises its own errors.** Each cycle reads the file as
 a baseline and only looks for what is *missing*, so an invented fact is never revisited.

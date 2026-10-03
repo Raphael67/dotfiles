@@ -18,7 +18,7 @@ by area:
 | `UserPromptSubmit` | When user sends a message | Logging, preprocessing. Can block (erases the prompt); supports `additionalContext` |
 | `UserPromptExpansion` | Before slash command expansion | Block or add context to command expansion. Matcher = command name |
 | `Stop` | When Claude finishes responding | Notifications, cleanup. Input includes `last_assistant_message`. Can force continuation via `decision: "block"` |
-| `StopFailure` | Turn ends due to API error (v2.1.78+) | Rate-limit/error recovery. **Output and exit code ignored** except `terminalSequence`. Matchers: `rate_limit`, `overloaded`, `authentication_failed`, `oauth_org_not_allowed`, `billing_error`, `invalid_request`, `model_not_found`, `server_error`, `max_output_tokens`, `unknown` |
+| `StopFailure` | Turn ends due to API error (v2.1.78+) | Rate-limit/error recovery. **Output and exit code ignored** except `terminalSequence`. Matchers: `rate_limit`, `overloaded`, `authentication_failed`, `oauth_org_not_allowed`, `account_on_hold`, `billing_error`, `invalid_request`, `model_not_found`, `server_error`, `max_output_tokens`, `cloud_credential_error` (v2.1.267+), `unknown` |
 
 **Tool execution**
 
@@ -28,7 +28,7 @@ by area:
 | `PostToolUse` | After tool execution | Logging, notifications |
 | `PostToolUseFailure` | After tool fails | Error handling |
 | `PostToolBatch` | After a full batch of parallel tool calls resolves | Stop the agentic loop before the next model call. No matcher support |
-| `PermissionRequest` | Permission dialog shown | Dynamic permission decisions via `hookSpecificOutput.decision` |
+| `PermissionRequest` | Permission dialog shown | Dynamic permission decisions via `hookSpecificOutput.decision`. Supports `command`, `http`, `mcp_tool`, `prompt` — **not `agent`** (skipped with an error since v2.1.280). Fires in `--print` mode since v2.1.268 |
 | `PermissionDenied` | Permission auto-denied by classifier (v2.1.89+) | React to denied operations, logging, recovery. Can set `retry: true` so the model may retry |
 
 **Subagents & tasks**
@@ -76,7 +76,7 @@ by area:
 
 | Hook | Trigger | Use Case |
 |------|---------|----------|
-| `Notification` | Claude sends notification | Desktop notifications. Matchers: `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog`, `elicitation_url_dialog`, `elicitation_complete`, `elicitation_response`, `agent_needs_input`, `agent_completed`. **`permission_prompt` fires for permission dialogs as of v2.1.233+** — before that, permission prompts did not raise `Notification` |
+| `Notification` | Claude sends notification | Desktop notifications. Matchers: `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog`, `elicitation_url_dialog`, `elicitation_complete`, `elicitation_response`, `agent_needs_input`, `agent_completed`, `quota_auto_resume_fired`, `quota_auto_resume_stale`, `quota_auto_resume_disabled` (the three `quota_auto_resume_*` fire when a claude.ai usage-limit wait ends; v2.1.234+). **`permission_prompt` fires for permission dialogs as of v2.1.233+** — before that, permission prompts did not raise `Notification` |
 | `MessageDisplay` | Assistant message about to be displayed (v2.1.152) | Transform or hide assistant message text during display. No matcher support |
 
 **Compaction**
@@ -320,13 +320,13 @@ Hooks are configured under the `hooks` key:
 | SessionStart | How session started | `startup`, `resume`, `clear`, `compact`, `fork` |
 | Setup | Which CLI flag triggered setup | `init`, `maintenance` |
 | SessionEnd | Why session ended | `clear`, `resume`, `logout`, `prompt_input_exit`, `bypass_permissions_disabled`, `other` |
-| Notification | Notification type | `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog`, `elicitation_url_dialog`, `elicitation_complete`, `elicitation_response`, `agent_needs_input`, `agent_completed` |
+| Notification | Notification type | `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog`, `elicitation_url_dialog`, `elicitation_complete`, `elicitation_response`, `agent_needs_input`, `agent_completed`, `quota_auto_resume_fired`, `quota_auto_resume_stale`, `quota_auto_resume_disabled` (the three `quota_auto_resume_*` fire when a claude.ai usage-limit wait ends; v2.1.234+) |
 | SubagentStart, SubagentStop | Agent type | `general-purpose`, `Explore`, `Plan`, custom names, plugin-scoped `my-plugin:reviewer` |
 | `PreModelSwitch`, `PostModelSwitch` | Model name (v2.1.251+) | `claude-opus-5`, `.*opus.*` |
 | PreCompact, PostCompact | Trigger type | `manual`, `auto` |
 | `ConfigChange` | Configuration source | `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills` |
 | `DirectoryAdded` | How the directory was added | `slash_command`, `register_repo_root` |
-| `StopFailure` | Error type | `rate_limit`, `overloaded`, `authentication_failed`, `oauth_org_not_allowed`, `billing_error`, `invalid_request`, `model_not_found`, `server_error`, `max_output_tokens`, `unknown` |
+| `StopFailure` | Error type | `rate_limit`, `overloaded`, `authentication_failed`, `oauth_org_not_allowed`, `account_on_hold`, `billing_error`, `invalid_request`, `model_not_found`, `server_error`, `max_output_tokens`, `cloud_credential_error` (v2.1.267+), `unknown` |
 | `InstructionsLoaded` | Load reason | `session_start`, `nested_traversal`, `path_glob_match`, `include`, `compact` |
 | `Elicitation`, `ElicitationResult` | MCP server name | Your configured MCP server names |
 | `FileChanged` | Literal filenames to watch | `.envrc\|.env` |
@@ -471,7 +471,7 @@ Uses LLM for single-turn validation (returns `{ok: true/false, reason: "..."}`):
 ```
 
 ### Agent Hook
-Spawns a subagent with tool access (Read, Grep, Glob) for up to 50 turns:
+Spawns a subagent with tool access (Read, Grep, Glob) for up to 50 turns. Experimental. Supported on the same events as prompt hooks **except `PermissionRequest`** (its answer could never allow or deny; v2.1.280 skips it with an error pointing to command/http hooks):
 
 ```json
 {
@@ -494,7 +494,7 @@ Call a tool on an already-connected MCP server:
 }
 ```
 
-Fields: `server` (configured MCP server name), `tool` (tool name), `input` (optional, with `${path}` substitution). If the server isn't connected or the tool returns `isError: true`, the hook fails non-blocking and execution continues.
+Fields: `server` (configured MCP server name), `tool` (tool name), `input` (optional, with `${path}` substitution). If the server isn't connected or the tool returns `isError: true`, the hook fails non-blocking and execution continues. On blocking events (PreToolUse and similar), an `mcp_tool` hook whose server is still connecting now waits for it, up to the MCP connect timeout, instead of being skipped (v2.1.281).
 
 ### HTTP Hook (v2.1.63+)
 
@@ -996,7 +996,7 @@ Benefits:
 
 ## Plugin Hook System
 
-Plugins bundle hooks, commands, agents, skills, and MCP servers together. Plugin hooks use `${CLAUDE_PLUGIN_ROOT}` for portable paths.
+Plugins bundle hooks, commands, agents, skills, and MCP servers together. Plugin hooks use `${CLAUDE_PLUGIN_ROOT}` for portable paths. Quote it in shell-form commands: an unquoted `${CLAUDE_PLUGIN_ROOT}` breaks on plugin paths with spaces, and `claude plugin validate` warns about it (v2.1.281). A top-level `$schema` key in `hooks/hooks.json` is accepted (v2.1.274).
 
 ### Plugin Structure
 ```
@@ -1022,7 +1022,7 @@ plugin-name/
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pretooluse.py",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}\"/hooks/pretooluse.py",
             "timeout": 10
           }
         ]

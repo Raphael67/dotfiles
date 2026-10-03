@@ -62,9 +62,11 @@ skill/hook/plugin is the cause of a problem.
 | Flag | Purpose |
 |------|---------|
 | `--system-prompt <prompt>` | Replace the default system prompt entirely |
-| `--system-prompt-file <file>` | Same, from a file. **Undocumented** (not shown in `--help`, confirmed via binary strings). Mutually exclusive with `--system-prompt` — passing both errors: `Cannot use both --system-prompt and --system-prompt-file`. |
+| `--system-prompt-file <file>` | Same, from a file (listed in the official CLI reference). Mutually exclusive with `--system-prompt` — passing both errors: `Cannot use both --system-prompt and --system-prompt-file`. |
 | `--append-system-prompt <prompt>` | Append to the default system prompt instead of replacing it |
-| `--append-system-prompt-file <file>` | Same, from a file. **Undocumented.** Mutually exclusive with `--append-system-prompt` — same error pattern. |
+| `--append-system-prompt-file <file>` | Same, from a file (listed in the official CLI reference). Mutually exclusive with `--append-system-prompt` — same error pattern. |
+
+**Cache split (v2.1.275+)**: in replacement text, a line containing only `__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__` splits the prompt; Claude Code removes the line and caches the part above it globally while the part below changes per run. Self-hosted runners now pass system prompts as files, so a wrapper or `command` hook that appends `--system-prompt`/`--append-system-prompt` must switch to the `-file` variants (v2.1.281).
 
 ### Model & Effort
 | Flag | Purpose |
@@ -98,7 +100,7 @@ skill/hook/plugin is the cause of a problem.
 | Flag | Purpose |
 |------|---------|
 | `--agent <agent>` | Default agent for the session; overrides the `agent` setting |
-| `--agents <json>` | Define custom agents inline, e.g. `'{"reviewer": {"description": "Reviews code", "prompt": "You are a code reviewer"}}'` |
+| `--agents <json>` | Define custom agents inline, e.g. `'{"reviewer": {"description": "Reviews code", "prompt": "You are a code reviewer"}}'`. With `-p`, also accepts a path to a JSON file, and `prompt` may be empty (v2.1.281+) |
 
 ### Print-Mode I/O (all require `-p`)
 | Flag | Purpose |

@@ -1,7 +1,63 @@
 {
-  "lastUpdateTimestamp": "2026-09-09T00:00:00Z",
-  "lastVersion": "2.1.267",
+  "lastUpdateTimestamp": "2026-09-24T00:00:00Z",
+  "lastVersion": "2.1.281",
   "updateHistory": [
+    {
+      "timestamp": "2026-09-24T00:00:00Z",
+      "version": "2.1.281",
+      "filesUpdated": [
+        "MEMORY.md",
+        "SUBAGENTS.md",
+        "OUTPUT-STYLES.md",
+        "HOOKS.md",
+        "MCP.md",
+        "WORKFLOWS.md",
+        "STATUS-LINES.md",
+        "COMMANDS.md",
+        "SKILLS.md",
+        "PROMPTING.md",
+        "CLI.md",
+        "SKILL.md",
+        "cookbook/self-update.md"
+      ],
+      "changesApplied": 38,
+      "newFeatures": [
+        "Claude Opus 5.5 (claude-opus-5-5) default Opus, $4/$20 per MTok, default effort medium; Pro/Team Standard default to Opus (v2.1.280)",
+        "Native AGENTS.md support + Project instructions setting (agents-md@builtin instructionFiles) (v2.1.277)",
+        "omitClaudeMd subagent frontmatter (v2.1.271); --agents accepts a JSON file path with -p and empty prompt (v2.1.281)",
+        "TaskOutput tool removed (v2.1.277); subagent results framed under a header; auto-mode hand-back call (v2.1.271)",
+        "Task tools model-gated allowlist (v2.1.268); LSP available to background subagents (v2.1.280)",
+        "/output-style [name] re-added (v2.1.269); mid-session style switch applies next message (v2.1.251)",
+        "PermissionRequest does not run agent hooks (v2.1.280) and fires in --print (v2.1.268); mcp_tool hooks wait for connecting server (v2.1.281)",
+        "Notification quota_auto_resume_* and StopFailure account_on_hold/cloud_credential_error matchers",
+        "MCP v2 client default on Bedrock/Vertex/Foundry/gateway/telemetry-off (v2.1.274); CLAUDE_CODE_MCP_STARTUP_WAIT_MS (v2.1.274); CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH (v2.1.280); type sdk entries skipped; unreadable managed-mcp.json keeps exclusive control (v2.1.271)",
+        "Workflows: CLAUDE_CODE_WORKFLOW_MAX_CONCURRENT_AGENTS (v2.1.269), medium guideline <10 and small default on Pro, pause on usage limit (v2.1.271)",
+        "Skills/plugins synced from claude.ai to terminal sessions (syncClaudeAiSkills/syncClaudeAiPlugins); claude plugin eval (v2.1.269); --accept-command (v2.1.271); plugin --json (v2.1.268); npm --ignore-scripts; LFS pointers by default (v2.1.274); reserved marketplace names (v2.1.280)",
+        "__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__ cache split (v2.1.275); send-now key (v2.1.275/281); /design, /artifacts, /import cursor documented"
+      ],
+      "correctionsOfFalseFacts": [
+        "MEMORY.md said Claude Code reads CLAUDE.md, not AGENTS.md — false since v2.1.277",
+        "CLI.md called --system-prompt-file/--append-system-prompt-file undocumented — both are in the official CLI reference",
+        "OUTPUT-STYLES.md said /output-style is removed and style changes need /clear — re-added v2.1.269, mid-session switch since v2.1.251",
+        "SKILL.md said CLAUDE.md hierarchy 'more specific wins' — files are concatenated",
+        "SKILLS.md said synced plugins load only in Cowork and cloud sessions — also terminal since v2.1.273"
+      ],
+      "rejectedReviewerFindings": [
+        "MEMORY reviewer: project CLAUDE.md not loaded into subagents by default — contradicted by sub-agents docs",
+        "COMMANDS reviewer: /insights available in cloud sessions — docs still say not available",
+        "DESKTOP reviewer: bypass-mode row and agent-teams row wrong — both match desktop docs",
+        "SKILLS reviewer: invented reserved marketplace name list and synced-skill restrictions — not in docs"
+      ],
+      "sourcesUnavailable": [
+        "https://claude.ai/changelog — HTTP 403",
+        "https://support.claude.com/en/collections/4560928-claude-desktop — HTTP 404"
+      ],
+      "processChanges": [
+        "Changelog fetched from raw.githubusercontent.com CHANGELOG.md; docs verified from raw .md pages",
+        "11 haiku reviewers dispatched per cookbook; every finding verified against fetched docs before applying",
+        "DESKTOP.md reviewed, no sourced change needed"
+      ]
+    },
     {
       "timestamp": "2026-09-09T00:00:00Z",
       "version": "2.1.267",

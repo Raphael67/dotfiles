@@ -169,7 +169,23 @@ Start Claude's response to guide format:
 
 ## Claude 4+ Specifics
 
-> **Model landscape update (as of 2026-08-23)**: the table and release notes below are a historical snapshot from May 2026. Since then Anthropic has shipped **Claude Sonnet 5** (announced 2026-06-30), **Claude Fable 5** (announced 2026-06-30, redeployed globally from 2026-07-01 after a brief suspension), and **Claude Opus 5** (announced 2026-07-24, "a step change improvement for the Opus tier powering long-running agents"). Opus 4.8 is **no longer** the top generally-available model. Verify current model IDs via `/model` or the API docs rather than relying on the specifics below; the prompting techniques themselves remain valid across model generations.
+### Current Models
+
+Source: https://platform.claude.com/docs/en/about-claude/models/overview and the Claude Code changelog (Opus 5.5 added in v2.1.280 as the default Opus model).
+
+| Model | ID | Pricing (in/out per MTok) | Default effort | Context / max output |
+|-------|-----|---------------------------|----------------|----------------------|
+| Fable 5.1 | `claude-fable-5-1` | $10 / $50 (cache reads 2.5% of input) | `high` | 1M / 128K |
+| Opus 5.5 | `claude-opus-5-5` | $4 / $20 (cache reads $0.20, 5% of input) | **`medium`** | 1M / 128K |
+| Sonnet 5 | `claude-sonnet-5` | $2 / $10 | `high` | 1M / 128K |
+| Haiku 4.5 | `claude-haiku-4-5-20251001` | $1 / $5 | not supported | 200K / 64K |
+
+- Opus 5.5 is the recommended starting model and the default Opus in Claude Code; Pro and Team Standard plans default to Opus since v2.1.280, like Max, Team Premium and Enterprise.
+- **Opus 5.5 defaults to `medium` effort** (Opus 5 and earlier default to `high`), so a request that omits `effort` runs one level lower than on Opus 5. Fable 5.1 and Opus 5.5 use adaptive thinking that is always on.
+- `/effort` levels are saved per model; a level saved before that change does not carry over to newly released models such as Opus 5.5 (v2.1.280).
+- Legacy but still available: Fable 5, Opus 5, Opus 4.8, Opus 4.7, and earlier.
+
+The table and release notes below are a historical snapshot from May 2026, kept for the model-specific behaviours they document. The prompting techniques themselves remain valid across model generations.
 
 ### Available Models (May 2026)
 

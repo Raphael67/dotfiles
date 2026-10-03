@@ -23,6 +23,8 @@ Skills are the superset: they add optional features commands don't have — a di
 
 When a name collides across the two: a skill takes precedence over a same-named `.claude/commands/` file (e.g., with both `.claude/commands/deploy.md` and `.claude/skills/deploy/SKILL.md`, `/deploy` runs the skill). A skill or command from any local source also overrides a same-named skill synced from your claude.ai account.
 
+**Skills synced from claude.ai** (terminal sessions since v2.1.275; Cowork and cloud sessions earlier): when signed in with a claude.ai account, Claude Code downloads the account's enabled skills into `~/.claude/skills/synced/` in the background and re-checks about every 10 minutes. They run as `/anthropic-skills:<name>` or by the short name when nothing else uses it; `/skills` and `/context` group them under `claude.ai sync`. Edits under `synced/` are never uploaded and a later sync may overwrite them. `syncClaudeAiSkills: false` (user settings) stops syncing and moves synced copies to `~/.claude/skills/.trash/`. No sync with API-key/`apiKeyHelper`/`CLAUDE_CODE_OAUTH_TOKEN` auth, on Bedrock, with `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`, in bare or safe mode. `CLAUDE_CODE_SYNC_SKILLS=1` makes a `-p` run wait for the list. Don't name your own skill folder `synced` (reserved).
+
 ## Directory Structure
 
 ### Standard Structure
@@ -824,7 +826,12 @@ my-plugin/
 - **`defaultEnabled: false`** in `plugin.json` (v2.1.154): Plugin starts disabled by default; user must explicitly enable it
 - **Plugin Discovery tab** (v2.1.154): Shows commands, agents, skills, hooks, MCP/LSP servers before installing
 - **`pluginSuggestionMarketplaces`** managed setting (v2.1.152): Org-level allowlist for suggested plugins
-- **`skipLfs`** option (v2.1.153): Skip Git LFS downloads for GitHub/Git plugins
+- **`skipLfs`** option (v2.1.153): Skip Git LFS downloads for GitHub/Git plugins. Since v2.1.274 plugin and marketplace clones leave LFS files as pointers by default; run `git lfs pull` in the checkout to fetch them
+- **npm sources** (v2.1.275): fetched with `npm pack --ignore-scripts` and integrity-verified, so package install scripts never run
+- **Reserved names** (v2.1.280): a marketplace whose name imitates a reserved marketplace name is refused when added, and stops loading if already added
+- **Plugin CLI**: `claude plugin install|uninstall|update|enable|disable --json` (v2.1.268); `--accept-command <sha256>` accepts exactly the marketplace-declared command a previous `--json` run reported in `shownCommand`, instead of `-y` (v2.1.271); `/plugin install <plugin> --marketplace <source>` offers to add the marketplace first (v2.1.275); `/plugin` install/enable/disable apply when the menu closes, no `/reload-plugins` needed (v2.1.268)
+- **`claude plugin validate`**: since v2.1.281 also reports `.mcp.json` entries that would be silently dropped, undeclared `${user_config.*}` references, insecure URLs, and unquoted `${CLAUDE_PLUGIN_ROOT}` in shell-form hooks
+- **`claude plugin eval [target]`** (v2.1.269): runs a plugin's eval cases (prompt + graders, default dir `evals/`, override with `experimental.evals` in `plugin.json` or `--eval-dir`) in isolated sessions, by default with and without the plugin (`--ablation with-without`), and writes a JSON result + HTML report. Key flags: `--runs`, `-j/--concurrency` (1–8), `--threshold` (exit 1 below it), `--max-cost-usd`, `--allow-tools`, `--trust-plugin` (CI), `--json`. `claude plugin eval init` scaffolds cases
 - **`claude plugin init <name>`**: scaffolds a plugin under `~/.claude/skills/<name>/` that auto-loads with no marketplace or install step, appearing as `<name>@skills-dir`
 - **Plugins-directory skill layout**: any `<skills-dir>/<name>/.claude-plugin/plugin.json` loads as a plugin `<name>@skills-dir` (bundling agents, hooks, MCP servers) rather than a plain skill; in a project's `.claude/skills/`, this requires accepting the workspace-trust dialog first
 - **`workflows/`** plugin-root directory (`workflows` field in `plugin.json`): multi-step scripted sequences distinct from a single skill's prompt — a "bundled workflow"
@@ -839,7 +846,7 @@ Marketplaces are declared in a `marketplace.json` catalog; users add one with `/
   - `extraKnownMarketplaces`: registers a marketplace automatically once a project is trusted — no separate `/plugin marketplace add` prompt.
   - `strictKnownMarketplaces`: allowlist for which marketplaces users may add. Undefined = no restriction; `[]` = complete lockdown (blocks even the official Anthropic marketplace); a list = only matching sources allowed. Supports `github` (with owner-wildcard `owner/*`, v2.1.223+), `url`, `hostPattern`, and `pathPattern` source matchers — `hostPattern`/`pathPattern` are the recommended way to allow an internal GitHub Enterprise Server or self-hosted GitLab instance.
   - `blockedMarketplaces`: denylist, same source-matcher shapes; also matches bare `https://` GitHub/GitLab clone URLs as of v2.1.232 (previously only matched fetched `marketplace.json` URLs).
-- **Cloud-synced plugins**: plugins enabled on claude.ai load with the identifier `<name>@synced` (renamed from `<name>@inline` in v2.1.239). They load only in Cowork and cloud sessions, are downloaded into `~/.claude/plugins/synced/`, and are managed with `claude plugin enable/disable <name>@synced`. A same-named plugin from another source takes precedence and the synced copy reports as not loaded.
+- **Cloud-synced plugins**: plugins enabled on claude.ai load with the identifier `<name>@synced` (renamed from `<name>@inline` in v2.1.239). They load in Cowork and cloud sessions and, since v2.1.273, in terminal sessions signed in with the claude.ai account (checked once per launch in the background; `/reload-plugins` to apply mid-session; opt out with `syncClaudeAiPlugins: false`). They are downloaded into `~/.claude/plugins/synced/`, and are managed with `claude plugin enable/disable <name>@synced`. A same-named plugin from another source takes precedence and the synced copy reports as not loaded.
 
 ### LSP Servers in Plugins (Code Intelligence)
 

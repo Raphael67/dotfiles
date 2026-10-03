@@ -248,7 +248,9 @@ claude mcp add-json events-server \
 
 A JSON entry with a `url` but no `type` is read as a **stdio** server and is skipped, with the error `MCP server "<name>" has a "url" but no "type"; add "type": "http" (or "sse" / "ws") to this entry` (before v2.1.202: `command: expected string, received undefined`). Always set `type` explicitly for remote servers.
 
-**HTTP servers that only speak legacy HTTP+SSE (v2.1.265 fix)**: a server configured as `"type": "http"` that only supports the older HTTP+SSE transport used to never connect. Claude Code now falls back to SSE automatically when the HTTP handshake indicates the server needs it, as the MCP spec describes — no config change needed.
+**HTTP servers that only speak legacy HTTP+SSE (v2.1.265 fix)**: a server configured as `"type": "http"` that only supports the older HTTP+SSE transport used to never connect. Claude Code now falls back to SSE automatically when the HTTP handshake indicates the server needs it, as the MCP spec describes — no config change needed. Since v2.1.274 this also covers servers that answer the first request with 422 or another 4xx.
+
+**`"type": "sdk"` entries (v2.1.274+)** in `.mcp.json`, settings, plugins and agent files are skipped with a warning: only an SDK host application can register in-process servers.
 
 ## Common MCP Servers
 
@@ -491,7 +493,7 @@ main();
 MCP servers can request structured input mid-task using MCP's **elicitation** protocol feature. No configuration is required — dialogs appear automatically when a server requests them:
 
 - **Form mode**: Claude Code shows a dialog with server-defined form fields (e.g. username/password prompt). Fill in and submit.
-- **URL mode**: Claude Code opens a browser URL for auth/approval; complete the flow in the browser, then confirm in the CLI.
+- **URL mode**: Claude Code opens a browser URL for auth/approval; complete the flow in the browser, then confirm in the CLI. Also available on 2026-07-28 protocol connections since v2.1.281; when the server has no way to confirm completion, no waiting dialog is left on screen.
 
 A call waiting on an open elicitation dialog is never auto-backgrounded — Claude Code treats the server as blocked on your input, not slow, and defers the background-move until the dialog closes.
 
@@ -709,7 +711,7 @@ MCP servers now start concurrently by default rather than sequentially. Reduces 
 
 Claude Code connects to MCP servers through one of two client runtimes: **v1** (MCP TypeScript SDK 1.x) or **v2** (SDK 2.0, adding MCP protocol revision 2026-07-28). It picks a runtime at startup and keeps it for the session.
 
-- **On v2.1.232+, v2 is the default**, except: on Bedrock/Claude Platform on AWS/Google Cloud Agent Platform/Microsoft Foundry (unless the host sets `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`), when signed in through a Claude apps gateway, or with feature-flag fetching off.
+- **v2 is the default everywhere**: since v2.1.232 in sessions that fetch feature flags, and since v2.1.274 also on Bedrock/Claude Platform on AWS/Google Cloud Agent Platform/Microsoft Foundry (unless the host sets `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`), through a Claude apps gateway, and with telemetry or feature-flag fetching off. Opt out with `MCP_SDK_GENERATION=v1` or `MCP_PROTOCOL_NEGOTIATION=legacy`.
 - On v2, Claude Code asks HTTP and claude.ai connector servers whether they support the newer revision and uses it if so (stdio servers only if `MCP_PROTOCOL_NEGOTIATION=auto`); receives `list_changed` notifications over a held-open stream; won't register a channel server that negotiates the newer revision (can't carry channel messages); and fails an MCP OAuth sign-in whose response names an unexpected issuer.
 - Pick the runtime explicitly with `MCP_SDK_GENERATION=v1|v2`; control whether Claude Code asks with `MCP_PROTOCOL_NEGOTIATION=auto|legacy`.
 
@@ -719,7 +721,7 @@ Claude Code connects to MCP servers through one of two client runtimes: **v1** (
 
 ## MCP Tool Descriptions (v2.1.84+)
 
-Tool descriptions and instructions are capped at 2KB. Longer descriptions are truncated to prevent context bloat. Ensure descriptions are concise and informative within this limit.
+Each tool description and each server's instructions are truncated at **2,048 characters** by default. Keep them concise and put critical details first. `CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH` changes the cap for every MCP server in the session (v2.1.280+).
 
 ## MCP Server Deduplication (v2.1.84+)
 
@@ -758,7 +760,9 @@ This allows individual tools to persist results up to 500KB characters. The MCP 
 | `MAX_MCP_OUTPUT_TOKENS` | Max tokens in output (default: 25,000) |
 | `MCP_TIMEOUT` | Server startup timeout in ms |
 | `MCP_CLIENT_SECRET` | OAuth client secret for CI/automation |
-| `MCP_CONNECTION_NONBLOCKING` | Set to `true` to skip MCP wait in `-p` mode (v2.1.89+). Uses 5s timeout for MCP connections. |
+| `MCP_CONNECTION_NONBLOCKING` | Set to `true` to skip MCP wait in `-p` mode (v2.1.89+). Uses 5s timeout for MCP connections. `=0` honors `MCP_CONNECT_TIMEOUT_MS` for claude.ai connectors (v2.1.281 fix) |
+| `CLAUDE_CODE_MCP_STARTUP_WAIT_MS` | How long the first turn of a non-interactive session waits for still-connecting MCP servers, replacing the default first-turn wait; `0` = don't wait (v2.1.274+) |
+| `CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH` | Per-tool description / server-instructions cap in characters (default 2048; v2.1.280+) |
 | `ENABLE_TOOL_SEARCH` | Dynamic tool loading: `auto` (default), `auto:N`, `true`, `false`. Disabled by default when `ANTHROPIC_BASE_URL` is non-first-party |
 | `ENABLE_CLAUDEAI_MCP_SERVERS` | Set to `false` to disable claude.ai MCP servers in Claude Code |
 | `CLAUDE_CODE_MCP_SERVER_NAME` | Multi-server OAuth header helper: server name for auth discovery (v2.1.85+) |
@@ -812,6 +816,8 @@ claude mcp reset-project-choices
 ## Managed MCP (Enterprise)
 
 ### Option 1: Exclusive control via `managed-mcp.json`
+If `managed-mcp.json` exists but can't be read or parsed, it still keeps exclusive control — user, project and plugin servers don't load — and a startup warning is shown (v2.1.271).
+
 Deploy fixed servers that users cannot modify (macOS: `/Library/Application Support/ClaudeCode/managed-mcp.json`):
 ```json
 {

@@ -372,7 +372,7 @@
   },
   "subagentStatusLine": {
     "type": "command",
-    "command": "jq -r '.tasks[] | [(.name // .id // \"?\"), (.model // \"?\"), (.status // \"?\")] + (if (.permissionMode // \"\") == \"\" then [] else [.permissionMode] end) | join(\" · \")'"
+    "command": "jq -c '.tasks[] | {id, content: ([(.name // .label // .id), ((.model // \"…\") | sub(\"^claude-\"; \"\") | sub(\"\\\\[1m\\\\]$\"; \"\")), (.effort // empty | tostring), (.status // \"?\"), (.permissionMode // empty), (if .tokenCount then \"\\((.tokenCount / 100 | floor) / 10)k tok\" else empty end)] | join(\" · \"))}'"
   },
   "enabledPlugins": {
     "pyright-lsp@claude-plugins-official": true,

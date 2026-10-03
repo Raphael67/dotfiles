@@ -419,7 +419,7 @@ execute fixed logic directly and are pure built-ins. `Hidden` means it does not 
 | Command | Description | Version |
 |---------|-------------|---------|
 | `/model [model]` | Switch model; persists as default for new sessions; honors gateway model lists | Non-interactive v2.1.205+ |
-| `/effort [low\|medium\|high\|xhigh\|max\|ultracode\|auto\|status]` | Set effort level. `xhigh`, `max`, and `ultracode` are the newer top tiers above `high`; works while Claude is mid-response | — |
+| `/effort [low\|medium\|high\|xhigh\|max\|ultracode\|auto\|status]` | Set effort level (saved per model). `xhigh`, `max`, and `ultracode` are the newer top tiers above `high`; `max`/`ultracode` are session-only; works while Claude is mid-response. A level saved before `/effort` became per-model does not apply to newly released models such as Opus 5.5 (v2.1.280) | — |
 | `/fast` | Toggle fast mode on/off | v2.1.205+; limited availability with `-p` non-interactive |
 | `/advisor [model\|off]` | Enable/disable the advisor tool or pick its model | — |
 
@@ -450,7 +450,7 @@ execute fixed logic directly and are pure built-ins. `Hidden` means it does not 
 | `/loop [interval] [prompt]` | **[Skill]** Run a prompt (or slash command) repeatedly while the session stays open (alias `/proactive`); Esc cancels pending wakeups | — |
 | `/subtask [prompt]` | Hand a side task to a subagent by **forking** the current conversation — the fork inherits full history, system prompt, model and prompt cache. Not listed on the commands docs page; sourced from [sub-agents docs](https://code.claude.com/docs/en/sub-agents) | Fork mode default since v2.1.232 |
 | `/tasks` | List the session's background work, including completed subagents; runs immediately | — |
-| `/agents` | Manage subagents | v2.1.198+: now prints a reminder to ask Claude or edit config directly instead of an interactive UI |
+| `/agents` | Manage subagents | v2.1.198+: prints a reminder to ask Claude or edit `.claude/agents/` directly; no longer listed in the `/` menu or `/help` since v2.1.281, but typing it still explains |
 | `/list-agents` | List subagents, agent-team teammates, and other Claude Code sessions Claude can message, with each one's name (alias `/peers`) | v2.1.224+ (earlier versions: "Unknown command"); teammate rows + own-session name line require v2.1.239+; needs cross-session messaging enabled |
 | `/peers` | Alias for `/list-agents` | Same gating as `/list-agents` |
 
@@ -459,6 +459,7 @@ execute fixed logic directly and are pure built-ins. `Hidden` means it does not 
 |---------|-------------|---------|
 | `/deep-research <question>` | **[Workflow]** Fan out web searches, fetch/cross-check sources, synthesize a cited report; explicit invocation only, not auto-triggered | v2.1.218+ |
 | `/dataviz [request]` | **[Skill]** Design guidance for charts, graphs, dashboards with colorblind-safe palettes | v2.1.198+ |
+| `/design [brief]` | **[Skill]** Draft UI mockups, screen flows, landing pages or posters as artboards on one canvas, published as a Design artifact | v2.1.265+; artifacts required (not on Bedrock/Vertex/Foundry) |
 | `/design-sync [hint]` | **[Skill]** Convert a React design system and upload it to Claude Design | — |
 | `/design-login` | Authorize design-system access for `/design-sync` | — |
 | `/chrome` | Configure Claude in Chrome / select connected browser | — |
@@ -478,8 +479,8 @@ execute fixed logic directly and are pure built-ins. `Hidden` means it does not 
 |---------|-------------|---------|
 | `/claude-api [migrate\|upgrade\|managed-agents-onboard\|prompt-audit]` | **[Skill]** Loads Claude API/Managed Agents reference material; also auto-activates. `upgrade` migrates Python projects from `anthropic` SDK 0.x to 1.x | `prompt-audit` v2.1.221+; `upgrade` v2.1.239 |
 | `/fewer-permission-prompts` | **[Skill]** Scan transcripts for common read-only calls, add a prioritized allowlist to `.claude/settings.json` | — |
-| `/import [codex\|gemini] [--dry-run] [--yes]` | Import configuration from OpenAI Codex or Google Gemini CLI | v2.1.213+ |
-| `/insights` | Generate an HTML report analyzing recent sessions/usage patterns on this machine | Not available in cloud sessions |
+| `/import [codex\|gemini\|cursor] [--dry-run] [--yes]` | Import configuration from OpenAI Codex, Google Gemini CLI or Cursor | v2.1.213+; Cursor v2.1.265+ |
+| `/insights` | Generate an HTML report analyzing recent sessions/usage patterns on this machine; includes an estimate of how many permission prompts auto mode could have handled (v2.1.281) | Not available in cloud sessions |
 
 ### Settings & Configuration
 | Command | Description | Version |
@@ -514,6 +515,8 @@ execute fixed logic directly and are pure built-ins. `Hidden` means it does not 
 | `/help` | Show help and available commands; opens immediately in fullscreen | Immediate opening v2.1.234+ |
 | `/exit` / `/quit` | Exit the CLI; detaches a background session | — |
 | `/copy [N]` | Copy the last (or Nth-latest) assistant response to the clipboard | v2.1.77+ |
+| `/artifacts` | List artifacts you own or that are shared with you (this session's first), then attach one, open it, or copy its link. The `⧉` footer pill opens it (v2.1.281) | v2.1.208+ |
+| `/output-style [style]` | List output styles or switch to one (e.g. `/output-style concise`); works headless and over Remote Control | v2.1.269+ |
 | `/rewind` | Roll code/conversation back to a checkpoint, or summarize part of it | — |
 | `/recap` | Generate a one-line session summary on demand | — |
 | `/powerup` | Discover features via interactive lessons with animated demos | v2.1.90+ |
@@ -541,7 +544,10 @@ execute fixed logic directly and are pure built-ins. `Hidden` means it does not 
 - Typing `/` opens the command menu; typing `/` + letters filters it (typo-tolerant, with
   highlighting); some commands (e.g. `/heapdump`) stay hidden until typed in full
 - **Queuing**: if you send a command while Claude is still responding, Claude Code **queues**
-  it and runs it after the current turn finishes
+  it and runs it after the current turn finishes. Queued messages show in the conversation above
+  the spinner (v2.1.281)
+- **Send now** (`ctrl+enter`, or `ctrl+x ctrl+s`; v2.1.275+): sends all queued messages at once.
+  Since v2.1.281 it moves running tools to the background instead of cancelling the turn
 - **Immediate-execution exceptions** (do not wait for the turn to finish): `/status`,
   `/tasks`, `/usage` — and, as of **v2.1.234**, dialog commands (`/theme`, `/help`) and
   permission-related commands (`/permissions`, `/add-dir`). Before v2.1.234 those dialog

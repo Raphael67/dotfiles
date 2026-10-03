@@ -187,7 +187,7 @@ Store auto memory in a custom location with `autoMemoryDirectory` (must be an ab
 { "autoMemoryDirectory": "~/my-custom-memory-dir" }
 ```
 
-Read from **any settings scope**: user, project, local, policy, or `--settings`. When set in a project's `.claude/settings.json` or `.claude/settings.local.json`, it is honored under the same **workspace-trust rule as hooks** in settings files (i.e. it doesn't silently apply to an untrusted folder).
+Read from **any settings scope**: user, project, local, policy, or `--settings`. When set in a project's `.claude/settings.json` or `.claude/settings.local.json`, it is honored under the same **workspace-trust rule as hooks** in settings files (i.e. it doesn't silently apply to an untrusted folder). While `permissions.blockReadsOutsideWorkingDirectories` is on, a memory directory chosen by a repository-supplied settings file is neither loaded, recalled, indexed nor written to, wherever it sits (v2.1.273).
 
 ### Custom Project Directory Name — `CLAUDE_CODE_PROJECT_DIR_NAME` (v2.1.234+)
 
@@ -247,9 +247,32 @@ Patterns match against absolute file paths using glob syntax. Configurable at **
 
 Block-level HTML comments (`<!-- ... -->`) in CLAUDE.md are stripped before content is injected into Claude's context. Comments inside code blocks are preserved. Comments remain visible when read with the Read tool. Useful for maintainer notes that shouldn't consume context.
 
-### AGENTS.md Bridge
+### AGENTS.md (v2.1.277+)
 
-Claude Code reads `CLAUDE.md`, **not** `AGENTS.md`. If your repository already uses `AGENTS.md` for other coding agents, create a `CLAUDE.md` that imports it so both tools share instructions:
+Claude Code reads `AGENTS.md` natively, through the built-in `agents-md` plugin. By default it reads `AGENTS.md` **only when no `CLAUDE.md`, `.claude/CLAUDE.md` or `CLAUDE.local.md` exists in the working directory or above it**. `~/.claude/CLAUDE.md`, the managed CLAUDE.md and `.claude/rules/` do not count for that check and keep loading alongside `AGENTS.md`.
+
+- **Loaded**: every `AGENTS.md` and `.claude/AGENTS.md` from the working directory upward at session start; a subdirectory's `AGENTS.md` when Claude reads a file there and that subdirectory has no CLAUDE.md of its own. `@path` imports and `claudeMdExcludes` apply; subagents that skip project instructions skip these too.
+- **Never read**: `AGENTS.local.md`, `AGENTS.override.md`, anything under `.agents/`.
+- **Gotcha**: adding a `CLAUDE.local.md` to an `AGENTS.md`-only project stops `AGENTS.md` from loading. Use `claude-md-and-agents-md` to keep both.
+
+**Project instructions** setting (`/config`), or in user/`--settings`/managed settings (ignored in project and local settings):
+
+| Value | Reads |
+|-------|-------|
+| `claude-md-or-agents-md` | CLAUDE.md files, or AGENTS.md when none exists (default) |
+| `claude-md-and-agents-md` | Both; each directory's CLAUDE.md first, then its AGENTS.md; an already-imported AGENTS.md is not read twice |
+| `claude-md` | CLAUDE.md files only |
+| `managed-only` | Only the managed CLAUDE.md and auto memory at launch; subdirectory CLAUDE.md, rules and path-scoped rules still load on file read |
+
+```json
+{ "pluginConfigs": { "agents-md@builtin": { "options": { "instructionFiles": "claude-md-and-agents-md" } } } }
+```
+
+Unavailable (CLAUDE.md only, setting hidden) before v2.1.277, when the `agents-md` plugin is disabled in `/plugin`, and sometimes in the first session after upgrading from v2.1.276 or earlier. Before v2.1.281, Bedrock and telemetry-disabled sessions also read CLAUDE.md only.
+
+#### Import bridge
+
+For those sessions, or to add Claude-specific content on top, create a `CLAUDE.md` that imports it so both tools share instructions:
 
 ```markdown
 @AGENTS.md

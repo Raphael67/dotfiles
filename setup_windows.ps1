@@ -116,8 +116,8 @@ if (!$SkipApps) {
         Get-Content $cargoManifest | ForEach-Object {
             $pkg = $_.Trim()
             if ($pkg -and !$pkg.StartsWith("#")) {
-                Write-Host "  cargo install $pkg" -ForegroundColor Gray
-                cargo install $pkg
+                Write-Host "  cargo install --locked $pkg" -ForegroundColor Gray
+                cargo install --locked $pkg
             }
         }
         Write-Host "Cargo crates installed." -ForegroundColor Green

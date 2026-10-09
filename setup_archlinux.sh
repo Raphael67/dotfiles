@@ -154,7 +154,7 @@ fi
 if [ -f "$SCRIPT_DIR/rust/packages.txt" ] && command -v cargo &>/dev/null; then
     info "Installing cargo crates..."
     grep -v '^#' "$SCRIPT_DIR/rust/packages.txt" | grep -v '^$' | while read -r package; do
-        cargo install "$package"
+        cargo install --locked "$package"
     done
     success "cargo crates installed"
 fi

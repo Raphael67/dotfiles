@@ -1,4 +1,4 @@
-# Cargo-installed crates (`cargo install <name>`).
+# Cargo-installed crates (`cargo install --locked <name>`).
 #
 # Only list tools that are NOT available from the platform package managers
 # (pacman / Homebrew / winget). Tools like starship, ripgrep, fd, bat, eza and

@@ -144,7 +144,7 @@ if [[ "$install_apps" == "y" ]]; then
         while IFS= read -r line || [[ -n "$line" ]]; do
             # Skip empty lines and comments
             if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
-                cargo install "$line"
+                cargo install --locked "$line"
             fi
         done <rust/packages.txt
     else
